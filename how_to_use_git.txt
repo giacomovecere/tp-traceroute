@@ -1,0 +1,5 @@
+﻿git add what_to_add
+git commit -m message_to_see
+git push -u origin master
+
+git pull per riaggiornare I contenuti della propria cartella
