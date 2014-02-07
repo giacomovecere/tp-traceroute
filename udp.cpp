@@ -43,7 +43,7 @@ sockaddr_in udp::getDestAddr() {
 
 /* The method returns the payload of the datagram */
 void udp::setPayload(char* buff) {
-	strcpy(datagram.payload, buff);
+	memcpy(datagram.payload, buff, sizeof(buff));
 }
 
 uint16_t getChecksum() {
