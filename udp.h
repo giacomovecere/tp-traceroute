@@ -8,10 +8,12 @@
  * 
  */
 
+#define LENGTH_PAYLOAD 4
+
 struct udpPacket {
 	int sockfd;
-	struct sockaddr_in addr;
-	char* payload;
+	struct sockaddr_in dest, src;
+	char payload[LENGTH_PAYLOAD];
 	uint16_t checksum;
 };
 
@@ -19,16 +21,18 @@ class udp{
 	udpPacket datagram;
 	
 	public:
-	udp(char*, char*, char*, char*);
+	udp(char*, int, int);
 	
 	void setTtl(int);
 	
 	int getSock();
 	
-	sockaddr_in getSockAddr();
+	sockaddr_in getSrcAddr();
+
+	sockaddr_in getDestAddr();
 	
-	voi setPayload(char* payload);
+	void setPayload(char*);
 	
-	uint16_t computeChecksum(uint16_t* datagram, int length);
+	uint16_t computeChecksum(uint16_t*, int);
 };
 
