@@ -46,18 +46,32 @@ void udp::setPayload(char* buff) {
 	strcpy(datagram.payload, buff);
 }
 
+uint16_t getChecksum() {
+	char dgram[16 + LENGTH_PAYLOAD];
+	
+	memcpy(dgram, &datagram.src.sin_addr, sizeof(datagram.src.sin_addr));
+	memcpy(dgram + 4, &datagram.dest.sin_addr, sizeof(datagram.dest.sin_addr));
+	memcpy(dgram + 8, (void*)&AF_INET, 2);
+	memcpy(dgram + 10, &datagram.src.sin_port, sizeof(datagram.src.sin_port));
+	memcpy(dgram + 12, &datagram.dest.sin_port, sizeof(datagram.dest.sin_port));
+	memcpy(dgram + 14, (void*)&LENGTH_PAYLOAD, 2);	
+	memcpy(dgram + 16, datagram.payload, LENGTH_PAYLOAD);
+
+	return computeChecksum(dgram, 16 + LENGTH_PAYLOAD);
+}	
+
 /* Compute Internet Checksum by addind all the data contained in the 
- * datagram. A part of the IP Header (src_address, dest_address, src_port, 
- * dest_port, protocol), the entire UDP Header and the payload*/
-uint16 udp::computeChecksum(const uint16* datagram, int length) {
+ * datagram. A part of the IP Header (src_address, dest_address, protocol), 
+ * the entire UDP Header and the payload*/
+uint16 udp::computeChecksum(const uint16* dgram, int length) {
 	uint32 sum = 0;
 
 	while (length > 1) {
-		sum += *datagram++;
+		sum += *dgram++;
 		length -= 2;
 	}
 
-	if (length > 0) sum += *(uint8*)datagram;
+	if (length > 0) sum += *(uint8*)dgram;
 
 	// Put the sum on 16 bits by adding the two 16-bits parts
 	while (sum >> 16) sum = (sum & 0xffff) + (sum >> 16);
