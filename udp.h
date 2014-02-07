@@ -20,6 +20,8 @@ struct udpPacket {
 class udp{
 	udpPacket datagram;
 	
+	uint16_t computeChecksum(uint16_t*, int);	
+	
 	public:
 	udp(char*, int, int);
 	
@@ -33,6 +35,6 @@ class udp{
 	
 	void setPayload(char*);
 	
-	uint16_t computeChecksum(uint16_t*, int);
+	uint16_t getChecksum();
 };
 
