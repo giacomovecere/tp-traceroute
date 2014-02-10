@@ -1,10 +1,13 @@
 /*ICMP header file*/
 #include <netinet/ip.h>
-#include <netiniet/ip_icmp.h>
+#include <netinet/ip_icmp.h>
 #include <sys/socket.h>
 #include <netinet/udp.h>
 #include <netinet/in_systm.h>
 #include <arpa/inet.h>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
 
 using namespace std;
 
@@ -24,10 +27,10 @@ class icmpClass{
 	//parameters of the UDP message sent needed to do the checking
 	int sent_port;
 	int dest_port;
-	char ipAddress[4];     //ip of the router that answers
+	char* ipAddress;     //ip of the router that answers
 	
 	public:
-	icmpClass(int s, int d) {sent_port=s; dest_port=d};
+	icmpClass(int s, int d);
 	
 	//returns the whole buffer of the ICMP packet
 	char* getBuffer();
@@ -42,6 +45,6 @@ class icmpClass{
 	int getPort();
 	
 	//receive the ICMP packet
-	bool recv(int* );
+	int recv(int* );
 	
 };
