@@ -1,13 +1,8 @@
 #include "udpClass.h"
 
-udpClass::udpClass(char* dest_addr, int dest_port, int source_port) {
+udpClass::udpClass(char* dest_addr, uint16_t source_port) {
     
     datagram.sockfd=socket(AF_INET, SOCK_DGRAM, 0);   //socket file descriptor
-    
-    //destination structure initialization
-    datagram.dest.sin_family=AF_INET;                
-    datagram.dest.sin_port=htons(dest_port);        
-    inet_pton(AF_INET, dest_addr, &datagram.dest.sin_addr);
     
     //source structure initialization
     datagram.src.sin_family=AF_INET;
@@ -17,6 +12,14 @@ udpClass::udpClass(char* dest_addr, int dest_port, int source_port) {
     //bind the socket to the source address and port
     bind(datagram.sockfd, (sockaddr*)&datagram.src, sizeof(sockaddr)); 
     	
+}
+
+/* Method for setting the destination port */
+void udpClass::setTtl(uint16_t dest_port) {
+    //destination structure initialization
+    datagram.dest.sin_family=AF_INET;                
+    datagram.dest.sin_port=htons(dest_port);        
+    inet_pton(AF_INET, dest_addr, &datagram.dest.sin_addr);
 }
 
 /* Method for setting the 'Time to Leave' field in the IP Header */

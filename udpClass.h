@@ -8,14 +8,13 @@
  * 
  */
 
-#include <iostream>
-#include <stdlib.h>
+#include "trace_header.h"
+
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <string.h>
-#include <stdio.h>
+
 
 #define LENGTH_PAYLOAD 4
 
@@ -32,7 +31,9 @@ class udpClass{
 	udpPacket datagram;
 		
 	public:
-	udpClass(char*, int, int);
+	udpClass(char*, uint16_t);
+	
+	void setDestPort(uint16_t);
 	
 	void setTtl(int);
 	

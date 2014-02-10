@@ -6,24 +6,15 @@
  * ONLY SUPERUSER CAN CREATE RAW DATAGRAMS HENCE TO RUN THE PROGRAM
  * YOU NEED TO BE SUPERUSER
  * 
- * Traceroute Header File
+ * General Header
  * 
  */
 
-struct address {
-	char ip[20];
-	struct timeval time[3];
-	address* punt;
-};
+#include "unp.h"
+#include <string.h>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
 
-class traceroute {
-	address* ip_list;
-	uint16_t src_port; 
-	
-	public:
-	
-	traceroute(int);
-	
-	address* trace(char*, int, int);
-	
-};
+#define MAX_TTL_DEF 30
+#define N_PROBE_DEF 3

@@ -10,23 +10,33 @@
 
 #include "traceroute.h"
 
-#define N_PROBE 3
+traceroute::traceroute(uint16_t s_port) {
+	src_port = s_port;
+	ip_list = 0;
+}
 
-address* trace(char* ip_address, int src_port, int max_ttl = 30, char* payload) {
+address* traceroute::trace(char* ip_address, int max_ttl, int n_probe) {
 	int ttl;
+	int payload = 1; //Initial payload has to be defined
+	uint16_t dest_port = 32768 + 666;
+	int attempts[3];
 	
-	int dest_port = randomPort();
-	
-	udpClass packet = new udpClass(ip_address, dest_port, src_port);
+	udpClass packet = new udpClass(ip_address, src_port);
 	packet.setPayload(payload);
-	old_payload = payload;
 	
 	for(ttl = 1; ttl <= max_ttl && done == 0; ttl++) {
 		packet.setTtl(ttl);
 		
-		for(probe = 1; probe < N_PROBE; probe++) {
-			new_payload = old_payload++;
-			packet.setPayload(new_payload);
+		for(probe = 1; probe < n_probe; probe++) {
+			if(ttl == 1){
+				packet.setDestPort(dest_port);
+				attempts[probe] = dest_port++; // Keep track of the dest. ports used
+			}
+			else if(probe == 1)
+				packet.setDestPort(dest_port++);
+							
+			packet.setPayload(new_payload++);
+			
 		}
 	}
 		
