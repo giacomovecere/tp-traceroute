@@ -2,6 +2,9 @@
 #include <netinet/ip.h>
 #include <netiniet/ip_icmp.h>
 #include <sys/socket.h>
+#include <netinet/udp.h>
+#include <netinet/in_systm.h>
+#include <arpa/inet.h>
 
 using namespace std;
 
@@ -18,16 +21,27 @@ struct icmpPacket{
 class icmpClass{
 	
 	icmpPacket datagram;
+	//parameters of the UDP message sent needed to do the checking
+	int sent_port;
+	int dest_port;
+	char ipAddress[4];     //ip of the router that answers
 	
 	public:
-	icmpClass();
+	icmpClass(int s, int d) {sent_port=s; dest_port=d};
 	
+	//returns the whole buffer of the ICMP packet
 	char* getBuffer();
 	
+	//returns the socket on which receive the ICMP
 	int getSocket();
 	
-	char* getSource();
+	//returns the IP of the source of the ICMP
+	char* getIP();
 	
+	//returns the port on which the UDP probe was sent
+	int getPort();
+	
+	//receive the ICMP packet
 	bool recv(int* );
 	
 };
