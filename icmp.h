@@ -28,31 +28,32 @@ using namespace std;
  */
 
 
-struct icmpPacket{
-    
+class icmpClass{
+
     /*dest_ip is related to the router
      *source_ip is related to the subject who does the traceroute*/
     ip* dest_ip;
     ip* sent_ip;
+    int icmp_length;          //length of the icmp
     udphdr * udp;
-    icmp* rec_msg;  	 //icmp header
+    icmp* icmp_msg;            //icmp header
     int sockfd;              //file descriptor of the socket
-    sockaddr router_source;  //filled by the sender
-    
-};
-
-
-class icmpClass{
-
-    icmpPacket datagram;
     //parameters of the UDP message sent needed to do the checking
     int sent_port;
     int dest_port;
-    char* ipAddress;     //ip of the router that answers
 
 public:
+    
+    //construct an ICMP packet basing on source and destination
     icmpClass(int s, int d);
-
+    //in case we're building an ICMP packet to send
+    icmpClass();
+    
+    //construct an ICMP packet starting from infos received
+    int icmpFill(char*, int);
+    
+    
+    /*GET METHODS*/
     //returns the whole UDP header
     udphdr* getUDPHeader();
     
@@ -69,15 +70,26 @@ public:
     //returns the socket on which receive the ICMP
     int getSocket();
 
-    //returns the IP of the source of the ICMP
-    char* getIP();
-
     //returns the port on which the UDP probe was sent
     //is referred to the received message
     int getPort();
+    
+    int getUDPChecksum();
 
-    //receive the ICMP packet
-    int recv(int* );
+    /*SET METHODS*/
+    void setICMPType(int );
+    
+    void setICMPCode(int );
+    
+    void setICMPPayload(char*, int );
+    
+    void setChecksum();
+    
+    //the commented functions aren't needed now but they may be in the future
+    //void setDestIPAddress(char*);
+    //void setICMPPid(int p=0);
+    //void setSourceIPAddress(char* );
+    //void setICMPSeq(int s=0);
 
     friend ostream& operator<<(ostream& output, icmpClass & ic);
 };
