@@ -10,14 +10,8 @@
  * 
  */
  
- #include "trace_header.h"
-
-struct address {
-	char ip[20];
-	struct timeval time[N_PROBE_DEF];
-	uint16_t checksum[N_PROBE_DEF];
-	address* punt;
-};
+// #include "trace_header.h"
+ #include "udpClass.h"
 
 class traceroute {
 	address* ip_list;
@@ -25,8 +19,8 @@ class traceroute {
 	
 	public:
 	
-	traceroute(int);
+	traceroute(uint16_t);
 	
-	address* trace(char*, int, int);
+	address* trace(char*, int);
 	
 };

@@ -10,11 +10,6 @@
 
 #include "trace_header.h"
 
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-
 #define LENGTH_PAYLOAD 4
 
 using namespace std;
@@ -26,7 +21,7 @@ struct udpPacket {
 	uint16_t checksum;
 };
 
-class udpClass{
+class udpClass {
 	udpPacket datagram;
 		
 	public:
@@ -47,3 +42,12 @@ class udpClass{
 	uint16_t getChecksum();
 };
 
+class udpManager {
+	udpClass packet;
+	
+	public:
+	udpManager(uint16_t);
+	
+	address* send(char*, uint16_t, int, int);	
+	
+};
