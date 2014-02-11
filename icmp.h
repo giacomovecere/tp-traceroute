@@ -22,9 +22,9 @@ using namespace std;
 /*This class represents the received ICMP packet, this packet is composed by:
  * first 20 byte: IP header of the source of the packet
  * 8 bytes: ICMP header
- * 28 bytes referred to the UDP probe: 
- *     20 bytes: IP header of the source of the previous UDP packet
- *     8 bytes: UDP header 
+ * payload:
+ *  20 bytes: IP header of the source of the previous UDP packet
+ *  8 bytes: UDP header 
  */
 
 
@@ -53,8 +53,18 @@ class icmpClass{
 public:
     icmpClass(int s, int d);
 
-    //returns the whole buffer of the ICMP packet
-    char* getBuffer();
+    //returns the whole UDP header
+    udphdr* getUDPHeader();
+    
+    //get ip header
+    ip* getSourceIPHeader();
+    ip* getDestIPHeader();
+    
+    //get type of icmp
+    int getICMPType();
+    
+    //get code of icmp
+    int getICMPCode();
 
     //returns the socket on which receive the ICMP
     int getSocket();
@@ -69,5 +79,5 @@ public:
     //receive the ICMP packet
     int recv(int* );
 
-    ostream& operator<<(ostream& output, const icmpClass & ic);
+    friend ostream& operator<<(ostream& output, icmpClass & ic);
 };

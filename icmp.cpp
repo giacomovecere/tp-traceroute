@@ -36,15 +36,38 @@ icmpClass::icmpClass(int s, int d) {
     
 }
 
-//buffer is referred to the payload of the icmp packet
-char* icmpClass::getBuffer() {return datagram.buffer;}
-
 int icmpClass::getSocket() {return datagram.sockfd;}
 
+//it's the IP of the entity that sends the ICMP packet
 char* icmpClass::getIP() {return ipAddress;}
 
 int icmpClass::getPort() {return dest_port;}
- 
+
+int icmpClass::getICMPCode() {
+    return datagram.rec_msg->icmp_code;
+};
+
+int icmpClass::getICMPType(){
+    return datagram.rec_msg->icmp_type;
+};
+
+//represents the structure of the ip header that includes the udp packet 
+ip* icmpClass::getSourceIPHeader(){
+    return datagram.sent_ip;
+}
+
+//ip header of the icmp packet
+ip* icmpClass::getDestIPHeader(){ 
+    return datagram.dest_ip;
+}
+
+
+udphdr* icmpClass::getUDPHeader(){
+    return datagram.udp;
+}
+
+
+
 /*char* icmpClass::getSource() {
     return sock_ntop(&datagram.router_source, sizeof(sockaddr));
 }*/
@@ -62,7 +85,7 @@ int icmpClass::recv(int* chs) {
     char message[MESSAGE_SIZE]; //buffer in which we put the received message 
     socklen_t len;
     int n;
-    int iphdr_len, sent_iphdr_len, icmplen, ret;
+    int iphdr_len, sent_iphdr_len, icmplen;
 
     //receive the icmp packet
     n=recvfrom(datagram.sockfd, message, MESSAGE_SIZE, 0,
@@ -80,7 +103,7 @@ int icmpClass::recv(int* chs) {
 
     //check the fields of the icmp response
     if( ( icmplen = n - iphdr_len ) < ICMP_HDR_LENGTH )
-        return false;
+        return -1;
 
     if(datagram.rec_msg -> icmp_type == ICMP_TIME_EXCEEDED &&
         datagram.rec_msg -> icmp_code == ICMP_TIMXCEED_INTRANS) {
@@ -104,7 +127,7 @@ int icmpClass::recv(int* chs) {
             ipAddress = sock_ntop(&datagram.router_source, len);
 
             //now put the checksum to let the main program do the checking 
-            *chs=udp->check;
+            *chs=datagram.udp->check;
 
             return 0;
         }
@@ -122,12 +145,12 @@ int icmpClass::recv(int* chs) {
         if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) return -1;
 
         //construct the sent ip
-        datagram.sent_ip = (ip*) (datagram.buffer + iphdr_len + ICMP_HDR_LENGTH);
+        datagram.sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
         sent_iphdr_len = datagram.sent_ip->ip_len;
         if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) return -1;
 
         //udp header
-        datagram.udp = (udphdr*) (datagram.buffer + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
+        datagram.udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
 
         if(datagram.sent_ip->ip_p == IPPROTO_UDP && 
             datagram.udp->uh_sport == htons(sent_port)
@@ -137,7 +160,7 @@ int icmpClass::recv(int* chs) {
             ipAddress = sock_ntop(&datagram.router_source, len);
 
             //now put the checksum to let the main program do the checking 
-            *chs=udp->check;
+            *chs=datagram.udp->check;
 
             if(datagram.rec_msg->icmp_code == ICMP_UNREACH_PORT)
                 return 1;
@@ -150,12 +173,14 @@ int icmpClass::recv(int* chs) {
 };
 
 /*Redefine operator << in order to have simpler print functions*/
-ostream& icmpClass::operator<<(ostream& out, const icmpClass& ic) {
+ostream& operator<<(ostream& out, icmpClass& ic) {
     
-    out<<"Final destination port: "<<ic.dest_port<<'\n';
-    out<<"Source port: "<<ic.source_port<<'\n';
-    out<<"IP of the sender of the ICMP: "<<ic.ipAddress<<'\n';
-    out<<"Type of the icmp: "<<ic.datagram.rec_msg->icmp_type<<'\t';
-    out<<"Code of the icmp: "<<ic.datagram.rec_msg->icmp_code<<'\n';
+    //out<<"Final destination port: "<<ic.dest_port<<'\n';
+    //out<<"Source port: "<<ic.source_port<<'\n';
+    out<<"IP of the sender of the ICMP: "<<ic.getIP()<<'\n';
+    out<<"Type of the icmp: "<<ic.getICMPType()<<'\t';
+    out<<"Code of the icmp: "<<ic.getICMPCode()<<'\n';
+    
+    return out;
     
 }
