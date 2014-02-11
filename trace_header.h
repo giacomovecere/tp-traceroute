@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
+#include <sys/socket.h>
 
 #define MAX_TTL_DEF 30
 #define N_PROBE_DEF 3

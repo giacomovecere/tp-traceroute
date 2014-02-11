@@ -20,23 +20,41 @@ address* traceroute::trace(char* ip_address, int max_ttl, int n_probe) {
 	int payload = 1; //Initial payload has to be defined
 	uint16_t dest_port = 32768 + 666;
 	int attempts[3];
+	bool done = false;
+	address* pun_list;
+	int udp_sock;
+	char* c_payload;
+	struct sockaddr_in dest;
 	
-	udpClass packet = new udpClass(ip_address, src_port);
+	// Creation of a packet with IP and source port defined
+	udpClass packet = new udpClass(src_port);
+	// The initial payload has been set
 	packet.setPayload(payload);
 	
-	for(ttl = 1; ttl <= max_ttl && done == 0; ttl++) {
+	pun_list = ip_list;
+	for(ttl = 1; ttl <= max_ttl && done == false; ttl++) {
 		packet.setTtl(ttl);
+		pun_list = new address;
 		
 		for(probe = 1; probe < n_probe; probe++) {
 			if(ttl == 1){
-				packet.setDestPort(dest_port);
+				packet.setDest(ip_address, dest_port);
 				attempts[probe] = dest_port++; // Keep track of the dest. ports used
 			}
-			else if(probe == 1)
-				packet.setDestPort(dest_port++);
+			//else if(probe == 1)
+			//	packet.setDestPort(dest_port++);
 							
-			packet.setPayload(new_payload++);
+			c_payload = (char)payload;
+			packet.setPayload(c_payload);
 			
+			pun_list->checksum[probe] = packet.getChecksum()
+			udp_sock = packet.getSock();
+			dest = packet.getDest();
+			gettimeofday(&pun_list->time[probe], NULL);
+			sendto(udp_sock, c_payload, sizeof(c_payload), 0, (struct sockaddr *)&dest, sizeof(dest));
+			
+			
+			payload++;
 		}
 	}
 		

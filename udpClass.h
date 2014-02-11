@@ -10,7 +10,6 @@
 
 #include "trace_header.h"
 
-#include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -31,17 +30,17 @@ class udpClass{
 	udpPacket datagram;
 		
 	public:
-	udpClass(char*, uint16_t);
+	udpClass(uint16_t);
 	
-	void setDestPort(uint16_t);
+	void setDest(char*, uint16_t);
 	
 	void setTtl(int);
 	
 	int getSock();
 	
-	sockaddr_in getSrcAddr();
+	sockaddr_in getSrc();
 
-	sockaddr_in getDestAddr();
+	sockaddr_in getDest();
 	
 	void setPayload(char*);
 	

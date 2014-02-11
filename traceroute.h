@@ -9,10 +9,13 @@
  * Traceroute Header File
  * 
  */
+ 
+ #include "trace_header.h"
 
 struct address {
 	char ip[20];
-	struct timeval time[3];
+	struct timeval time[N_PROBE_DEF];
+	uint16_t checksum[N_PROBE_DEF];
 	address* punt;
 };
 

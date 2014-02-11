@@ -14,14 +14,14 @@
 int main(int argc, char** argv) {
 	int opt;
 	int max_ttl = MAX_TTL_DEF;
-	int n_probe = N_PROBE_DEF;
+	//int n_probe = N_PROBE_DEF;
 	bool verbose = false;
 	struct addrinfo *a_info;
 	char ip_host[30];
 	address* ip_list;
 	
 	// All of the options are optional: m and p require arguments
-	while ((opt = getopt (argc, argv, "m:p:v")) != -1) {
+	while ((opt = getopt (argc, argv, "m:v")) != -1) {
 		switch (opt) {
 		// Max number of Time to Leave
 		case 'm':
@@ -30,13 +30,13 @@ int main(int argc, char** argv) {
 				exit(EXIT_FAILURE);
 			}
 			break;
-		// Number of probes to send
+		/*// Number of probes to send
 		case 'p':
 			if ((n_probe = atoi (optarg)) <= 1){
 				cerr << "Invalid -p value" << endl;
 				exit(EXIT_FAILURE);
 			}
-			break;
+			break;*/
 		// Verbose output	
 		case 'v':
 			verbose = true;
@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
 	}
 	
 	if(optind != argc - 1) {
-		cerr << "usage: traceroute [ -m <maxttl> -p <n_probe> -v ] <hostname>");
+		cerr << "usage: traceroute [ -m <maxttl> -v ] <hostname>");
 		exit(EXIT_FAILURE);
 	}
 	host = argv[optind];

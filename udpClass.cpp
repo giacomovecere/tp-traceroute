@@ -1,6 +1,6 @@
 #include "udpClass.h"
 
-udpClass::udpClass(char* dest_addr, uint16_t source_port) {
+udpClass::udpClass(uint16_t source_port) {
     
     datagram.sockfd=socket(AF_INET, SOCK_DGRAM, 0);   //socket file descriptor
     
@@ -14,8 +14,8 @@ udpClass::udpClass(char* dest_addr, uint16_t source_port) {
     	
 }
 
-/* Method for setting the destination port */
-void udpClass::setTtl(uint16_t dest_port) {
+/* Method for setting the destination address and port */
+void udpClass::setDest(char* dest_addr, uint16_t dest_port) {
     //destination structure initialization
     datagram.dest.sin_family=AF_INET;                
     datagram.dest.sin_port=htons(dest_port);        
@@ -34,13 +34,13 @@ int udpClass::getSock() {
 
 /* The method returns the sockaddr_in structure that contains the details 
  * of the source host */
-sockaddr_in udpClass::getSrcAddr() {
+sockaddr_in udpClass::getSrc() {
 	return datagram.src;
 }
 
 /* The method returns the sockaddr_in structure that contains the details 
  * of the destination host */
-sockaddr_in udpClass::getDestAddr() {
+sockaddr_in udpClass::getDest() {
 	return datagram.dest;
 }
 
