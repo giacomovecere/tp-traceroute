@@ -43,8 +43,14 @@ class udpClass {
 class udpManager : public udpClass {
 
     public:
+    // The constructor sets the source port by calling the udpClass constructor
     udpManager(uint16_t);
-
+    
+    /* 
+     * Sends 'n_probe' UDP packets to the destination specified in the parameteres
+     * of the method. 
+     * It returns an 'addr' list with a length corresponding to the last parameter 
+    */
     addr* send(char*, uint16_t, int, int, int);	
     
 };
