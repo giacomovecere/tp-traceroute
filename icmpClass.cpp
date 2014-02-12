@@ -3,21 +3,13 @@
 /*s is referred to the source port
  * d to the FINAL destination port 
  */
-icmpClass::icmpClass(int s, int d) {
-        
-    sent_port=s; 
-    dest_port=d;
-    sockfd=socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-};
+
 
 //allocate a structure, this is the constructor in case the icmp has to be sent
 icmpClass::icmpClass() {
-    
     icmp_msg=new icmp;
     //set all the other fields to 0
     memset(icmp_msg, 0, sizeof(icmp));
-    sockfd=socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-    
 }
 
 
@@ -43,23 +35,27 @@ int icmpClass::icmpFill(char* message, int n){
     if(icmp_msg -> icmp_type == ICMP_TIME_EXCEEDED &&
         icmp_msg -> icmp_code == ICMP_TIMXCEED_INTRANS) {
 
-        if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) return -1;
+        if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
+            return -1;
 
         //construct the sent ip
         sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
         sent_iphdr_len = sent_ip->ip_len;
-        if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) return -1;
+        if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
+            return -1;
         
         //udp header
         udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
 
-        if(sent_ip->ip_p == IPPROTO_UDP && 
+        /*if(sent_ip->ip_p == IPPROTO_UDP && 
             udp->uh_sport == htons(sent_port)
             && udp->uh_dport == htons(dest_port)) { //hence intermediate router
             
             return 0;
             
         }
+        */
+        return 0;
 
     }
     
@@ -70,16 +66,19 @@ int icmpClass::icmpFill(char* message, int n){
     else 
         if(icmp_msg->icmp_type == ICMP_UNREACH) {
 
-            if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) return -1;
+            if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
+                return -1;
 
             //construct the sent ip
             sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
             sent_iphdr_len = sent_ip->ip_len;
-            if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) return -1;
+            
+            if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
+                return -1;
 
             //udp header
             udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
-
+            /*
             if(sent_ip->ip_p == IPPROTO_UDP && udp->uh_sport == htons(sent_port)
                 && udp->uh_dport == htons(dest_port)) { //hence final destination
 
@@ -88,14 +87,10 @@ int icmpClass::icmpFill(char* message, int n){
                 else 
                     return -1;
             }
+            */
         }
     return -1;
 };
-
-
-int icmpClass::getSocket() {return sockfd;}
-
-int icmpClass::getPort() {return dest_port;}
 
 int icmpClass::getICMPCode() {
     return icmp_msg->icmp_code;

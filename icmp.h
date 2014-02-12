@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include "trace_header.h"
 
 /*NOTE the received message will have a dimension that is at most
  * 56 bytes (basing on the structure we've seen in the header)
@@ -34,18 +35,14 @@ class icmpClass{
      *source_ip is related to the subject who does the traceroute*/
     ip* dest_ip;
     ip* sent_ip;
-    int icmp_length;          //length of the icmp
-    udphdr * udp;
-    icmp* icmp_msg;            //icmp header
-    int sockfd;              //file descriptor of the socket
-    //parameters of the UDP message sent needed to do the checking
-    int sent_port;
-    int dest_port;
+    //length of the icmp
+    int icmp_length;
+    //udp header
+    udphdr* udp;
+    icmp* icmp_msg;            
 
 public:
     
-    //construct an ICMP packet basing on source and destination
-    icmpClass(int s, int d);
     //in case we're building an ICMP packet to send
     icmpClass();
     
@@ -66,13 +63,6 @@ public:
     
     //get code of icmp
     int getICMPCode();
-
-    //returns the socket on which receive the ICMP
-    int getSocket();
-
-    //returns the port on which the UDP probe was sent
-    //is referred to the received message
-    int getPort();
     
     int getUDPChecksum();
 
@@ -92,4 +82,22 @@ public:
     //void setICMPSeq(int s=0);
 
     friend ostream& operator<<(ostream& output, icmpClass & ic);
+};
+
+class icmpManager{
+    //file descriptor of the socket
+    int sockfd;
+    uint16_t s_port;
+    sockaddr_in* my_addr;
+    sockaddr_in* rm_addr;
+    
+public:
+    icmpManager(){};
+	icmpManager(uint16_t s);
+        
+    //returns the socket on which receive the ICMP
+    int getSocket();
+        
+    addr* recv();	
+    
 };
