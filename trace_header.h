@@ -22,17 +22,27 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <sys/time.h>
+#include <list.h>
 
 #define MAX_TTL_DEF 30
 #define N_PROBE_DEF 3
 
 using namespace std;
 
+/*
+ *  ip: ip address
+ * time: timestamp
+ * checksum: checksum of the packet
+ * punt: pointer to the next element of the list
+ * ret: it is set if we receive a reply to the sent packet
+ * 
+ * */
 
 struct addr {
     char ip[20];
-    struct timeval time[N_PROBE_DEF];
-    uint16_t checksum[N_PROBE_DEF];
+    struct timeval time;
+    uint16_t checksum;
     addr* punt;
+    bool ret;
 };
 
