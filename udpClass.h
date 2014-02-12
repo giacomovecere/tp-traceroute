@@ -41,11 +41,10 @@ class udpClass {
 };
 
 class udpManager : public udpClass {
-    //udpClass packet;
 
     public:
     udpManager(uint16_t);
 
-    addr* send(char*, uint16_t, int, int);	
+    addr* send(char*, uint16_t, int, int, int);	
     
 };

@@ -22,12 +22,15 @@ address* traceroute::trace(char* ip_address, int max_ttl) {
 	bool done = false;
 	address* ret_list;
 	
-	udpManager manager = new udpManager(src_port);
+	udpManager uManager = new udpManager(src_port);
 	
 	ret_list = ip_list;
 	for(ttl = 1; ttl <= max_ttl && done == false; ttl++) {
-		ret_list = manager.send(ip_address, dest_port, ttl, payload);		
-		
+		ret_list = uManager.send(ip_address, dest_port, ttl, payload);		
+		/*if(ttl == 1){
+            setDest(ip_address, dest_port);
+            attempts[probe] = dest_port++; // Keep track of the dest. ports used
+        }*/
 		ret_list = ret_list->punt;
 	}
 		
