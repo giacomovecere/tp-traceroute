@@ -29,19 +29,16 @@
 using namespace std;
 
 /*
- *  ip: ip address
+ * ip: ip address
  * time: timestamp
  * checksum: checksum of the packet
- * punt: pointer to the next element of the list
  * ret: it is set if we receive a reply to the sent packet
- * 
- * */
+ */
 
 struct addr {
     char ip[20];
     struct timeval time;
     uint16_t checksum;
-    addr* punt;
     bool ret;
 };
 
