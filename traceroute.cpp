@@ -35,26 +35,26 @@ addr* traceroute::trace(char* ip_address, int max_ttl) {
     //vector of used dest port, useful for the icmp
     uint16_t dest_port[N_PROBE_DEF];
     addr address_vector[N_PROBE_DEF]; //to use when I send more probes
-    addr address_ttl_1;         //addres when ttl=1
+    addr address_ttl_1;         //address when ttl=1
+    List<addr> addr_list[MAX_TTL_DEF];
     
-    <create udp manager>
+    udpManager uManager = new udpManager(src_port);
     <create as many ICMP as N_Probe_DEF>
     
     for(ttl=1; ttl < max_ttl; ttl++) {
         
         if(ttl == 1) {
-            for(int i = 0; i < max_probe; i++ ) {
-                
+            for(int i = 0; i < max_probe; i++ ) {               
                 dest_port[i] = dest_port_ini+i; //set the port
-                address_ttl_1 = <single send of a single probe>
-                <add address_ttl_1 in list>
-                
+                uManager.send(ip_address, dest_port, ttl, payload++, 1, &address_ttl_1);
+                addr_list[ttl].push_back(address_ttl_1);
             }
         }
         else {
             for(int i = 0; i < max_probe; i+probe_to_port) {
-                address_vector = <send of probe_to_port probes to each dest_port>
-                <scan the address_vector and put each address in the list>
+                uManager.send(ip_address, dest_port, ttl, payload++, 1, address_vector);
+                for(int j=0; j<
+					addr_list[ttl].push_back(address_vector[j]);
             } 
         }
         
