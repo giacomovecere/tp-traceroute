@@ -1,0 +1,21 @@
+Per trovare i TP-addresses usiamo un pacchetto IP con prespecified timestamp option (TS).
+Questo ci permette di specificare in un un unico pacchetto, fino a 4 indirizzi IP dai quali vogliamo ricevere timestamp. 
+Passi da fare:
+
+1. Inviare sonda UDP alle destinazioni, selezionando quelle che rispondono e preservano l'opzione TS
+2. Lanciare UDP_Paris_traceroute verso le destinazioni selezionate (per ottenere gli indirizzi intermedi)
+3. Inviare ICMP_echo_req ad ogni nodo intermedio e verificare se questi nodi sono classificabili o no.
+	Sono NON CLASSIFICABILI se:
+	3.1 [PVT] INDIRIZZO PRIVATO: Router inseriscono timestamp nel mess ICMP_port_unreach (???)
+	3.2 [NO-REP]: non ricevo nessuna risposta
+	3.3 [NO-OPT] TS OPTION IS REMOVED: ICMP_echo_reply non contiene opzione TS
+	3.4 [NO-TS] ZERO TIMESTAMPS: ICMP_echo_reply non contiene nessun timestamp
+	3.5 [JUN] FOUR TIMESTAMPS: il targeted device fornisce 4 timestamps
+	
+	Sono CLASSIFICABILI se:
+	3.6 Forniscono da 1 a 3 timestamps
+4. Selezionare gli hop classificabili
+5. Inviare sonda UDP alla destinazione specificando ogni volta un diverso hop classificabile collezionato precedentemente
+6. Se gli hop intermedi (Y) forniscono almeno un timestamp, Y è OP (on-path), altrimenti è un TP.
+
+

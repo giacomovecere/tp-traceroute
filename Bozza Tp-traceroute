@@ -1,0 +1,108 @@
+TP-TRACEROUTE.CPP
+
+/*Creation of a packet with IP prespecified timestamp option
+Header IP campo option: 
+	OPTION CLASS = 2
+	OPTION NUMBER = 4
+	< settare gli altri campi >
+	FLAG = 3 (IP addr are prespecified)*/
+	
+ipClass packet = new ipClass(..)
+packet.setTimestampOption(..);
+..
+..
+/*send UDP probe*/
+sendto(sock, payload, sizeof(payload),0, (struct sockadrr*)&dest, sizeof(dest));
+
+/* Receive from the different destinations and we select those which reply and preserve TS option */
+recvfrom(..)
+
+<select nodes with TS option>
+check_TS_option(headerIp, header_len);
+
+/* Launch UDP paris-traceroute towards the selected destination */
+p_traceroute p_t = new p_traceroute(src_port);
+ip_list = p_t.trace(ip_host, max_ttl, n_probe);
+//salvo gli indirizzi intermedi forniti dal paris_traceroute
+
+for(each intermediate address){
+	send_ICMP_echo_Request(..);
+}
+
+*************************************************************************
+ICMP.CPP
+
+/*check if an intermediate node is classifiable or not*/
+n = recvfrom(...)	//echo reply
+
+< Extract the header of the ip packet >
+
+/* check if there is TS option in the IP header */
+int no_opt = check_TS_option(headerIP, header_ip_len);
+
+/* count how many timestamps there are in the TS option [NO-TS, JUN] */
+int tmstp = check_Timestamp(IPheader, header_ip_len);
+
+/* [PVT] Private network ?? */
+
+<collect all the nodes that are classifiable>
+..
+..
+ 
+************************************************************************
+
+IP.CPP
+
+/* check if the IP header has TS option
+	return:
+		0 --> no options
+		1 --> options
+	   -1 --> otherwise */
+	   
+int check_TS_option(char* IPheader, int ip_header_len)
+{
+	int header_length= <bit dal 4 all'8 dell'intestazione IP>;
+	if(header_length == 5){	//There is no options
+		printf("NO-OPT, The TS option is removed! \n");
+		return 0;
+	}
+	if(header_length > 5 && header_length <= 16)	//There is the options field
+		return 1;
+	else
+		return -1;
+}
+
+int check_Timestamp(char* IPheader, int ip_header_len)
+{
+	<check option type --> option class = 2, option number = 4>
+	l = <options field --> length>;
+	p = <options field --> pointer>;
+	
+	//L'area timestamp è presente solo se Pointer > Length
+	
+	if(p < l){
+		//there is no timestamp
+		printf("NO TS, Zero Timestamps\n");
+		return 0;
+	if(p > l){
+		//The timestamp area is full 
+		
+		<check field "Time" in Timestamp>
+		
+		if(#ofTS == 4){
+			printf("JUN - Four timestamps \n");
+			return 4;
+		}
+		
+		if(#ofTS > = 1 && #ofTS < = 3){
+			//the node is classifiable
+			return #ofTS;
+		}
+	}
+}
+
+*********************************************************************
+UDP.CPP
+
+for(each classificable hop)
+	send_probe(..)
