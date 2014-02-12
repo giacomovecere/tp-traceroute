@@ -22,5 +22,7 @@ class traceroute {
 	traceroute(uint16_t);
 	
 	address* trace(char*, int);
+        
+        friend ostream& operator<<(ostream& output, traceroute& t);
 	
 };
