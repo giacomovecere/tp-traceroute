@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <sys/time.h>
+#include <list>
 
 #define MAX_TTL_DEF 30
 #define N_PROBE_DEF 3
@@ -34,7 +35,6 @@ using namespace std;
  * checksum: checksum of the packet
  * ret: it is set if we receive a reply to the sent packet
  */
-
 struct addr {
     char ip[20];
     struct timeval time;
