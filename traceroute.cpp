@@ -54,10 +54,9 @@ traceroute::traceroute(uint16_t s_port) {
     src_port = s_port;
 }
 
-bool traceroute::trace(char* ip_address, int max_ttl) {
+bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
     int payload = 1; //Initial payload has to be defined
     int ttl;
-    uint16_t dest_port_ini = 32768 + 666; //NOTE possible optimization
     uint16_t source_port;
     //makes it easy to count the number of received packets
     int n_receive = 0;
@@ -69,7 +68,7 @@ bool traceroute::trace(char* ip_address, int max_ttl) {
     
     //create a new icmpManager and manage the file descriptor associated
     icmpManager iManager = icmpManager(source_port);
-    int socket = iManager.getSocket(); //get the file descriptor which need to be read
+    int socket = iManager.getSocket(); //get the file descriptor which needs to be read
     int fdmax;  //max number of file descriptor
     fd_set master, read_fds;
     
@@ -106,6 +105,7 @@ bool traceroute::trace(char* ip_address, int max_ttl) {
         else {
             for(int i = 0; i < N_PROBE_DEF; i++) {
                 if(rec_port != 0) {
+					// each packet has different payload
                     uManager.send(ip_address, rec_port, ttl, payload++, 1, address_vector);
                     array[ttl].push_back(address_vector[j]);
                 }
@@ -115,37 +115,39 @@ bool traceroute::trace(char* ip_address, int max_ttl) {
         while(time_to_receive) {
             
             //received all the messages
-            if( n_receive == N_PROBE_DEF ) break;
+            if(n_receive == N_PROBE_DEF) 
+				break;
             
             //NOTE: now to the receive of the icmp packets
-            if(select(fdmax+1, &read_fds, NULL, NULL, &timer)==-1) {
+            if(select(fdmax+1, &read_fds, NULL, NULL, &timer) == -1) {
                 cerr<<"select error\n";
                 exit(1);
             }
             if(FD_ISSET(socket, &read_fds)) {
-                received=iManager.recv(&type); //receive the icmp packet
+                received = iManager.recv(&type); //receive the icmp packet
                 
                 //received the structure with all the fields I'm interested
-                if (rec_port == 0) rec_port=iManager.getPort();
+                if (rec_port == 0) 
+					rec_port = iManager.getPort();
                 
-                if(type==0) {
+                if(type == 0) {
                     //modify the correspondent elem in the list
-                    change_timeval(received->time, received->checksum,
-                        array[ttl].begin(), array[ttl].end());
+                    change_timeval(received->time, received->checksum, array[ttl].begin(), array[ttl].end());
                     n_receive++;
                 }
-                if(type==1) {
-                    change_timeval(received->time, received->checksum,
-                        array[ttl].begin(), array[ttl].end());
-                    max_ttl=ttl; //i need to exit from the for
+                if(type == 1) {
+                    change_timeval(received->time, received->checksum, array[ttl].begin(), array[ttl].end());
+                    max_ttl = ttl; //i need to exit from the for
                     n_receive++;
                 }
             }
             //this means time expired
             else 
                 //if I didn't receive any packet I need to restart everything
-                if(n_receive == 0) return false;
-                else time_to_receive=false;
+                if(n_receive == 0) 
+					return false;
+                else 
+					time_to_receive = false;
         }
     }
     

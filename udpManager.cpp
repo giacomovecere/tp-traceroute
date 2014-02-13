@@ -12,7 +12,6 @@
 udpManager::udpManager(uint16_t src_port) {
 	udpPacket = new udpClass(src_port);
 } 
-//: udpClass(src_port) {};
 	    
 /* 
  * Sends 'n_probe' UDP packets to the destination specified in the parameteres
@@ -21,19 +20,20 @@ udpManager::udpManager(uint16_t src_port) {
 */
 void udpManager::send(char* ip_address, uint16_t dest_port, int ttl, int payload, int n_probe, addr* vett_addr) {
     int udp_sock;
-    char* c_payload;
+    char* c_payload = 0;
     sockaddr_in dest;
     int probe;
     
     udpPacket->setTtl(ttl);
     
     for(probe = 0; probe < n_probe; probe++) {
-						
-        // converts to decimal base
+        // converts payload from int to character
         sprintf(c_payload, "%d", payload);
         udpPacket->setPayload(c_payload);
         
+        // calculates the checksum of the packet
         vett_addr[probe].checksum = udpPacket->getChecksum();
+        
         udp_sock = udpPacket->getSock();
         dest = udpPacket->getDest();
         // setting the current time

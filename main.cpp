@@ -8,20 +8,20 @@
  * 
  */
 
-#include "trace_header.h"
 #include "traceroute.h"
 
 int main(int argc, char** argv) {
-	int opt;
+	int opt, attempts;
 	int max_ttl = MAX_TTL_DEF;
 	//int n_probe = N_PROBE_DEF;
-	bool verbose = false;
+	bool verbose = false, res;
 	struct addrinfo *a_info;
 	char ip_host[30];
 	char* host;
 	list<addr> ip_list[MAX_TTL_DEF];
 	uint16_t s_port;
-	
+	uint16_t dest_port_ini = 32768 + 666; //NOTE possible optimization
+
 	// All of the options are optional: m and p require arguments
 	while ((opt = getopt (argc, argv, "m:v")) != -1) {
 		switch (opt) {
@@ -63,9 +63,24 @@ int main(int argc, char** argv) {
 	// The source port depends on the PID of the instance of the traceroute
 	s_port = (getpid() & 0xffff) | 0x8000;
 	
-	traceroute t = new traceroute(s_port);
-	ip_list = t.trace(ip_host, max_ttl);
-	// [Print of the ip addresses from ip_list]
+	traceroute t = traceroute(s_port);
+	
+	attempts = 0;
+	while(attempts < N_ATTEMPTS) {
+		res = t.trace(ip_host, max_ttl, dest_port_ini);
+		if(res == true)
+			break;
+		
+		dest_port_ini = dest_port_ini + 10; // 10 is a random value
+		attempts++;
+	}
+	
+	if(attempts == N_ATTEMPTS)
+		cout << "Traceroute failed: it was not possible to reach the destination after "<< N_ATTEMPTS << " attempts"<< endl;
+	else {
+		ip_list = t.getList();
+		// [Print of the ip addresses from ip_list]
+	}
 	
 	return 0;
 }

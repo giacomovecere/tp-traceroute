@@ -26,19 +26,9 @@
 
 #define MAX_TTL_DEF 30
 #define N_PROBE_DEF 3
+#define N_ATTEMPTS 3
 
 using namespace std;
 
-/*
- * ip: ip address
- * time: timestamp
- * checksum: checksum of the packet
- * ret: it is set if we receive a reply to the sent packet
- */
-struct addr {
-    char ip[20];
-    struct timeval time;
-    uint16_t checksum;
-    bool ret;
-};
+
 

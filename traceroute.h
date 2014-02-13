@@ -10,7 +10,6 @@
  * 
  */
  
-// #include "trace_header.h"
 #include "udp.h"
 #include "icmp.h"
 
@@ -22,7 +21,9 @@ class traceroute {
     
     traceroute(uint16_t);
     
-    list<addr> trace(char*, int);
+    bool trace(char*, int, uint16_t);
+    
+    list<addr> getList();
     
     friend ostream& operator<<(ostream& output, traceroute& t);
 	
