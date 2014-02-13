@@ -11,18 +11,19 @@
  */
  
 // #include "trace_header.h"
- #include "udp.h"
+#include "udp.h"
+#include "icmp.h"
 
 class traceroute {
-    list<addr> ip_list[MAX_TTL_DEF];
-	uint16_t src_port; 
-	
-	public:
-	
-	traceroute(uint16_t);
-	
-	list<addr> trace(char*, int);
-        
+    list<addr> array[MAX_TTL_DEF];
+    uint16_t src_port; 
+    
+    public:
+    
+    traceroute(uint16_t);
+    
+    list<addr> trace(char*, int);
+    
     friend ostream& operator<<(ostream& output, traceroute& t);
 	
 };
