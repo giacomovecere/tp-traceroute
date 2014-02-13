@@ -50,8 +50,8 @@ class udpManager {
     /* 
      * Sends 'n_probe' UDP packets to the destination specified in the parameteres
      * of the method. 
-     * It returns an 'addr' list with a length corresponding to the last parameter 
+	 * It fills 'vett_addr' with the information required 
     */
-    addr* send(char*, uint16_t, int, int, int);	
+    void send(char*, uint16_t, int, int, int, addr*);	
     
 };
