@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "trace_header.h"
+#include "udp.h"
 
 /*NOTE the received message will have a dimension that is at most
  * 56 bytes (basing on the structure we've seen in the header)
@@ -74,6 +75,8 @@ public:
     void setICMPPayload(char*, int );
     
     void setChecksum();
+
+    uint16_t getChecksum();
     
     //the commented functions aren't needed now but they may be in the future
     //void setDestIPAddress(char*);
@@ -89,7 +92,6 @@ class icmpManager{
     int sockfd;
     uint16_t s_port;
     sockaddr_in* my_addr;
-    sockaddr_in* rm_addr;
     
 public:
     icmpManager(){};
@@ -97,7 +99,9 @@ public:
         
     //returns the socket on which receive the ICMP
     int getSocket();
+    //return the port
+    int getPort();
         
-    addr* recv();	
+    addr* recv(int* htype);	
     
 };

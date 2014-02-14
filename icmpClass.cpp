@@ -32,6 +32,39 @@ int icmpClass::icmpFill(char* message, int n){
         return -1;
     
     //check if type and code are correct
+    if((icmp_msg -> icmp_type == ICMP_TIME_EXCEEDED && icmp_msg -> icmp_code == ICMP_TIMXCEED_INTRANS)
+       || (icmp_msg->icmp_type == ICMP_UNREACH)){
+
+        if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
+            return -1;
+
+        //construct the sent ip
+        sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
+        sent_iphdr_len = sent_ip->ip_len;
+        if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
+            return -1;
+        
+        //udp header
+        udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
+
+        return 0;
+    }
+    return -1;
+};
+/*
+int icmpClass::icmpFill(char* message, int n){
+    
+    int iphdr_len, sent_iphdr_len, icmplen;
+    
+    //now in buffer I have the whole icmp packet that I needed
+    dest_ip = (ip*) message;
+    iphdr_len=dest_ip->ip_len;
+    
+    //check the fields of the icmp response
+    if( ( icmplen = n - iphdr_len ) < ICMP_HDR_LENGTH )
+        return -1;
+    
+    //check if type and code are correct
     if(icmp_msg -> icmp_type == ICMP_TIME_EXCEEDED &&
         icmp_msg -> icmp_code == ICMP_TIMXCEED_INTRANS) {
 
@@ -47,24 +80,12 @@ int icmpClass::icmpFill(char* message, int n){
         //udp header
         udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
 
-        /*if(sent_ip->ip_p == IPPROTO_UDP && 
-            udp->uh_sport == htons(sent_port)
-            && udp->uh_dport == htons(dest_port)) { //hence intermediate router
-            
-            return 0;
-            
-        }
-        */
         return 0;
 
     }
-    
-    /*
-    * if the message received isn't time exceeded check if the message is a 
-    * port unreachable, so we reached the final destination
-    */
-    else 
-        if(icmp_msg->icmp_type == ICMP_UNREACH) {
+    //if the message received isn't time exceeded check if the message is a 
+    //port unreachable, so we reached the final destination
+    else if(icmp_msg->icmp_type == ICMP_UNREACH) {
 
             if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
                 return -1;
@@ -78,19 +99,9 @@ int icmpClass::icmpFill(char* message, int n){
 
             //udp header
             udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
-            /*
-            if(sent_ip->ip_p == IPPROTO_UDP && udp->uh_sport == htons(sent_port)
-                && udp->uh_dport == htons(dest_port)) { //hence final destination
-
-                if(icmp_msg->icmp_code == ICMP_UNREACH_PORT)
-                    return 1;
-                else 
-                    return -1;
-            }
-            */
         }
     return -1;
-};
+};*/
 
 int icmpClass::getICMPCode() {
     return icmp_msg->icmp_code;
@@ -167,7 +178,10 @@ void icmpClass::setChecksum(){
     int chs;
     chs=computeChecksum((uint16_t*) icmp_msg, icmp_length);
     icmp_msg->icmp_cksum=chs;
-    
+};
+
+uint16_t icmpClass::getChecksum(){
+    return icmp_msg->icmp_cksum;
 };
 
 

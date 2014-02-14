@@ -23,31 +23,48 @@ icmpManager::icmpManager(uint16_t s){
 
 int icmpManager::getSocket() {return sockfd;}
 
-addr* icmpManager::recv(){
-	
-	addr* address = new addr;
-	char buffer[MESSAGE_SIZE];
+int icmpManager::getPort() {return s_port;}
 
-    rm_addr = new sockaddr_in;
-    memset((char *)rm_addr, 0, sizeof(*rm_addr));
-	socklen_t rm_addr_size;
-	int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)rm_addr,&rm_addr_size);
+addr* icmpManager::recv(int* htype){
+	
+	char buffer[MESSAGE_SIZE];
+    sockaddr_in rm_addr;
+    socklen_t rm_addr_size;
+    
+    memset((char *)&rm_addr, 0, sizeof(rm_addr));
+	int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
 	if(ret != -1){
 		//ok
         icmpClass* icmpPkt = new icmpClass();
 		int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
-		
-		/*struct addr {
-			char ip[20];
-			struct timeval time[N_PROBE_DEF];
-			uint16_t checksum[N_PROBE_DEF];
-			addr* punt;
-		};*/
         
-		//addr* m_addr = new addr;
-		//address->ip = 
-		//address->checksum =
-		//address->time =
+        addr* address = new addr;
+		inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, 20);
+        gettimeofday (&(address->time), NULL);
+        icmpPkt->setChecksum();
+		address->checksum = icmpPkt->getChecksum();
+	    address->ret = false;
+
+        /*
+        if(sent_ip->ip_p == IPPROTO_UDP 
+            && udp->uh_sport == htons(sent_port)
+            && udp->uh_dport == htons(dest_port)) { 
+            //hence intermediate router
+            *htype = 0;
+            
+        }
+        if(sent_ip->ip_p == IPPROTO_UDP 
+            && udp->uh_sport == htons(sent_port)
+            && udp->uh_dport == htons(dest_port)) { 
+            //hence final destination
+            if(icmp_msg->icmp_code == ICMP_UNREACH_PORT)
+                *htype = 1;
+            else 
+                *htype = -1;
+        }
+        */
+
+        return address;
 	}
 	else{
 		//error
