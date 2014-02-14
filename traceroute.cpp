@@ -151,7 +151,10 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
         }
     }
     
-    return true;
-            
-    
+    return true;   
+}
+
+list<addr> traceroute::getList() {
+	
+	
 }
