@@ -45,6 +45,18 @@ addr* icmpManager::recv(int* htype){
 		address->checksum = icmpPkt->getChecksum();
 	    address->ret = false;
 
+        if(icmpPkt->getICMPType() == ICMP_TIME_EXCEEDED && icmpPkt->getICMPCode() == ICMP_TIMXCEED_INTRANS){
+            //hence intermediate router  
+            *htype = 0;
+        } 
+        else if(icmpPkt->getICMPType() == ICMP_UNREACH){
+            //hence final destination
+            *htype = 1;
+        } 
+        else{ 
+            *htype = -1;
+        }
+
         /*
         if(sent_ip->ip_p == IPPROTO_UDP 
             && udp->uh_sport == htons(sent_port)

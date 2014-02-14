@@ -30,6 +30,8 @@ int icmpClass::icmpFill(char* message, int n){
     //check the fields of the icmp response
     if( ( icmplen = n - iphdr_len ) < ICMP_HDR_LENGTH )
         return -1;
+    //copy icmp part of the message into icmp_msg
+    memcpy(icmp_msg,&message[iphdr_len],icmplen);
     
     //check if type and code are correct
     if((icmp_msg -> icmp_type == ICMP_TIME_EXCEEDED && icmp_msg -> icmp_code == ICMP_TIMXCEED_INTRANS)
