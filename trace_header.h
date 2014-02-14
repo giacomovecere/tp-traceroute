@@ -10,7 +10,6 @@
  * 
  */
 
-//#include "unp.h"
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
@@ -21,8 +20,15 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <cstdlib>
+#include <cstring>
 #include <sys/time.h>
 #include <list>
+#include <netdb.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+#include <netinet/udp.h>
+#include <netinet/in_systm.h>
 
 #define MAX_TTL_DEF 30
 #define N_PROBE_DEF 3
@@ -30,5 +36,14 @@
 
 using namespace std;
 
+#ifndef TRACE_HEADER_H
+#define TRACE_HEADER_H
 
+struct addr {
+    char ip[20];
+    struct timeval time;
+    uint16_t checksum;
+    bool ret;
+};
 
+#endif /* TRACE_HEADER_H */

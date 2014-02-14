@@ -20,12 +20,6 @@ using namespace std;
  * checksum: checksum of the packet
  * ret: it is set if we receive a reply to the sent packet
  */
-struct addr {
-    char ip[20];
-    struct timeval time;
-    uint16_t checksum;
-    bool ret;
-};
 
 class udpClass {
     

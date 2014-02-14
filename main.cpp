@@ -89,6 +89,10 @@ int main(int argc, char** argv) {
 	
 	attempts = 0;
 	while(attempts < N_ATTEMPTS) {
+		#ifdef _DEBUG
+			cout<<"First attempt of traceroute. ip: "<<ip_host<<" port: "<<dest_port_ini<<endl;
+		#endif
+		
 		res = t.trace(ip_host, max_ttl, dest_port_ini);
 		// if the traceroute has reached the destination, we can stop
 		if(res == true)

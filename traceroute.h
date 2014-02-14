@@ -13,6 +13,9 @@
 #include "udp.h"
 #include "icmp.h"
 
+// time to wait for ICMP reply packets (at maximum) 
+#define TIMEOUT_SELECT 3
+
 class traceroute {
     list<addr> array[MAX_TTL_DEF];
     uint16_t src_port; 

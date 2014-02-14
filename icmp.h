@@ -1,15 +1,5 @@
 /*ICMP header file*/
-#include <netinet/ip.h>
-#include <netinet/ip_icmp.h>
-#include <sys/socket.h>
-#include <netinet/udp.h>
-#include <netinet/in_systm.h>
-#include <arpa/inet.h>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
 #include "trace_header.h"
-#include "udp.h"
 
 /*NOTE the received message will have a dimension that is at most
  * 56 bytes (basing on the structure we've seen in the header)
@@ -19,8 +9,6 @@
 #define MESSAGE_SIZE 80
 #define ICMP_HDR_LENGTH 8
 
-using namespace std;
-
 /*This class represents the received ICMP packet, this packet is composed by:
  * first 20 byte: IP header of the source of the packet
  * 8 bytes: ICMP header
@@ -28,7 +16,6 @@ using namespace std;
  *  20 bytes: IP header of the source of the previous UDP packet
  *  8 bytes: UDP header 
  */
-
 
 class icmpClass{
 
