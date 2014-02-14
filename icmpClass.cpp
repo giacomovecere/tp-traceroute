@@ -14,11 +14,11 @@ icmpClass::icmpClass() {
 
 
 //fills the fields of the class basing on the received message
-/*returns 0 if intermediate router
- * 1 if port unreachable
- * -1 if error
- * the return value makes it easy to analyze the other fields
- */
+/*
+ * returns: 
+ *       0 if ok
+ *      -1 if error
+*/
 int icmpClass::icmpFill(char* message, int n){
     
     int iphdr_len, sent_iphdr_len, icmplen;
