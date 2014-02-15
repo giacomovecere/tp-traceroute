@@ -79,22 +79,3 @@ addr* icmpManager::recv(int* htype){
 		return NULL;
 	}
 }
-
-        /*
-        if(sent_ip->ip_p == IPPROTO_UDP 
-            && udp->uh_sport == htons(sent_port)
-            && udp->uh_dport == htons(dest_port)) { 
-            //hence intermediate router
-            *htype = 0;
-            
-        }
-        if(sent_ip->ip_p == IPPROTO_UDP 
-            && udp->uh_sport == htons(sent_port)
-            && udp->uh_dport == htons(dest_port)) { 
-            //hence final destination
-            if(icmp_msg->icmp_code == ICMP_UNREACH_PORT)
-                *htype = 1;
-            else 
-                *htype = -1;
-        }
-        */

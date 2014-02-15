@@ -7,9 +7,6 @@
 
 //allocate a structure, this is the constructor in case the icmp has to be sent
 icmpClass::icmpClass() {
-    icmp_msg=new icmp;
-    //set all the other fields to 0
-    memset(icmp_msg, 0, sizeof(icmp));
 }
 
 
@@ -31,27 +28,21 @@ int icmpClass::icmpFill(char* message, int n){
     if( ( icmplen = n - iphdr_len ) < ICMP_HDR_LENGTH )
         return -1;
     //copy icmp part of the message into icmp_msg
-    memcpy(icmp_msg,&message[iphdr_len],icmplen);
+    icmp_msg = (icmp*)&message[iphdr_len];
     
-    //check if type and code are correct
-    if((icmp_msg -> icmp_type == ICMP_TIME_EXCEEDED && icmp_msg -> icmp_code == ICMP_TIMXCEED_INTRANS)
-       || (icmp_msg->icmp_type == ICMP_UNREACH)){
+    if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
+        return -1;
 
-        if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
-            return -1;
+    //construct the sent ip
+    sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
+    sent_iphdr_len = sent_ip->ip_len;
+    if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
+        return -1;
+    
+    //udp header
+    udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
 
-        //construct the sent ip
-        sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
-        sent_iphdr_len = sent_ip->ip_len;
-        if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
-            return -1;
-        
-        //udp header
-        udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
-
-        return 0;
-    }
-    return -1;
+    return 0;
 };
 /*
 int icmpClass::icmpFill(char* message, int n){
