@@ -22,7 +22,7 @@ int icmpClass::icmpFill(char* message, int n){
     
     //now in buffer I have the whole icmp packet that I needed
     dest_ip = (ip*) message;
-    iphdr_len=dest_ip->ip_len;
+    iphdr_len=dest_ip->ip_hl << 2;
     
     //check the fields of the icmp response
     if( ( icmplen = n - iphdr_len ) < ICMP_HDR_LENGTH )
@@ -35,7 +35,7 @@ int icmpClass::icmpFill(char* message, int n){
 
     //construct the sent ip
     sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
-    sent_iphdr_len = sent_ip->ip_len;
+    sent_iphdr_len = sent_ip->ip_hl << 2;
     if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
         return -1;
     
@@ -114,8 +114,14 @@ ip* icmpClass::getDestIPHeader(){
     return dest_ip;
 }
 
+//converts from network mode to host mode
 udphdr* icmpClass::getUDPHeader(){
-    return udp;
+  udphdr* tmp = udp;
+  udp->uh_dport = htons(tmp->uh_dport);
+  udp->uh_sport = htons(tmp->uh_sport);
+  udp->uh_sum = udp->uh_sum;
+  udp->uh_ulen = htons(tmp->uh_ulen);
+  return udp;
 }
 
 int icmpClass::getUDPChecksum() {
@@ -149,7 +155,7 @@ void icmpClass::setICMPPayload(char* data, int len){
 
 /* Compute Internet Checksum by addind all the data contained in the 
  * datagram. In this case we need just the infos contained in the icmp*/
-uint16_t computeChecksum(const uint16_t* dgram, int length) {
+uint16_t computeIcmpChecksum(const uint16_t* dgram, int length) {
         uint32_t sum = 0;
 
         while (length > 1) {
@@ -169,7 +175,7 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
 void icmpClass::setChecksum(){
     
     int chs;
-    chs=computeChecksum((uint16_t*) icmp_msg, icmp_length);
+    chs=computeIcmpChecksum((uint16_t*) icmp_msg, icmp_length);
     icmp_msg->icmp_cksum=chs;
 };
 

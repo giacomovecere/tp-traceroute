@@ -20,26 +20,34 @@ udpManager::udpManager(uint16_t src_port) {
 */
 void udpManager::send(char* ip_address, uint16_t dest_port, int ttl, int payload, int n_probe, addr* vett_addr) {
     int udp_sock;
-    char* c_payload = 0;
-    sockaddr_in dest;
+    
+    //NOTE c_peyload becomes a void pointer to a memory location
+    
+    char c_payload[sizeof(int)];
+    sockaddr_in* dest;
     int probe;
     
     udpPacket->setTtl(ttl);
+    //set destination port and address
+    udpPacket->setDest(ip_address, dest_port);
     
     for(probe = 0; probe < n_probe; probe++) {
         // converts payload from int to character
-        sprintf(c_payload, "%d", payload);
+        //sprintf(c_payload, "%d", payload);
+        memcpy(c_payload, &payload, sizeof(int));
         udpPacket->setPayload(c_payload);
         
         // calculates the checksum of the packet
         vett_addr[probe].checksum = udpPacket->getChecksum();
-        
+
         udp_sock = udpPacket->getSock();
         dest = udpPacket->getDest();
         // setting the current time
         gettimeofday(&vett_addr[probe].time, NULL);
         // sends the UDP packet 
-        sendto(udp_sock, c_payload, sizeof(c_payload), 0, (sockaddr *)&dest, sizeof(dest));
+        int x = sendto(udp_sock, c_payload, sizeof(c_payload), 0, (sockaddr *)dest, 
+                       sizeof(sockaddr));
+        if(x != -1) cout<<"send ok\n";
         
         vett_addr[probe].ret = false;
         

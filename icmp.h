@@ -78,6 +78,7 @@ class icmpManager{
     //file descriptor of the socket
     int sockfd;
     uint16_t s_port;
+    uint16_t d_port;
     sockaddr_in* my_addr;
     
 public:
@@ -87,7 +88,8 @@ public:
     //returns the socket on which receive the ICMP
     int getSocket();
     //return the port
-    int getPort();
+    int getSourcePort();
+    int getDestPort();
         
     addr* recv(int* htype);	
     

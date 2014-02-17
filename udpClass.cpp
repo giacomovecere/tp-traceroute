@@ -1,16 +1,38 @@
 #include "udp.h"
+#include <iomanip>
 
 udpClass::udpClass(uint16_t source_port=0) {
     
     sockfd=socket(AF_INET, SOCK_DGRAM, 0);   //socket file descriptor
     
+    char buff[50];
+    
     //source structure initialization
     src.sin_family=AF_INET;
     src.sin_port=htons(source_port);
-    inet_pton(AF_INET, INADDR_ANY, &src.sin_addr);
+    
+    struct ifaddrs * ifAddrStruct=NULL;
+    struct ifaddrs * ifa=NULL;
+    void * tmpAddrPtr=NULL;
+
+    getifaddrs(&ifAddrStruct);
+
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa ->ifa_addr->sa_family==AF_INET) { // check it is IP4
+            // is a valid IP4 Address
+            tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+            char addressBuffer[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+            printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
+	}
+    }
+    
+    memcpy(&src.sin_addr, tmpAddrPtr, sizeof(in_addr));
     
     //bind the socket to the source address and port
     bind(sockfd, (sockaddr*)&src, sizeof(sockaddr)); 
+    
+    freeifaddrs(ifAddrStruct);
     	
 }
 
@@ -40,8 +62,8 @@ sockaddr_in udpClass::getSrc() {
 
 /* The method returns the sockaddr_in structure that contains the details 
  * of the destination host */
-sockaddr_in udpClass::getDest() {
-    return dest;
+sockaddr_in* udpClass::getDest() {
+    return &dest;
 }
 
 /* The method returns the payload of the datagram */
@@ -55,12 +77,15 @@ void udpClass::setPayload(char* buff) {
  * the entire UDP Header and the payload*/
 uint16_t computeChecksum(const uint16_t* dgram, int length) {
     uint32_t sum = 0;
-
+    
+    //for(int i=0; i<length; i++)
+	//sum+=dgram[i];
     while (length > 1) {
-        sum += *dgram++;
+        sum += (*dgram++);
         length -= 2;
     }
-
+    
+    
     if (length > 0) sum += *(uint8_t*)dgram;
 
     // Put the sum on 16 bits by adding the two 16-bits parts
@@ -70,19 +95,37 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
 }
 
 uint16_t udpClass::getChecksum() {
-    int length = 16 + LENGTH_PAYLOAD;
-    int length_pay = LENGTH_PAYLOAD;
-    char dgram[length];
-    const int proto = 0x11;
-    
+    uint16_t total_length = LENGTH_PSEUDO_IP + LENGTH_UDP_HEADER + LENGTH_PAYLOAD;
+    uint16_t length = LENGTH_UDP_HEADER + LENGTH_PAYLOAD; 
+    uint16_t length_pay =  LENGTH_PAYLOAD;
+    uint8_t dgram[total_length];
+    const uint16_t proto = 0x1100;
+    const int chs = 0x0000;
+    //uint16_t print[total_length/2];
+    //pseudo IP header
     memcpy(dgram, &src.sin_addr, sizeof(src.sin_addr));
     memcpy(dgram + 4, &dest.sin_addr, sizeof(dest.sin_addr));
     memcpy(dgram + 8, &proto, 2);
-    memcpy(dgram + 10, &src.sin_port, sizeof(src.sin_port));
-    memcpy(dgram + 12, &dest.sin_port, sizeof(dest.sin_port));
-    memcpy(dgram + 14, (void*)&length_pay, 2);	
-    memcpy(dgram + 16, payload, length_pay);
-
-    return computeChecksum((uint16_t*)dgram, length);
+    dgram[10]=0x00;
+    dgram[11]=0x0c;
+    
+    //UDP header
+    memcpy(dgram + 12, &src.sin_port, sizeof(src.sin_port));
+    memcpy(dgram + 14, &dest.sin_port, sizeof(dest.sin_port));
+    dgram[16]=0x00;
+    dgram[17]=0x0c;
+    memcpy(dgram + 18, &chs, 2);
+    
+    //payload UDP
+    memcpy(dgram + 20, payload, length_pay);
+    
+    /*for(int i=0; i<24; i++)
+      fprintf(stdout, "%4x ", dgram[i]);
+    cout<<endl;*/
+    
+    int z = computeChecksum((uint16_t*)dgram, total_length);
+    fprintf(stdout, "Checksum: %4x ", z);
+    
+    return z;
 }	
 

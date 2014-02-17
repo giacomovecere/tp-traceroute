@@ -12,9 +12,13 @@
  
 #include "udp.h"
 #include "icmp.h"
+#include <sys/socket.h>
+// #include <sys/types>
+#include <netdb.h>
+#include "trace_header.h"
 
 // time to wait for ICMP reply packets (at maximum) 
-#define TIMEOUT_SELECT 3
+#define TIMEOUT_SELECT 5
 
 class traceroute {
     list<addr> array[MAX_TTL_DEF];

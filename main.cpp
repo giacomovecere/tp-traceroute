@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 	uint16_t s_port;
 	uint16_t dest_port_ini = 33434; //32768 + 666?
 	int shift = 20;
-	struct addrinfo	hints, *result;
+	struct addrinfo	*hints, *result;
 
 	// All of the options are optional: m and p require arguments
 	while ((opt = getopt (argc, argv, "m:p:v")) != -1) {
@@ -58,19 +58,28 @@ int main(int argc, char** argv) {
 		exit(EXIT_FAILURE);
 	}
 	host = argv[optind];
+	
+	//cout<<host<<endl;
+        
+        hints = new addrinfo;
+	bzero(hints, sizeof(struct addrinfo));
+	hints->ai_family = AF_INET;		/* 0, AF_INET, AF_INET6, etc. */
+	hints->ai_socktype = SOCK_DGRAM;	/* 0, SOCK_STREAM, SOCK_DGRAM, etc. */
+	hints->ai_flags = AI_CANONNAME;
 
-	bzero(&hints, sizeof(struct addrinfo));
-	hints.ai_family = AF_INET;		/* 0, AF_INET, AF_INET6, etc. */
-	hints.ai_socktype = SOCK_DGRAM;	/* 0, SOCK_STREAM, SOCK_DGRAM, etc. */
-
-	if ( (n = getaddrinfo(host, NULL, &hints, &result)) != 0) {
+	if ( (n = getaddrinfo(host, NULL, hints, &result)) != 0) {
 		cout <<"getaddrinfo error" << endl;
 		exit(EXIT_FAILURE);
 	}
 	
 	inet_ntop(AF_INET, &(result->ai_addr), ip_host, result->ai_addrlen);
-	cout<<"traceroute to "<< result->ai_canonname <<" ( "<< ip_host <<" ) : "<< max_ttl <<
-	" hops max, "<< dest_port_ini << " initial destination port"<< endl;
+	
+	//cout<< "hello\n";
+	
+	cout<<result->ai_canonname<<endl;
+	cout<<"traceroute to "<< result->ai_canonname;
+	cout<<" ( "<< ip_host <<" ) : "<< max_ttl;
+	cout<<" hops max, "<< dest_port_ini << " initial destination port"<< endl;
 	
 	/*cout<<"traceroute to "<< result->ai_canonname ? result->ai_canonname : ip_host <<" ( "<< ip_host <<" ) : "<< max_ttl <<
 	" hops max, "<< dest_port_ini << " initial destination port"<< endl;*/
@@ -81,10 +90,8 @@ int main(int argc, char** argv) {
 	cout<<"traceroute to "<< a_info->ai_canonname ? a_info->ai_canonname : ip_host <<" ( "<< ip_host <<" ) : "<< max_ttl <<
 	" hops max, "<< n_probe << " number of probes to send"<< endl;
 	*/
-	
 	// The source port depends on the PID of the instance of the traceroute
 	s_port = (getpid() & 0xffff) | 0x8000;
-	
 	traceroute t = traceroute(s_port);
 	
 	attempts = 0;

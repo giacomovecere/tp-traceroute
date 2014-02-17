@@ -10,7 +10,11 @@
 icmpManager::icmpManager(uint16_t s){
     s_port = s;
     //socket that receives icmp packet
-    sockfd=socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+    if(sockfd == -1) {
+        cerr<<"error in building the socket\n";
+        //exit(EXIT_FAILURE);
+    }
     //init struct for binding
     my_addr = new sockaddr_in;
     memset((char *)my_addr, 0, sizeof(*my_addr)); 
@@ -23,7 +27,11 @@ icmpManager::icmpManager(uint16_t s){
 
 int icmpManager::getSocket() { return sockfd; }
 
-int icmpManager::getPort() { return s_port; }
+//referred to the source
+int icmpManager::getSourcePort() { return s_port; }
+
+//referred to the destination
+int icmpManager::getDestPort() {return d_port;}
 
 /*
  * Return a struct addr* that contains 
@@ -42,11 +50,14 @@ addr* icmpManager::recv(int* htype){
     memset((char *)&rm_addr, 0, sizeof(rm_addr));
     //receive the response message
 	int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
-	if(ret != -1){
+	if(ret != -1) {
 		//ok
         icmpClass* icmpPkt = new icmpClass();
         //fill object with received message  
 		int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
+		
+		//NOTE make the rotate cleaner
+		d_port = icmpPkt->getUDPHeader()->uh_dport;
 
         addr* address = new addr;
         //set router ip address
@@ -54,8 +65,8 @@ addr* icmpManager::recv(int* htype){
         //set current time
         gettimeofday (&(address->time), NULL);
         //compute and set the checksum
-        icmpPkt->setChecksum();
-		address->checksum = icmpPkt->getChecksum();
+        //icmpPkt->setChecksum();
+		address->checksum = icmpPkt->getUDPChecksum();
         //
         address->ret = false;
 

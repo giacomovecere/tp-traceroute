@@ -11,6 +11,8 @@
 #include "trace_header.h"
 
 #define LENGTH_PAYLOAD 4
+#define LENGTH_UDP_HEADER 8
+#include <ifaddrs.h>
 
 using namespace std;
 
@@ -39,7 +41,7 @@ class udpClass {
 
     sockaddr_in getSrc();
 
-    sockaddr_in getDest();
+    sockaddr_in* getDest();
 
     void setPayload(char*);
 
