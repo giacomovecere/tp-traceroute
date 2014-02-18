@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 	char* host;
 	list<addr>* ip_list;
 	uint16_t s_port;
-	uint16_t dest_port_ini = 33434; //32768 + 666?
+	uint16_t dest_port_ini = 33434;
 	int shift = 20;
 	struct addrinfo	*hints, *result;
 
@@ -57,16 +57,15 @@ int main(int argc, char** argv) {
 		cout << "usage: traceroute [ -m <maxttl> -p <initial_port> -v ] <hostname>";
 		exit(EXIT_FAILURE);
 	}
+	// ip address or hostname of the destination to reach
 	host = argv[optind];
-	
-	//cout<<host<<endl;
-        
-        hints = new addrinfo;
+	        
+    hints = new addrinfo;
 	bzero(hints, sizeof(struct addrinfo));
 	hints->ai_family = AF_INET;		/* 0, AF_INET, AF_INET6, etc. */
 	hints->ai_socktype = SOCK_DGRAM;	/* 0, SOCK_STREAM, SOCK_DGRAM, etc. */
 	hints->ai_flags = AI_CANONNAME;
-
+    //getting the information of the destination
 	if ( (n = getaddrinfo(host, NULL, hints, &result)) != 0) {
 		cout <<"getaddrinfo error" << endl;
 		exit(EXIT_FAILURE);
@@ -83,20 +82,25 @@ int main(int argc, char** argv) {
 	s_port = (getpid() & 0xffff) | 0x8000;
     
 	attempts = 0;
+    // tries 'N_ATTEMPTS' times to do the traceroute to the destination by changing the dest. port
 	while(attempts < N_ATTEMPTS) {
 		#ifdef _DEBUG
-			cout<<"First attempt of traceroute. ip: "<<ip_host<<" port: "<<dest_port_ini<<endl;
+			cout<< "Attempt n°"<<attempts<<" of traceroute. IP: "<<ip_host<<" Port: "<<dest_port_ini<<endl;
 		#endif
+            
         traceroute t = traceroute(s_port);
 		
 		res = t.trace(ip_host, max_ttl, dest_port_ini);
-		// if the traceroute has reached the destination, we can stop
+		// if the traceroute has reached the destination, stop
 		if(res == true) {
             ip_list = t.getArrayList();
 			break;
         }
 		
-		// if not, we try with another initial destination port
+		/*ip_list = t.getArrayList();
+		cout<<ip_list<<endl;*/
+		
+        // if not, try with another initial destination port
 		dest_port_ini = dest_port_ini + shift;
 		attempts++;
         s_port++;
@@ -105,6 +109,7 @@ int main(int argc, char** argv) {
 	if(attempts == N_ATTEMPTS)
 		cout << "Traceroute failed: it was not possible to reach the destination after "<< N_ATTEMPTS << " attempts"<< endl;
 	else {
+        cout<<ip_list<<endl;
 		//ip_list = t.getArrayList();
 		// [Print of the ip addresses from ip_list]
 	}

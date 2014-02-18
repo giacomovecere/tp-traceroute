@@ -23,21 +23,21 @@ class icmpClass{
      *source_ip is related to the subject who does the traceroute*/
     ip* dest_ip;
     ip* sent_ip;
-    //length of the icmp
     int icmp_length;
+    
     //udp header
     udphdr* udp;
     icmp* icmp_msg;            
 
 public:
     
-    //in case we're building an ICMP packet to send
+    //in case we are building an ICMP packet to send
     icmpClass();
     
-    //construct an ICMP packet starting from infos received
+    //constructs an ICMP packet starting from infos received
     int icmpFill(char*, int);
 
-    //Adapt udp field to network format
+    //Adapts udp field to network format
     static void adaptToNetwork(udphdr* u);
     
     /*GET METHODS*/

@@ -18,7 +18,7 @@
 #include "trace_header.h"
 
 // time to wait for ICMP reply packets (at maximum) 
-#define TIMEOUT_SELECT 5
+#define TIMEOUT_SELECT 10
 
 class traceroute {
     list<addr> array_ip_list[MAX_TTL_DEF];

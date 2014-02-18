@@ -31,7 +31,7 @@
 #include <netinet/in_systm.h>
 
 #define MAX_TTL_DEF 80
-#define N_PROBE_DEF 5
+#define N_PROBE_DEF 3
 #define N_ATTEMPTS 5
 #define LENGTH_PSEUDO_IP 12
 #define LENGTH_IP_ADDRESS 20

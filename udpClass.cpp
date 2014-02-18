@@ -23,8 +23,8 @@ udpClass::udpClass(uint16_t source_port=0) {
             tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             char addressBuffer[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-            printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
-	}
+            //printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
+        }
     }
     
     memcpy(&src.sin_addr, tmpAddrPtr, sizeof(in_addr));
@@ -108,8 +108,6 @@ uint16_t udpClass::getChecksum() {
     uint8_t dgram[total_length];
     uint16_t proto = 0x0011;
     const int chs = 0x0000;
-    //uint16_t print[total_length/2];
-    //pseudo IP header
     
     //all the memcopy are useful to preapre the structure on which we need 
     //to compute the checksum
@@ -132,13 +130,10 @@ uint16_t udpClass::getChecksum() {
     //payload UDP
     memcpy(dgram + 20, payload, length_pay);
     
-    /*for(int i=0; i<24; i++)
-      fprintf(stdout, "%4x ", dgram[i]);
-    cout<<endl;*/
-    
     int z = computeChecksum((uint16_t*)dgram, total_length);
+    
     #ifdef _DEBUG
-	fprintf(stdout, "Checksum: %4x ", z);
+        fprintf(stdout, "Checksum generated: %4x \n", z);
     #endif
     return z;
 }	

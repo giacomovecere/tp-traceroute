@@ -18,10 +18,10 @@ udpManager::udpManager(uint16_t src_port) {
  * of the method. 
  * It fills 'vett_addr' with the information required 
 */
-void udpManager::send(char* ip_address, uint16_t dest_port, int ttl, int payload, int n_probe, addr* vett_addr) {
+bool udpManager::send(char* ip_address, uint16_t dest_port, int ttl, int payload, int n_probe, addr* vett_addr) {
     int udp_sock;
     
-    //NOTE c_peyload becomes a void pointer to a memory location
+    //NOTE c_payload becomes a void pointer to a memory location
     
     char c_payload[sizeof(int)];
     sockaddr_in* dest;
@@ -47,11 +47,15 @@ void udpManager::send(char* ip_address, uint16_t dest_port, int ttl, int payload
         // sends the UDP packet 
         int x = sendto(udp_sock, c_payload, sizeof(c_payload), 0, (sockaddr *)dest, 
                        sizeof(sockaddr));
-        if(x != -1) cout<<"send ok\n";
+        if(x == -1) {
+            cerr<<"Error: sendto error"<<endl;
+            return false;
+        }
         
         vett_addr[probe].ret = false;
         
         // changhes the payload for changing the checksum field [as Paris-traceroute does]
         payload++;
     }
+    return true;
 }		

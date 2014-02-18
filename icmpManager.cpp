@@ -13,7 +13,7 @@ icmpManager::icmpManager(uint16_t s){
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if(sockfd == -1) {
         cerr<<"error in building the socket\n";
-        //exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
     //init struct for binding
     my_addr = new sockaddr_in;
@@ -48,10 +48,12 @@ addr* icmpManager::recv(int* htype){
     socklen_t rm_addr_size;
     
     memset((char *)&rm_addr, 0, sizeof(rm_addr));
+    
+    // to get the right ip address from the recvfrom function
+    rm_addr_size = sizeof(struct sockaddr_in);
     //receive the response message
 	int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
 	if(ret != -1) {
-		//ok
         icmpClass* icmpPkt = new icmpClass();
         //fill object with received message  
 		int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);

@@ -60,6 +60,6 @@ class udpManager {
      * of the method. 
 	 * It fills 'vett_addr' with the information required 
     */
-    void send(char*, uint16_t, int, int, int, addr*);	
+    bool send(char*, uint16_t, int, int, int, addr*);	
     
 };
