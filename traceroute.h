@@ -33,6 +33,6 @@ class traceroute {
     
     list<addr>* getArrayList();
     
-    friend ostream& operator<<(ostream& output, traceroute& t);
+    void print();
 	
 };

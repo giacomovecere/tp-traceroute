@@ -104,7 +104,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
     read_fds = master;
     for(ttl = 1; ttl < max_ttl && done == false; ttl++) {
 		#ifdef _DEBUG
-			cout<<"ttl-for. ttl = "<< ttl <<endl;
+			cout<<"TTL = "<< ttl <<endl;
 		#endif
 		
         /* NOTE: first of all send the packets to the destination*/
@@ -125,7 +125,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
         else {
 			if(receive_port != 0) {
 				#ifdef _DEBUG
-					cout<<"Sending "<< (int)N_PROBE_DEF <<" packets to "<< receive_port <<" destination port"<<endl;
+					cout<<"Sending "<< (int)N_PROBE_DEF <<" packets to "<< receive_port <<" destination port"<<endl<<endl;
 				#endif
 				
 				/* it send 'N_PROBE_DEF UDP packets to the destination
@@ -195,7 +195,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
             else {
                 //if we did not receive any packets we need to restart the traceroute (with another dest. port)
                 if(pcks_received == 0) {
-                    cout<<"No response messages along the path: TRACEROUTE FAILED! \n";
+                    cout<<"No response messages along the path: TRACEROUTE FAILED! \n\n";
                     return false;
                 }
                 else {
@@ -233,34 +233,45 @@ traceroute::~traceroute() {
 }
 
 // Redefinition of the output operator for printing the elements of the list stored
-ostream& operator<<(ostream& out, traceroute& t)  {
+void traceroute::print()  {
     
     list<addr>* tmp;
     list<addr>::iterator p, q;
-    tmp = t.getArrayList();
+    tmp = array_ip_list;
     
     //scan the array of list
-    for(int i = 0; i < MAX_TTL_DEF; i++) {
+    for(int i = 1; i < MAX_TTL_DEF; i++) {
         p = tmp[i].begin();
         q = tmp[i].end();
         
-        if(p->ret)
-            fprintf(stdout, "IP Address: %s\n", p->ip);
+        if(tmp[i].empty() == true) break;
         
-        //scanning of the list
+        while (p != q) {
+            if(p->ret) {
+                fprintf(stdout, "IP Address: %s\n", p->ip);
+                break;
+            }
+            p++;
+        }
+        
+        p = tmp[i].begin();
+        q = tmp[i].end();
+        
+        //scanning the list
         while(p != q) {
             
+            //fprintf(stdout, "IP Address: %s\n", p->ip);
             //check if the packet has received response
             if(p->ret) {
                 float rtt = p->time.tv_sec * 1000.0 +
                             p->time.tv_usec / 1000.0;
                 // formatted print of the rtt
-                fprintf(stdout, "RTT: %4.3f ", rtt);
+                fprintf(stdout, "%4.3f ms ", rtt);
             }
             else 
-                fprintf(stdout, "* \t");
+                fprintf(stdout, "   *    ");
             p++;
-            fprintf(stdout, "\n");
         }
+        fprintf(stdout, "\n\n");
     }
 } 

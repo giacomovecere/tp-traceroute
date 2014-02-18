@@ -133,7 +133,7 @@ uint16_t udpClass::getChecksum() {
     int z = computeChecksum((uint16_t*)dgram, total_length);
     
     #ifdef _DEBUG
-        fprintf(stdout, "Checksum generated: %4x \n", z);
+        fprintf(stdout, "Checksum generated: %4x \n\n", z);
     #endif
     return z;
 }	
