@@ -57,7 +57,7 @@ addr* icmpManager::recv(int* htype){
 		int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
 		
 		//NOTE make the rotate cleaner
-		d_port = icmpPkt->getUDPHeader()->uh_dport;
+		d_port = icmpPkt->getUDPHeader()->dest;
 
         addr* address = new addr;
         //set router ip address

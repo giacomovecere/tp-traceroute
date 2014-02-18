@@ -117,10 +117,10 @@ ip* icmpClass::getDestIPHeader(){
 //converts from network mode to host mode
 udphdr* icmpClass::getUDPHeader(){
   udphdr* tmp = udp;
-  udp->uh_dport = htons(tmp->uh_dport);
-  udp->uh_sport = htons(tmp->uh_sport);
-  udp->uh_sum = udp->uh_sum;
-  udp->uh_ulen = htons(tmp->uh_ulen);
+  udp->dest = htons(tmp->dest);
+  udp->source = htons(tmp->source);
+  udp->check = udp->check;
+  udp->len = htons(tmp->len);
   return udp;
 }
 
