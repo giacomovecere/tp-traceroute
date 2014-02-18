@@ -243,7 +243,7 @@ ostream& operator<<(ostream& out, traceroute& t)  {
                 
                 float rtt = p->time.tv_sec * 1000.0 +
                             p->time.tv_usec / 1000.0;
-                fprintf(stdout, "RTT: 4.3f ", rtt);
+                fprintf(stdout, "RTT: %4.3f ", rtt);
             }
             else 
                 fprintf(stdout, "* \t");
