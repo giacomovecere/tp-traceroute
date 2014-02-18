@@ -206,7 +206,16 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
     return true;   
 }
 
-list<addr> traceroute::getList() {
-	
-	
+/* Returns the pointer of the array that contains the lists of the 'addr' elements */
+list<addr>* traceroute::getArrayList() {
+	return array_ip_list;	
+}
+
+/* destroyer */
+traceroute::~traceroute() {
+    for(int i=0; i < MAX_TTL_DEF; i++) {
+        if(array_ip_list[i].begin() == array_ip_list[i].end())
+            break;
+        array_ip_list[i].clear();
+    }
 }

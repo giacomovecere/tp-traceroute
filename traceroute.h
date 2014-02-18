@@ -27,10 +27,11 @@ class traceroute {
     public:
     
     traceroute(uint16_t);
+    ~traceroute();
     
     bool trace(char*, int, uint16_t);
     
-    list<addr> getList();
+    list<addr>* getArrayList();
     
     friend ostream& operator<<(ostream& output, traceroute& t);
 	
