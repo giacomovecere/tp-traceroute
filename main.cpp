@@ -90,10 +90,11 @@ int main(int argc, char** argv) {
             
         traceroute t = traceroute(s_port);
 		
-		res = t.trace(ip_host, max_ttl, dest_port_ini);
+		res = t.trace(host, max_ttl, dest_port_ini);
 		// if the traceroute has reached the destination, stop
 		if(res == true) {
-            //ip_list = t.getArrayList();
+            cout<<"DESTINATION FOUND: PORT UNREACHABLE!!!!!!!!!\n";
+            t.print();
 			break;
         }
 		

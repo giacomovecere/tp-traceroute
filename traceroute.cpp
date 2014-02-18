@@ -185,13 +185,14 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
                 
                 if(pcks_received == N_PROBE_DEF){ 
                     // if the destination has been reached, traceroute can stop
-                    if(type == FINAL_DESTINATION) 
+                    if(type == FINAL_DESTINATION) { 
                         done = true;
+                    }
                     break;
                 }
             }
             
-            // The caso of 'Time expired'
+            // The case of 'Time expired'
             else {
                 //if we did not receive any packets we need to restart the traceroute (with another dest. port)
                 if(pcks_received == 0) {
@@ -199,8 +200,9 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
                     return false;
                 }
                 else {
-                    if(type == FINAL_DESTINATION) 
+                    if(type == FINAL_DESTINATION) { 
                         done = true;
+                    }
                     packets_in_time = false;
                 }
             }
