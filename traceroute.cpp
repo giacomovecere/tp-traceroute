@@ -39,7 +39,7 @@ bool find_checksum(uint16_t checksum, list<addr>::iterator start, list<addr>::it
 
 /* function that changes the timeval given the checksum */
 
-bool change_timeval(timeval t, uint16_t checksum, 
+bool change_timeval(addr address, 
                     list<addr>::iterator start, list<addr>::iterator end){
         //addr* element;
         list<addr>::iterator p;
@@ -49,9 +49,10 @@ bool change_timeval(timeval t, uint16_t checksum,
 
         for(p=start; p!= end; p++){
                 //element = p;
-                if(p->checksum == checksum){
+                if(p->checksum == address.checksum){
                     p->ret = true;
-                    tv_sub(&p->time, &t);
+                    tv_sub(&p->time, &address.time);
+                    memcpy(p->ip, address.ip);
                     return true;
                 }
         }
@@ -167,8 +168,8 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
                     #endif		    
                     /* modify the element in the list only if the packet received belongs to that 
                      * TTL "slot time" */
-                    if(change_timeval(received->time, received->checksum, 
-                      array_ip_list[ttl].begin(), array_ip_list[ttl].end()))
+                    if(change_timeval(received, array_ip_list[ttl].begin(), 
+                        array_ip_list[ttl].end()))
                         
                         n_receive++;
                 }
@@ -206,7 +207,48 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
     return true;   
 }
 
-list<addr> traceroute::getList() {
-	
-	
+/* Returns the pointer of the array that contains the lists of the 'addr' elements */
+list<addr>* traceroute::getArrayList() {
+	return array_ip_list;	
 }
+
+/* destroyer */
+traceroute::~traceroute() {
+    for(int i=0; i < MAX_TTL_DEF; i++) {
+        if(array_ip_list[i].begin() == array_ip_list[i].end())
+            break;
+        array_ip_list[i].clear();
+    }
+}
+
+ostream& operator<<(ostream& out, traceroute& t)  {
+    
+    list<addr> tmp[MAX_TTL_DEF];
+    list<addr>::iterator p, q;
+    tmp=t.getArrayList();
+    
+    //scan the array of list
+    for(int i=0; i<MAX_TTL_DEF; i++) {
+        p=tmp[i].begin();
+        q=tmp[i].end();
+        
+        if(p->ret)
+            fprintf(stdout, "IP Address: %s\n", p->ip);
+        
+        //scan the list
+        while(p!=q) {
+            
+            //check if the packet has received response
+            if(p->ret) {
+                
+                float rtt = p->time.tv_sec * 1000.0 +
+                            p->time.tv_usec / 1000.0;
+                fprintf(stdout, "RTT: 4.3f ", rtt);
+            }
+            else 
+                fprintf(stdout, "* \t");
+            p++;
+            fprintf(stdout, "\n");
+        }
+    }
+} 

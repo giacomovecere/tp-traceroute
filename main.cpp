@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 	bool verbose = false, res;
 	char ip_host[30];
 	char* host;
-	list<addr> ip_list;
+	list<addr>* ip_list;
 	uint16_t s_port;
 	uint16_t dest_port_ini = 33434; //32768 + 666?
 	int shift = 20;
@@ -73,27 +73,16 @@ int main(int argc, char** argv) {
 	}
 	
 	inet_ntop(AF_INET, &(result->ai_addr), ip_host, result->ai_addrlen);
-	
-	//cout<< "hello\n";
-	
+		
 	cout<<result->ai_canonname<<endl;
 	cout<<"traceroute to "<< result->ai_canonname;
 	cout<<" ( "<< ip_host <<" ) : "<< max_ttl;
 	cout<<" hops max, "<< dest_port_ini << " initial destination port"<< endl;
 	
-	/*cout<<"traceroute to "<< result->ai_canonname ? result->ai_canonname : ip_host <<" ( "<< ip_host <<" ) : "<< max_ttl <<
-	" hops max, "<< dest_port_ini << " initial destination port"<< endl;*/
-	
-	/*a_info = Host_serv(host, NULL, AF_INET, SOCK_DGRAM);
-	
-	inet_ntop(AF_INET, &(a_info->ai_addr), ip_host, a_info->addrlen);
-	cout<<"traceroute to "<< a_info->ai_canonname ? a_info->ai_canonname : ip_host <<" ( "<< ip_host <<" ) : "<< max_ttl <<
-	" hops max, "<< n_probe << " number of probes to send"<< endl;
-	*/
 	// The source port depends on the PID of the instance of the traceroute
 	s_port = (getpid() & 0xffff) | 0x8000;
 	traceroute t = traceroute(s_port);
-	
+    
 	attempts = 0;
 	while(attempts < N_ATTEMPTS) {
 		#ifdef _DEBUG
@@ -108,12 +97,14 @@ int main(int argc, char** argv) {
 		// if not, we try with another initial destination port
 		dest_port_ini = dest_port_ini + shift;
 		attempts++;
+        t.~traceroute();
+        t = traceroute(s_port);
 	}
 	
 	if(attempts == N_ATTEMPTS)
 		cout << "Traceroute failed: it was not possible to reach the destination after "<< N_ATTEMPTS << " attempts"<< endl;
 	else {
-		ip_list = t.getList();
+		ip_list = t.getArrayList();
 		// [Print of the ip addresses from ip_list]
 	}
 	
