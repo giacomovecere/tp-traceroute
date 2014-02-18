@@ -34,6 +34,7 @@
 #define N_PROBE_DEF 5
 #define N_ATTEMPTS 5
 #define LENGTH_PSEUDO_IP 12
+#define LENGTH_IP_ADDRESS 20
 #define _DEBUG
 #define INTERMEDIATE_ROUTER 0
 #define FINAL_DESTINATION 1
@@ -44,7 +45,7 @@ using namespace std;
 #define TRACE_HEADER_H
 
 struct addr {
-    char ip[20];
+    char ip[LENGTH_IP_ADDRESS];
     struct timeval time;
     uint16_t checksum;
     bool ret;

@@ -39,7 +39,7 @@ bool find_checksum(uint16_t checksum, list<addr>::iterator start, list<addr>::it
 
 /* function that changes the timeval given the checksum */
 
-bool change_timeval(addr address, 
+bool change_timeval(addr* address, 
                     list<addr>::iterator start, list<addr>::iterator end){
         //addr* element;
         list<addr>::iterator p;
@@ -49,10 +49,10 @@ bool change_timeval(addr address,
 
         for(p=start; p!= end; p++){
                 //element = p;
-                if(p->checksum == address.checksum){
+                if(p->checksum == address->checksum){
                     p->ret = true;
-                    tv_sub(&p->time, &address.time);
-                    memcpy(p->ip, address.ip);
+                    tv_sub(&p->time, &address->time);
+                    memcpy(p->ip, address->ip, LENGTH_IP_ADDRESS);
                     return true;
                 }
         }
@@ -223,7 +223,7 @@ traceroute::~traceroute() {
 
 ostream& operator<<(ostream& out, traceroute& t)  {
     
-    list<addr> tmp[MAX_TTL_DEF];
+    list<addr>* tmp;
     list<addr>::iterator p, q;
     tmp=t.getArrayList();
     

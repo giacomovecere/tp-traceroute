@@ -81,30 +81,31 @@ int main(int argc, char** argv) {
 	
 	// The source port depends on the PID of the instance of the traceroute
 	s_port = (getpid() & 0xffff) | 0x8000;
-	traceroute t = traceroute(s_port);
     
 	attempts = 0;
 	while(attempts < N_ATTEMPTS) {
 		#ifdef _DEBUG
 			cout<<"First attempt of traceroute. ip: "<<ip_host<<" port: "<<dest_port_ini<<endl;
 		#endif
+        traceroute t = traceroute(s_port);
 		
 		res = t.trace(ip_host, max_ttl, dest_port_ini);
 		// if the traceroute has reached the destination, we can stop
-		if(res == true)
+		if(res == true) {
+            ip_list = t.getArrayList();
 			break;
+        }
 		
 		// if not, we try with another initial destination port
 		dest_port_ini = dest_port_ini + shift;
 		attempts++;
-        t.~traceroute();
-        t = traceroute(s_port);
-	}
+        s_port++;
+    }
 	
 	if(attempts == N_ATTEMPTS)
 		cout << "Traceroute failed: it was not possible to reach the destination after "<< N_ATTEMPTS << " attempts"<< endl;
 	else {
-		ip_list = t.getArrayList();
+		//ip_list = t.getArrayList();
 		// [Print of the ip addresses from ip_list]
 	}
 	
