@@ -36,7 +36,9 @@ public:
     
     //construct an ICMP packet starting from infos received
     int icmpFill(char*, int);
-    
+
+    //Adapt udp field to network format
+    static void adaptToNetwork(udphdr* u);
     
     /*GET METHODS*/
     //returns the whole UDP header

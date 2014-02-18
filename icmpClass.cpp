@@ -44,57 +44,6 @@ int icmpClass::icmpFill(char* message, int n){
 
     return 0;
 };
-/*
-int icmpClass::icmpFill(char* message, int n){
-    
-    int iphdr_len, sent_iphdr_len, icmplen;
-    
-    //now in buffer I have the whole icmp packet that I needed
-    dest_ip = (ip*) message;
-    iphdr_len=dest_ip->ip_len;
-    
-    //check the fields of the icmp response
-    if( ( icmplen = n - iphdr_len ) < ICMP_HDR_LENGTH )
-        return -1;
-    
-    //check if type and code are correct
-    if(icmp_msg -> icmp_type == ICMP_TIME_EXCEEDED &&
-        icmp_msg -> icmp_code == ICMP_TIMXCEED_INTRANS) {
-
-        if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
-            return -1;
-
-        //construct the sent ip
-        sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
-        sent_iphdr_len = sent_ip->ip_len;
-        if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
-            return -1;
-        
-        //udp header
-        udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
-
-        return 0;
-
-    }
-    //if the message received isn't time exceeded check if the message is a 
-    //port unreachable, so we reached the final destination
-    else if(icmp_msg->icmp_type == ICMP_UNREACH) {
-
-            if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
-                return -1;
-
-            //construct the sent ip
-            sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
-            sent_iphdr_len = sent_ip->ip_len;
-            
-            if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
-                return -1;
-
-            //udp header
-            udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
-        }
-    return -1;
-};*/
 
 int icmpClass::getICMPCode() {
     return icmp_msg->icmp_code;
@@ -114,14 +63,16 @@ ip* icmpClass::getDestIPHeader(){
     return dest_ip;
 }
 
+void icmpClass::adaptToNetwork(udphdr* u){
+    u->source = htons(u->source);
+    u->dest = htons(u->dest);
+    u->len = htons(u->len);
+}
+
 //converts from network mode to host mode
 udphdr* icmpClass::getUDPHeader(){
-  udphdr* tmp = udp;
-  udp->dest = htons(tmp->dest);
-  udp->source = htons(tmp->source);
-  udp->check = udp->check;
-  udp->len = htons(tmp->len);
-  return udp;
+    adaptToNetwork(udp);
+    return udp;
 }
 
 int icmpClass::getUDPChecksum() {
