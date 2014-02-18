@@ -9,7 +9,6 @@
  */
 
 #include "traceroute.h"
-#define _DEBUG
 
 void tv_sub(timeval *out, timeval *in) {
 	if ( (out->tv_usec = in->tv_usec - out->tv_usec) < 0) {	/* out -= in */
@@ -42,17 +41,17 @@ bool find_checksum(uint16_t checksum, list<addr>::iterator start, list<addr>::it
 
 bool change_timeval(timeval t, uint16_t checksum, 
                     list<addr>::iterator start, list<addr>::iterator end){
-        addr* element;
+        //addr* element;
         list<addr>::iterator p;
         
         if(start == end)
                 return false;
 
-        for(p=start; p!= end; ++p){
-                *element = *p;
-                if(element->checksum == checksum){
-                    element->ret = true;
-                    tv_sub(&element->time, &t);
+        for(p=start; p!= end; p++){
+                //element = p;
+                if(p->checksum == checksum){
+                    p->ret = true;
+                    tv_sub(&p->time, &t);
                     return true;
                 }
         }
@@ -117,7 +116,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
                 dest_port = dest_port_ini + i;
                 // each packet has different payload and different dest. port
                 uManager.send(ip_address, dest_port, ttl, payload++, 1, &address_ttl_1);
-                array[ttl].push_back(address_ttl_1);
+                array_ip_list[ttl].push_back(address_ttl_1);
             }
         }
         else {
@@ -128,15 +127,18 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
 				
 				/* it send 'N_PROBE_DEF UDP packets to the destination
 				 * each packet has different payload but same dest. port */
-				uManager.send(ip_address, rec_port, ttl, payload++, N_PROBE_DEF, address_vector);
+				uManager.send(ip_address, rec_port, ttl, payload, N_PROBE_DEF, address_vector);
+                payload += 20;  
 			
 				for(int i = 0; i < N_PROBE_DEF; i++) {
 					// it puts the 'addr' elements filled by the send method in the list
-					array[ttl].push_back(address_vector[i]);
+					array_ip_list[ttl].push_back(address_vector[i]);
 				}
 			}
-			else {/*?????*/}
 		}
+        
+        //receive port set to 0 to check if any ICMP message arrives
+        rec_port = 0;
         
         // loop until we receive all of the 'N_PROBE_DEF' packets or the time expires
         while(packets_in_time) {
@@ -155,36 +157,50 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
                 
                 //received the structure with all the fields we are interested
                 if (rec_port == 0) 
-			rec_port = iManager.getDestPort(); 
+                    rec_port = iManager.getDestPort(); 
                 
-                if(type == 0) {
-		    fprintf(stdout, "Checksum to find: %4x \n", received->checksum);
-		    cout<<endl;
-		    
-                    //modify the correspondent elem in the list
-                    change_timeval(received->time, received->checksum, array[ttl].begin(), array[ttl].end());
-                    n_receive++;
+                //check if type is right for my purpses
+                if(type == INTERMEDIATE_ROUTER || type == FINAL_DESTINATION) {
+                    #ifdef _DEBUG
+                        fprintf(stdout, "Checksum to find: %4x \n", received->checksum);
+                        cout<<endl;
+                    #endif		    
+                    /* modify the element in the list only if the packet received belongs to that 
+                     * TTL "slot time" */
+                    if(change_timeval(received->time, received->checksum, 
+                      array_ip_list[ttl].begin(), array_ip_list[ttl].end()))
+                        
+                        n_receive++;
                 }
-                if(type == 1) {
-                    change_timeval(received->time, received->checksum, array[ttl].begin(), array[ttl].end());
-                    done = true; //we need to exit from the for
-                    n_receive++;
+                
+                if(type == -1) 
+                    cout<<"Error receiving the packet\n";
+                
+                if(n_receive == N_PROBE_DEF){ 
+                    if(type == FINAL_DESTINATION) done = true;
+                    break;
                 }
-                if(n_receive == N_PROBE_DEF-1) packets_in_time = false;
             }
             
             // this means time expired
             else {
                 //if we did not receive any packets we need to restart the traceroute (with another dest. port)
-                if(n_receive == 0) 
-					return false;
-                else 
-					packets_in_time = false;
-			}
-        }
+                if(n_receive == 0) {
+                    cout<<"No messages reached destination: TRACEROUTE FAILED! \n";
+                    return false;
+                }
+                else {
+                    if(type == FINAL_DESTINATION) done = true;
+                    packets_in_time = false;
+                }
+            }
         //print the list of addr
-        
-	packets_in_time = true;
+        }
+        packets_in_time = true;
+        n_receive = 0;
+        timeout.tv_sec = TIMEOUT_SELECT;
+        timeout.tv_usec = 0;
+        type = 2;
     }
     
     return true;   

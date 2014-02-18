@@ -93,27 +93,40 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
 
     return ~sum;
 }
-
+/* NOTE: the Internet checksum needs to be computed in the byte ordering used by the network, 
+ * not by the processor, source address and port and destination address and port are already 
+ * ordered according to the network, this is done in the inet_pton and htons functions in the 
+ * constructor and setDest function. 
+ * The fields that need to be ordered are the protocol and the length of the whole packet*/
 uint16_t udpClass::getChecksum() {
+  
+    uint16_t rotated;
+  
     uint16_t total_length = LENGTH_PSEUDO_IP + LENGTH_UDP_HEADER + LENGTH_PAYLOAD;
     uint16_t length = LENGTH_UDP_HEADER + LENGTH_PAYLOAD; 
     uint16_t length_pay =  LENGTH_PAYLOAD;
     uint8_t dgram[total_length];
-    const uint16_t proto = 0x1100;
+    uint16_t proto = 0x0011;
     const int chs = 0x0000;
     //uint16_t print[total_length/2];
     //pseudo IP header
+    
+    //all the memcopy are useful to preapre the structure on which we need 
+    //to compute the checksum
+    rotated = htons (proto);
     memcpy(dgram, &src.sin_addr, sizeof(src.sin_addr));
     memcpy(dgram + 4, &dest.sin_addr, sizeof(dest.sin_addr));
-    memcpy(dgram + 8, &proto, 2);
-    dgram[10]=0x00;
-    dgram[11]=0x0c;
+    memcpy(dgram + 8, &rotated, 2);
+    
+    rotated = htons(length);
+    
+    memcpy(dgram + 10, &rotated, 2);
     
     //UDP header
     memcpy(dgram + 12, &src.sin_port, sizeof(src.sin_port));
     memcpy(dgram + 14, &dest.sin_port, sizeof(dest.sin_port));
-    dgram[16]=0x00;
-    dgram[17]=0x0c;
+    
+    memcpy(dgram + 16, &rotated, 2);
     memcpy(dgram + 18, &chs, 2);
     
     //payload UDP
@@ -124,8 +137,9 @@ uint16_t udpClass::getChecksum() {
     cout<<endl;*/
     
     int z = computeChecksum((uint16_t*)dgram, total_length);
-    fprintf(stdout, "Checksum: %4x ", z);
-    
+    #ifdef _DEBUG
+	fprintf(stdout, "Checksum: %4x ", z);
+    #endif
     return z;
 }	
 

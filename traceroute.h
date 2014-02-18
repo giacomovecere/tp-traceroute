@@ -21,7 +21,7 @@
 #define TIMEOUT_SELECT 5
 
 class traceroute {
-    list<addr> array[MAX_TTL_DEF];
+    list<addr> array_ip_list[MAX_TTL_DEF];
     uint16_t src_port; 
     
     public:

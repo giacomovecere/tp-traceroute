@@ -34,6 +34,9 @@
 #define N_PROBE_DEF 5
 #define N_ATTEMPTS 5
 #define LENGTH_PSEUDO_IP 12
+#define _DEBUG
+#define INTERMEDIATE_ROUTER 0
+#define FINAL_DESTINATION 1
 
 using namespace std;
 
