@@ -10,6 +10,7 @@
 
 #include "traceroute.h"
 
+/* Performs the subtraction between the structure 'in' and 'out' */
 void tv_sub(timeval *out, timeval *in) {
 	if ( (out->tv_usec = in->tv_usec - out->tv_usec) < 0) {	/* out -= in */
 		--out->tv_sec;
@@ -17,25 +18,6 @@ void tv_sub(timeval *out, timeval *in) {
 	}
 	out->tv_sec = in->tv_sec - out->tv_sec;
 }
-
- /* function that finds if there is a packet in the list with a checksum that is equal to 
- * the one that is passed on the function 
-bool find_checksum(uint16_t checksum, list<addr>::iterator start, list<addr>::iterator end)
-{
-        addr* element;
-        list<addr>::iterator p;
-        
-        // empty list
-        if(start == end)
-                return false;
-
-        for(p = start; p != end; p++){
-                *element = *p;
-                if(element->checksum == checksum)
-                        return true;
-        }
-        return false;
-}*/
 
 /* Finds if there is an element with the given checksum and updates the timeval field */
 bool change_timeval(addr* address, 
@@ -234,12 +216,13 @@ traceroute::~traceroute() {
     }
 }
 
-// Redefinition of the output operator for printing the elements of the list stored
+/* Prints the elements of the list stored */
 void traceroute::print()  {
     
     list<addr>* tmp;
     list<addr>::iterator p, q;
     tmp = array_ip_list;
+    int counter = 1;
     
     //scan the array of list
     for(int i = 1; i < MAX_TTL_DEF; i++) {
@@ -250,7 +233,8 @@ void traceroute::print()  {
         
         while (p != q) {
             if(p->ret) {
-                fprintf(stdout, "IP Address: %s\n", p->ip);
+                fprintf(stdout, "%d (%s) ", counter, p->ip);
+                counter++;
                 break;
             }
             p++;
@@ -262,13 +246,12 @@ void traceroute::print()  {
         //scanning the list
         while(p != q) {
             
-            //fprintf(stdout, "IP Address: %s\n", p->ip);
             //check if the packet has received response
             if(p->ret) {
                 float rtt = p->time.tv_sec * 1000.0 +
                             p->time.tv_usec / 1000.0;
                 // formatted print of the rtt
-                fprintf(stdout, "%4.3f ms ", rtt);
+                fprintf(stdout, " %4.3f ms ", rtt);
             }
             else 
                 fprintf(stdout, "   *    ");
