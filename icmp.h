@@ -1,4 +1,13 @@
 /*ICMP header file*/
+/*
+ * 
+ * @Authors: Vecere Giacomo Razzano Alessia Piras Francesco La Marra Antonio
+ * @Topic: UDP Paris-Traceroute to identify Third Party Addresses
+ * USE OF IPv4
+ * ONLY SUPERUSER CAN CREATE RAW DATAGRAMS HENCE TO RUN THE PROGRAM
+ * YOU NEED TO BE SUPERUSER
+ * 
+ */
 #include "trace_header.h"
 
 /*NOTE the received message will have a dimension that is at most
@@ -7,6 +16,7 @@
  * are extra notes in the IP headers
 */
 #define MESSAGE_SIZE 80
+
 #define ICMP_HDR_LENGTH 8
 
 /*This class represents the received ICMP packet, this packet is composed by:
@@ -25,9 +35,9 @@ class icmpClass{
     ip* sent_ip;
     int icmp_length;
     
-    //udp header
-    udphdr* udp;
-    icmp* icmp_msg;            
+    
+    udphdr* udp;     //udp header
+    icmp* icmp_msg;  //icmp message          
 
 public:
     
@@ -38,7 +48,7 @@ public:
     int icmpFill(char*, int);
 
     //Adapts udp field to network format
-    static void adaptToNetwork(udphdr* u);
+    static void adaptFromNetwork(udphdr* u);
     
     /*GET METHODS*/
     //returns the whole UDP header
@@ -79,20 +89,26 @@ public:
 class icmpManager{
     //file descriptor of the socket
     int sockfd;
-    uint16_t s_port;
-    uint16_t d_port;
-    sockaddr_in* my_addr;
+    uint16_t s_port;  //source port
+    uint16_t d_port;  //destination port
+    sockaddr_in* my_addr; //source address
     
 public:
+    
+    //constructors
     icmpManager(){};
 	icmpManager(uint16_t s);
         
     //returns the socket on which receive the ICMP
     int getSocket();
+    
     //return the port
     int getSourcePort();
     int getDestPort();
-        
+    
+    /* receive function, returns an addr structure, the pointer is useful to 
+     * state the type of hop that answers, if it is an intermediate router 
+     * or the final destination*/
     addr* recv(int* htype);	
     
 };

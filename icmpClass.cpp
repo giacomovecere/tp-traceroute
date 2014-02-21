@@ -1,7 +1,16 @@
+/*
+ * 
+ * @Authors: Vecere Giacomo Razzano Alessia Piras Francesco La Marra Antonio
+ * @Topic: UDP Paris-Traceroute to identify Third Party Addresses
+ * USE OF IPv4
+ * ONLY SUPERUSER CAN CREATE RAW DATAGRAMS HENCE TO RUN THE PROGRAM
+ * YOU NEED TO BE SUPERUSER
+ * 
+ */
 #include "icmp.h"
 
-/*s is referred to the source port
- * d to the FINAL destination port 
+/* in te following code the 's' character is referred to the source port
+ * the 'd' to the FINAL destination port 
  */
 
 
@@ -15,12 +24,19 @@ icmpClass::icmpClass() {
  * returns: 
  *       0 if ok
  *      -1 if error
+ * source is the host that receives the message, destination is
+ * the host that sends the message, this role interchanging is due
+ * to the fact that we decided to fix the role once for all, so be careful
+ * and keep in mind this fact
+ * 
+ * @purpose: starting from the received message this function parses
+ *                   it in order to build correctly the various headers, the structure 
+ *                   of message can be seen in the header file 
 */
 int icmpClass::icmpFill(char* message, int n){
     
     int iphdr_len, sent_iphdr_len, icmplen;
     
-    //now in buffer I have the whole icmp packet that I needed
     dest_ip = (ip*) message;
     iphdr_len=dest_ip->ip_hl << 2;
     
@@ -45,6 +61,20 @@ int icmpClass::icmpFill(char* message, int n){
     return 0;
 };
 
+/* once we receive something from the network we need to modify the bytes
+ * ordering in order to be coherent with the one we're using on our host.
+ * To do so we use a function named htons (host to network)
+ * 
+ * NOTE: since the checksum is computed on fields that are already in 
+ * network ordering, we don't need to change the byte ordering of this field
+ */
+void icmpClass::adaptFromNetwork(udphdr* u){
+    u->source = htons(u->source);
+    u->dest = htons(u->dest);
+    u->len = htons(u->len);
+}
+
+/***********GET METHODS************/
 int icmpClass::getICMPCode() {
     return icmp_msg->icmp_code;
 };
@@ -63,15 +93,8 @@ ip* icmpClass::getDestIPHeader(){
     return dest_ip;
 }
 
-void icmpClass::adaptToNetwork(udphdr* u){
-    u->source = htons(u->source);
-    u->dest = htons(u->dest);
-    u->len = htons(u->len);
-}
-
 //converts from network mode to host mode
 udphdr* icmpClass::getUDPHeader(){
-    adaptToNetwork(udp);
     return udp;
 }
 
@@ -79,6 +102,11 @@ int icmpClass::getUDPChecksum() {
     return udp->check;
 }
 
+uint16_t icmpClass::getChecksum(){
+    return icmp_msg->icmp_cksum;
+};
+
+/***********SET METHODS************/
 void icmpClass::setICMPCode(int c){
     
     if(icmp_msg==NULL) 
@@ -104,7 +132,7 @@ void icmpClass::setICMPPayload(char* data, int len){
     
 }
 
-/* Compute Internet Checksum by addind all the data contained in the 
+/* Compute Internet Checksum by adding all the data contained in the 
  * datagram. In this case we need just the infos contained in the icmp*/
 uint16_t computeIcmpChecksum(const uint16_t* dgram, int length) {
         uint32_t sum = 0;
@@ -129,11 +157,6 @@ void icmpClass::setChecksum(){
     chs=computeIcmpChecksum((uint16_t*) icmp_msg, icmp_length);
     icmp_msg->icmp_cksum=chs;
 };
-
-uint16_t icmpClass::getChecksum(){
-    return icmp_msg->icmp_cksum;
-};
-
 
 /*Redefine operator << in order to have simpler print functions*/
 ostream& operator<<(ostream& out, icmpClass& ic) {

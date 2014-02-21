@@ -22,11 +22,11 @@ bool udpManager::send(char* ip_address, uint16_t dest_port, int ttl, int payload
     int udp_sock;
     
     //NOTE c_payload becomes a void pointer to a memory location
-    
     char c_payload[sizeof(int)];
     sockaddr_in* dest;
     int probe;
     
+    //set the TTL
     udpPacket->setTtl(ttl);
     //set destination port and address
     udpPacket->setDest(ip_address, dest_port);

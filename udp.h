@@ -25,27 +25,33 @@ using namespace std;
 
 class udpClass {
     
+    //socket file descriptor
     int sockfd;
+    //destination and source address
     sockaddr_in dest, src;
+    //payload of the UDP packet
     char payload[LENGTH_PAYLOAD];
+    //software computed checksum of the UDP packet
     uint16_t checksum;
     
-    public:
+public:
+    
     udpClass(uint16_t);
-
-    void setDest(char*, uint16_t);
-
-    void setTtl(int);
-
+    
     int getSock();
 
     sockaddr_in getSrc();
 
     sockaddr_in* getDest();
 
+    uint16_t getChecksum();
+
+    void setDest(char*, uint16_t);
+
+    void setTtl(int);
+    
     void setPayload(char*);
 
-    uint16_t getChecksum();
 };
 
 class udpManager {

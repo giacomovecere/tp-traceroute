@@ -2,6 +2,9 @@
  * 
  * @Authors: Vecere Giacomo Razzano Alessia Piras Francesco La Marra Antonio
  * @Topic: UDP Paris-Traceroute to identify Third Party Addresses
+ * USE OF IPv4
+ * ONLY SUPERUSER CAN CREATE RAW DATAGRAMS HENCE TO RUN THE PROGRAM
+ * YOU NEED TO BE SUPERUSER
  * 
  */
 
@@ -36,10 +39,10 @@ int icmpManager::getDestPort() {return d_port;}
 /*
  * Return a struct addr* that contains 
  * response router informations and
- * sets host type
- *  0  intermediate router
- *  1  final destination
- * -1  error
+ * sets host type:
+ *    intermediate router
+ *    final destination
+ *    -1  error
 */
 addr* icmpManager::recv(int* htype){
 	
@@ -58,7 +61,8 @@ addr* icmpManager::recv(int* htype){
         //fill object with received message  
 		int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
 		
-		//NOTE make the rotate cleaner
+		//Change byte ordering according to our host and then retrieve port destination
+        icmpPkt->adaptFromNetwork(icmpPkt->getUDPHeader());
 		d_port = icmpPkt->getUDPHeader()->dest;
 
         addr* address = new addr;
@@ -66,19 +70,16 @@ addr* icmpManager::recv(int* htype){
 		inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, 20);
         //set current time
         gettimeofday (&(address->time), NULL);
-        //compute and set the checksum
-        //icmpPkt->setChecksum();
 		address->checksum = icmpPkt->getUDPChecksum();
-        //
         address->ret = false;
 
         //check if intermediate router reached 
         if(icmpPkt->getICMPType() == ICMP_TIME_EXCEEDED && icmpPkt->getICMPCode() == ICMP_TIMXCEED_INTRANS){ 
-            *htype = 0;
+            *htype = INTERMEDIATE_ROUTER;
         }
         //check if final destination reached 
         else if(icmpPkt->getICMPType() == ICMP_UNREACH){
-            *htype = 1;
+            *htype = FINAL_DESTINATION;
         } 
         else{
             //error

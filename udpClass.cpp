@@ -1,6 +1,16 @@
+/*
+ * 
+ * @Authors: Vecere Giacomo Razzano Alessia Piras Francesco La Marra Antonio
+ * @Topic: UDP Paris-Traceroute to identify Third Party Addresses
+ * USE OF IPv4
+ * ONLY SUPERUSER CAN CREATE RAW DATAGRAMS HENCE TO RUN THE PROGRAM
+ * YOU NEED TO BE SUPERUSER
+ * 
+ */
 #include "udp.h"
 #include <iomanip>
 
+//constructor of the class
 udpClass::udpClass(uint16_t source_port=0) {
     
     sockfd=socket(AF_INET, SOCK_DGRAM, 0);   //socket file descriptor
@@ -11,6 +21,7 @@ udpClass::udpClass(uint16_t source_port=0) {
     src.sin_family=AF_INET;
     src.sin_port=htons(source_port);
     
+    //retrieve external ip address of the source host 
     struct ifaddrs * ifAddrStruct=NULL;
     struct ifaddrs * ifa=NULL;
     void * tmpAddrPtr=NULL;
@@ -71,15 +82,13 @@ void udpClass::setPayload(char* buff) {
     memcpy(payload, buff, sizeof(buff));
 }
 
-
 /* Compute Internet Checksum by addind all the data contained in the 
  * datagram. A part of the IP Header (src_address, dest_address, protocol), 
  * the entire UDP Header and the payload*/
 uint16_t computeChecksum(const uint16_t* dgram, int length) {
     uint32_t sum = 0;
     
-    //for(int i=0; i<length; i++)
-	//sum+=dgram[i];
+    //scan the datagram and add to each other all the fields
     while (length > 1) {
         sum += (*dgram++);
         length -= 2;
@@ -90,7 +99,8 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
 
     // Put the sum on 16 bits by adding the two 16-bits parts
     while (sum >> 16) sum = (sum & 0xffff) + (sum >> 16);
-
+    
+    //complement 1 of the sum
     return ~sum;
 }
 /* NOTE: the Internet checksum needs to be computed in the byte ordering used by the network, 
@@ -99,15 +109,22 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
  * constructor and setDest function. 
  * The fields that need to be ordered are the protocol and the length of the whole packet*/
 uint16_t udpClass::getChecksum() {
-  
+    
+    //this is a temporary variable used to change byte ordering
     uint16_t rotated;
-  
+    
+    /* total_length is referred to the length of the whole datagram that will be used to compute the checksum
+     * length is referred to the length of the UDP packet (udp header + payload)
+     * length_pay is referred to the length of the payload
+     * chs is the checksum
+     * proto is the udp protocol
+     */
     uint16_t total_length = LENGTH_PSEUDO_IP + LENGTH_UDP_HEADER + LENGTH_PAYLOAD;
     uint16_t length = LENGTH_UDP_HEADER + LENGTH_PAYLOAD; 
     uint16_t length_pay =  LENGTH_PAYLOAD;
     uint8_t dgram[total_length];
     uint16_t proto = 0x0011;
-    const int chs = 0x0000;
+    int chs = 0x0000;
     
     //all the memcopy are useful to preapre the structure on which we need 
     //to compute the checksum
@@ -130,11 +147,11 @@ uint16_t udpClass::getChecksum() {
     //payload UDP
     memcpy(dgram + 20, payload, length_pay);
     
-    int z = computeChecksum((uint16_t*)dgram, total_length);
+    chs = computeChecksum((uint16_t*)dgram, total_length);
     
     #ifdef _DEBUG
         fprintf(stdout, "Checksum generated: %4x \n\n", z);
     #endif
-    return z;
+    return chs;
 }	
 
