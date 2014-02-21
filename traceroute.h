@@ -12,13 +12,6 @@
  
 #include "udp.h"
 #include "icmp.h"
-#include <sys/socket.h>
-// #include <sys/types>
-#include <netdb.h>
-#include "trace_header.h"
-
-// time to wait for ICMP reply packets (at maximum) 
-#define TIMEOUT_SELECT 10
 
 class traceroute {
     list<addr> array_ip_list[MAX_TTL_DEF];
@@ -29,10 +22,16 @@ class traceroute {
     traceroute(uint16_t);
     ~traceroute();
     
+    /* computes the traceroute to the destination: 'ip_address'
+    * 'max_ttl' indicates the max value for the TTL
+    * 'dest_port_ini' is the first value of the destination port. It is going to be incremented 
+    * for finding one from which the router along the path will reply */
     bool trace(char*, int, uint16_t);
     
+    /* Returns the pointer of the array that contains the lists of the 'addr' elements */
     list<addr>* getArrayList();
     
+    /* Prints the elements of the list stored */
     void print();
 	
 };

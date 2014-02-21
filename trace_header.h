@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-//#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -30,14 +29,16 @@
 #include <netinet/udp.h>
 #include <netinet/in_systm.h>
 
-#define MAX_TTL_DEF 80
+#define MAX_TTL_DEF 30
+#define TRACEROUTE_PORT 33434
 #define N_PROBE_DEF 3
 #define N_ATTEMPTS 5
 #define LENGTH_PSEUDO_IP 12
 #define LENGTH_IP_ADDRESS 20
-#define _DEBUG
+//#define _DEBUG
 #define INTERMEDIATE_ROUTER 0
 #define FINAL_DESTINATION 1
+#define TIMEOUT_SELECT 3
 
 using namespace std;
 
