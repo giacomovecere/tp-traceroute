@@ -1,5 +1,20 @@
-﻿git add what_to_add
-git commit -m message_to_see
-git push -u origin master
+﻿git commit -a 
+and then insert the message (actually it should be a title, a break line and the specific text about what it has done).
+It both adds and commit the files (if they are not new files)
 
-git pull per riaggiornare I contenuti della propria cartella
+if you want add some files you have to use:
+git add <file_name>
+
+git push 
+
+git pull for updating the files in your local repository
+
+
+For developing a new feature is good to make a new branch (so the master branch is not affected to some mistakes):
+git branch <new_feature>	for creating the new branch
+git checkout <new_feature>   	for going into the new branch
+
+git checkout master		for going back into the master branch
+
+git merge <branch>		merge the specified branch into the current branch
+
