@@ -5,7 +5,7 @@ It both adds and commit the files (if they are not new files)
 if you want add some files you have to use:
 git add <file_name>
 
-git push 
+git push <remote> <branch> 	it can be git push origin master  or git push origin new_branch_created 
 
 git pull for updating the files in your local repository
 
