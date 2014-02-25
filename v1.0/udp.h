@@ -8,11 +8,12 @@
  * 
  */
 
-#include "trace_header.h"
+#include "ip.h"
+#include <iomanip>
+#include <ifaddrs.h>
 
 #define LENGTH_PAYLOAD 4
 #define LENGTH_UDP_HEADER 8
-#include <ifaddrs.h>
 
 using namespace std;
 
@@ -38,18 +39,15 @@ public:
     
     udpClass(uint16_t);
     
+    /* get Methods */
     int getSock();
-
     sockaddr_in getSrc();
-
     sockaddr_in* getDest();
-
     uint16_t getChecksum();
 
+    /* set Methods */
     void setDest(char*, uint16_t);
-
     void setTtl(int);
-    
     void setPayload(char*);
 
 };
@@ -71,18 +69,36 @@ class udpManager {
 };
 
 class udpRawClass {
+    ip* ip_hdr;         //ip header
+    udphdr* udp_hdr;    //udp header
+    sockaddr_in dest;
+    
+    //source port and destination port
+    uint16_t src_port;
+    /*uint16_t dest_port;
+    //destination address
+    char* dest_ip;*/
     
 public:
-    setDestPort();
+    udpRawClass(uint16_t, char*, uint16_t);
+    
+    void setTs(char*);
+    /*setDestPort();
     setSrcPort();
-    setPayload();
     setLength();
-    setChecksum();
+    setChecksum();*/
 };
 
 class udpRawManager {
+    //socket file descriptor
+    int sockfd;
+    udpRawClass* udpRawPacket;
     
 public:
-    //srcAddr, destAddr, timestampAddr
-    tpSend(char*, char*, char*);
+    
+    /* Constructor of the class: creates a raw udp socket and creates a new udpRawPacket */
+    udpRawManager(uint16_t, char*, uint16_t);
+    
+    // Address for the timestamp, payload
+    bool tpSend(char*, char*);
 };

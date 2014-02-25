@@ -8,33 +8,30 @@
  * 
  */
 #include "udp.h"
-#include <iomanip>
 
 //constructor of the class
 udpClass::udpClass(uint16_t source_port=0) {
     
-    sockfd=socket(AF_INET, SOCK_DGRAM, 0);   //socket file descriptor
-    
-    char buff[50];
-    
+    // Creation of DGram socket
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);  
+        
     //source structure initialization
-    src.sin_family=AF_INET;
-    src.sin_port=htons(source_port);
+    src.sin_family = AF_INET;
+    src.sin_port = htons(source_port);
     
     //retrieve external ip address of the source host 
-    struct ifaddrs * ifAddrStruct=NULL;
-    struct ifaddrs * ifa=NULL;
-    void * tmpAddrPtr=NULL;
+    struct ifaddrs * ifAddrStruct = NULL;
+    struct ifaddrs * ifa = NULL;
+    void * tmpAddrPtr = NULL;
 
     getifaddrs(&ifAddrStruct);
 
     for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
-        if (ifa ->ifa_addr->sa_family==AF_INET) { // check it is IP4
+        if (ifa ->ifa_addr->sa_family == AF_INET) { // check it is IP4
             // is a valid IP4 Address
-            tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+            tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             char addressBuffer[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-            //printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
         }
     }
     
