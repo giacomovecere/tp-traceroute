@@ -109,6 +109,9 @@ public:
     /* receive function, returns an addr structure, the pointer is useful to 
      * state the type of hop that answers, if it is an intermediate router 
      * or the final destination*/
-    addr* recv(int* htype);	
+    addr* traceRecv(int* htype);	
     
+    int tpRecv();
+    // msg, srcAddr, destAddr, timestampAddr
+    tpSend(char*, char*, char*, char*);
 };

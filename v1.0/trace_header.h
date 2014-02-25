@@ -39,6 +39,9 @@
 #define FINAL_DESTINATION 1
 #define TIMEOUT_SELECT 3
 #define N_TIMES_TO_GO_AHEAD 5
+#define NON_CLASSIFIABLE 0
+#define ON_PATH 1
+#define THIRD_PARTY 2
 
 using namespace std;
 
@@ -50,6 +53,7 @@ struct addr {
     struct timeval time;
     uint16_t checksum;
     bool ret;
+    int classification;
 };
 
 #endif /* TRACE_HEADER_H */

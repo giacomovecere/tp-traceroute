@@ -94,6 +94,9 @@ int main(int argc, char** argv) {
             #endif
                 
             t.print();
+            
+            ip_list = t.getArrayList();
+			
 			break;
         }
         
@@ -111,5 +114,9 @@ int main(int argc, char** argv) {
         }
     }
     
+    /* r = routerDetective(ip_list);
+       list<addr>* ip_list_modified = r.thirdPartyDetection();
+       r.print();*/
+        
 	return 0;
 }

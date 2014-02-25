@@ -154,7 +154,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
             }
             if(FD_ISSET(socket, &read_fds)) {
                 //receive the icmp packet and a variable 'type' for the type of the router reached
-                packet_received = iManager.recv(&type); 
+                packet_received = iManager.traceRecv(&type); 
                 
                 /* received the structure with all the fields we are interested in.
                    'receive_port' is set just one time with the port of the reply */

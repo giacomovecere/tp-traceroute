@@ -69,3 +69,20 @@ class udpManager {
     bool send(char*, uint16_t, int, int, int, addr*);	
     
 };
+
+class udpRawClass {
+    
+public:
+    setDestPort();
+    setSrcPort();
+    setPayload();
+    setLength();
+    setChecksum();
+};
+
+class udpRawManager {
+    
+public:
+    //srcAddr, destAddr, timestampAddr
+    tpSend(char*, char*, char*);
+};

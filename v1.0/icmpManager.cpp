@@ -44,7 +44,7 @@ int icmpManager::getDestPort() {return d_port;}
  *    final destination
  *    -1  error
 */
-addr* icmpManager::recv(int* htype){
+addr* icmpManager::traceRecv(int* htype){
 	
 	char buffer[MESSAGE_SIZE];
     sockaddr_in rm_addr;
