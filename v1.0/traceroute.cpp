@@ -42,6 +42,7 @@ bool change_timeval(addr* address,
 traceroute::traceroute(uint16_t s_port) {
     src_port = s_port;
     last_position = 0;
+    //TODO: dynamic allocation of array_ip_list
 }
 
 /* computes the traceroute to the destination: 'ip_address'
