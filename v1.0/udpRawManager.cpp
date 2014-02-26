@@ -10,10 +10,10 @@
 #include "udp.h"
 
 /* Constructor of the class: sets the information that are the same for the entire detection process */
-udpRawManager::udpRawManager(uint16_t src_port, char* dest_ip, uint16_t dest_port) {
+udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     
     // Create a packet with the provided information
-    udpRawPacket = new udpRawClass(src_port, dest_ip, dest_port);
+    udpRawPacket = new udpRawClass(src_port, dest_port);
     
     // Create a raw socket with UDP protocol
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);  
@@ -23,17 +23,23 @@ udpRawManager::udpRawManager(uint16_t src_port, char* dest_ip, uint16_t dest_por
     }
 }
 
-bool udpRawManager::tpSend(char* ts_ip, char* payload) {
+/* Sends an UDP Probe to the destination specified. Puts the timestamp address in the IP Header */
+bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     int r;
+    sockaddr_in dest;
+    uint16_t* buffer;
     
-    udpRawPacket->setTs(ts_ip);
+    udpRawPacket->setTs(dest_ip, ts_ip);
+    buffer = udpRawPacket->setLengthAndChecksum(payload);
     
+    udpRawPacket->setDest(&dest);
     
     // send the UDP packet 
-    r = sendto(sockfd, payload, sizeof(payload), 0, (sockaddr *)dest, sizeof(sockaddr));
+    r = sendto(sockfd, buffer, sizeof(buffer), 0, (sockaddr *)dest, sizeof(sockaddr));
     if(r == -1) {
         cerr<<"Error: sendto error"<<endl;
         return false;
     }
     
+    return true;
 }

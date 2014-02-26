@@ -105,6 +105,11 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
  * ordered according to the network, this is done in the inet_pton and htons functions in the 
  * constructor and setDest function. 
  * The fields that need to be ordered are the protocol and the length of the whole packet*/
+/* NOTE:   Pseudo Header IP
+ * |        Source IP Address       |
+ * |        Dest   IP Address       |
+ * |  00  | Proto  |   UDP Length   |
+ */      
 uint16_t udpClass::getChecksum() {
     
     //this is a temporary variable used to change byte ordering

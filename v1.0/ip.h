@@ -23,5 +23,5 @@ class ipManager {
 public:
     /* param: destAddr, TimestampAddr
        returns the ip struct */
-    ip* prepareHeader_UDP(uint16_t, char*);
+    ip* prepareHeader_UDP(char*, char*);
 };

@@ -71,22 +71,21 @@ class udpManager {
 class udpRawClass {
     ip* ip_hdr;         //ip header
     udphdr* udp_hdr;    //udp header
-    sockaddr_in dest;
-    
-    //source port and destination port
-    uint16_t src_port;
-    /*uint16_t dest_port;
-    //destination address
-    char* dest_ip;*/
     
 public:
+    // fill the udphdr structure with source and destination ports
     udpRawClass(uint16_t, char*, uint16_t);
     
-    void setTs(char*);
-    /*setDestPort();
-    setSrcPort();
-    setLength();
-    setChecksum();*/
+    /* fill the iphdr structure by calling an instance of ipManager.
+    * The fields sent are the destination address and the timestamp address */
+    void setTs(char*, char*);
+       
+    /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
+    * the checksum is calculated on the Pseudo IP Header, the UDP Header and the UDP Payload */
+    uint16_t setLengthAndChecksum(char*);
+    
+    /* fill the sockaddr_in structure related to the destination */
+    void setDest(sockaddr_in*);
 };
 
 class udpRawManager {
@@ -97,8 +96,13 @@ class udpRawManager {
 public:
     
     /* Constructor of the class: creates a raw udp socket and creates a new udpRawPacket */
-    udpRawManager(uint16_t, char*, uint16_t);
+    udpRawManager(uint16_t, uint16_t);
     
-    // Address for the timestamp, payload
-    bool tpSend(char*, char*);
+    /* Sends an UDP Probe to the destination specified. Puts the timestamp address in the IP Header */
+    bool tpSend(char*, char*, char*);
 };
+
+/* Compute Internet Checksum by addind all the data contained in the 
+ * datagram. A part of the IP Header (src_address, dest_address, protocol), 
+ * the entire UDP Header and the payload*/
+uint16_t computeChecksum(const uint16_t*, int);
