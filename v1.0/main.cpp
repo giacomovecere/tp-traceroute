@@ -23,6 +23,7 @@ int main(int argc, char** argv) {
 	uint16_t s_port;
 	uint16_t dest_port_ini = TRACEROUTE_PORT;
 	int shift = 20;
+    int last_position;
 	struct addrinfo	*hints, *result;
 
 	// All of the options are optional: both m and p require arguments
@@ -95,7 +96,7 @@ int main(int argc, char** argv) {
                 
             t.print();
             
-            ip_list = t.getArrayList();
+            ip_list = t.getArrayList(&last_position);
 			
 			break;
         }

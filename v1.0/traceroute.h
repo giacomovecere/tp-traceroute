@@ -30,7 +30,7 @@ class traceroute {
     bool trace(char*, int, uint16_t);
     
     /* Returns the pointer of the array that contains the lists of the 'addr' elements */
-    list<addr>* getArrayList();
+    list<addr>* getArrayList(int*);
     
     /* Prints the elements of the list stored */
     void print();

@@ -232,7 +232,8 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
 }
 
 /* Returns the pointer of the array that contains the lists of the 'addr' elements */
-list<addr>* traceroute::getArrayList() {
+list<addr>* traceroute::getArrayList(int* l_pos) {
+    *l_pos = last_position;
 	return array_ip_list;	
 }
 
