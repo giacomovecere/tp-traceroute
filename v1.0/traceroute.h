@@ -27,7 +27,7 @@ class traceroute {
     * 'max_ttl' indicates the max value for the TTL
     * 'dest_port_ini' is the first value of the destination port. It is going to be incremented 
     * for finding one from which the router along the path will reply */
-    bool trace(char*, int, uint16_t);
+    bool trace(char*, int, uint16_t*);
     
     /* Returns the pointer of the array that contains the lists of the 'addr' elements */
     list<addr>* getArrayList(int*);

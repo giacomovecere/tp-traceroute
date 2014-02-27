@@ -182,9 +182,9 @@ ostream& operator<<(ostream& out, icmpClass& ic) {
     It has to fill dest, buffer, len in order to make an icmp echo request packet
     Ip header is prepared by ipManager that adds in the options field the timestamps options for 
     third part addresses discovery
-    At the end, buffer will contain the ip_header + icmp_header, len is the total packet len
+    At the end, buffer will contain the ip_header + icmp_header + msg, len is the total packet len
 */
-void icmpClass::makeProbe(char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len){
+void icmpClass::makeProbe(char* msg, char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len){
     
     //init ip header
     ipManager* myIpManager = new ipManager(); //remember to deallocate it
@@ -205,10 +205,11 @@ void icmpClass::makeProbe(char* destAddr, char* timestamp, sockaddr_in& dest, ch
     dest.sin_port = htons(0);        
     inet_pton(AF_INET, destAddr, &dest.sin_addr);
     
-    //init the buffer and copy headers into it
-    buffer = new char[dest_iphdr_len + icmp_length]; //remember to deallocate it
+    //init the buffer and copy headers and payload into it
+    buffer = new char[dest_iphdr_len + icmp_length + LENGTH_PAYLOAD]; //remember to deallocate it
     memcpy(buffer,dest_ip,dest_iphdr_len);
-    memcpy(buffer+dest_iphdr_len,icmp_msg,icmp_length);    
+    memcpy(buffer+dest_iphdr_len,icmp_msg,icmp_length);
+    memcpy(buffer+dest_iphdr_len+icmp_length,msg,LENGTH_PAYLOAD);
    
     //delete myIpManager;
     

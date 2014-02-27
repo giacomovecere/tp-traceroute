@@ -42,6 +42,8 @@
 #define NON_CLASSIFIABLE 0
 #define ON_PATH 1
 #define THIRD_PARTY 2
+#define LENGTH_PAYLOAD 4
+#define LENGTH_UDP_HEADER 8
 
 using namespace std;
 

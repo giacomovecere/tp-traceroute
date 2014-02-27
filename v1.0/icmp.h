@@ -96,9 +96,9 @@ public:
     It has to fill dest, buffer, len in order to make an icmp echo request packet
     Ip header is prepared by ipManager that adds in the options field the timestamps options for 
     third part addresses discovery
-    At the end, buffer will contain the ip_header + icmp_header, len is the total packet len
+    At the end, buffer will contain the ip_header + icmp_header + msg, len is the total packet len
 */
-    void makeProbe(char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len);
+    void makeProbe(char* msg, char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len);
 };
 
 class icmpManager{
@@ -132,5 +132,5 @@ public:
     
     // send an icmp echo request
     // msg, destAddr, timestampAddr
-    void tpSend(char*, char*, char*);
+    int tpSend(char*, char*, char*);
 };
