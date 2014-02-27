@@ -45,8 +45,8 @@ int icmpManager::getDestPort() {return d_port;}
  *    -1  error
 */
 addr* icmpManager::traceRecv(int* htype){
-	
-	char buffer[MESSAGE_SIZE];
+    
+    char buffer[MESSAGE_SIZE];
     sockaddr_in rm_addr;
     socklen_t rm_addr_size;
     
@@ -55,22 +55,22 @@ addr* icmpManager::traceRecv(int* htype){
     // to get the right ip address from the recvfrom function
     rm_addr_size = sizeof(struct sockaddr_in);
     //receive the response message
-	int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
-	if(ret != -1) {
+    int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
+    if(ret != -1) {
         icmpClass* icmpPkt = new icmpClass();
         //fill object with received message  
-		int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
-		
-		//Change byte ordering according to our host and then retrieve port destination
+            int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
+            
+            //Change byte ordering according to our host and then retrieve port destination
         icmpPkt->adaptFromNetwork(icmpPkt->getUDPHeader());
-		d_port = icmpPkt->getUDPHeader()->dest;
+            d_port = icmpPkt->getUDPHeader()->dest;
 
         addr* address = new addr;
         //set router ip address
-		inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, 20);
+            inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, 20);
         //set current time
         gettimeofday (&(address->time), NULL);
-		address->checksum = icmpPkt->getUDPChecksum();
+            address->checksum = icmpPkt->getUDPChecksum();
         address->ret = false;
 
         //check if intermediate router reached 
@@ -87,25 +87,32 @@ addr* icmpManager::traceRecv(int* htype){
         }
 
         return address;
-	}
-	else{
-		//error
-		return NULL;
-	}
+    }
+    else{
+        //error
+        return NULL;
+    }
 }
 
 /*  
     send an icmp echo request
     parameters msg, srcAddr, destAddr, timestampAddr 
 */
-void icmpManager::tpSend(char* msg, char* destAddr, char* timestamp){
+int icmpManager::tpSend(char* msg, char* destAddr, char* timestamp){
     
     sockaddr_in dest;
     char* buffer;
     int len;
     
     icmpClass* icmpPkt = new icmpClass();    
-    icmpPkt->makeProbe(destAddr,timestamp,dest,buffer,len);
+    icmpPkt->makeProbe(msg,destAddr,timestamp,dest,buffer,len);
     
-    int ret = sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
+    return sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
+}
+
+/*
+ *
+ * 
+*/
+int icmpManager::tpRecv(){
 }
