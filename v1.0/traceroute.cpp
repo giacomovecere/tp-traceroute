@@ -49,7 +49,7 @@ traceroute::traceroute(uint16_t s_port) {
  * 'max_ttl' indicates the max value for the TTL
  * 'dest_port_ini' is the first value of the destination port. It is going to be incremented 
  * for finding one from which the router along the path will reply */
-bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
+bool traceroute::trace(char* ip_address, int max_ttl, uint16_t* dest_port_set) {
     int payload = 1; //initial payload
     int ttl;
     int pcks_received = 0;
@@ -76,7 +76,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
     /* this variable is used to state which will be the port to be used for the 
      * n step, when n>1 */
     uint16_t receive_port = 0;
-    uint16_t dest_port_set;
+    uint16_t dest_port_ini = *dest_port_set;
             
     //vector of used dest port, useful for the icmp
     uint16_t dest_port;
@@ -116,18 +116,18 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t dest_port_ini) {
             if(ttl == 2) {
                 // At least one ICMP message has arrived
                 if(receive_port != 0)
-                    dest_port_set = receive_port;
+                    *dest_port_set = receive_port;
                 else
-                    dest_port_set = dest_port;
+                    *dest_port_set = dest_port;
             }
             #ifdef _DEBUG
-                cout<<"Sending "<< (int)N_PROBE_DEF <<" packets to "<< dest_port_set <<" destination port"<<endl<<endl;
+                cout<<"Sending "<< (int)N_PROBE_DEF <<" packets to "<< *dest_port_set <<" destination port"<<endl<<endl;
             #endif
             
             /* sends 'N_PROBE_DEF UDP packets to the destination
              * each packet has different payload but same dest. port 
              * return false if an error has occured */
-            result = uManager.send(ip_address, dest_port_set, ttl, payload, N_PROBE_DEF, address_vector);
+            result = uManager.send(ip_address, *dest_port_set, ttl, payload, N_PROBE_DEF, address_vector);
             if(result == false) {
                 return false;
             }

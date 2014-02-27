@@ -12,9 +12,6 @@
 #include <iomanip>
 #include <ifaddrs.h>
 
-#define LENGTH_PAYLOAD 4
-#define LENGTH_UDP_HEADER 8
-
 using namespace std;
 
 /*

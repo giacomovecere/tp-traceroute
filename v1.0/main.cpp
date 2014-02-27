@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 	bool verbose = false, res;
 	char* host;
 	list<addr>* ip_list;
-	uint16_t s_port;
+	uint16_t s_port, dest_port;
 	uint16_t dest_port_ini = TRACEROUTE_PORT;
 	int shift = 20;
     int last_position;
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
             
 		// Number of the initial port
 		case 'p':
-			if ((dest_port_ini = atoi (optarg)) <= 1){
+			if ((dest_port = atoi (optarg)) <= 1){
 				cout << "Invalid -p value" << endl;
 				exit(EXIT_FAILURE);
 			}
@@ -85,9 +85,10 @@ int main(int argc, char** argv) {
 			cout<< "Attempt n°"<<attempts + 1<<" of traceroute. IP:"<<host<<" Port:"<<dest_port_ini<<endl;
 		#endif
             
+        dest_port = dest_port_ini;
         traceroute t = traceroute(s_port);
 		
-		res = t.trace(host, max_ttl, dest_port_ini);
+		res = t.trace(host, max_ttl, &dest_port);
 		// if the traceroute has reached the destination, stop
 		if(res == true) {
             #ifdef _DEBUG
@@ -115,9 +116,15 @@ int main(int argc, char** argv) {
         }
     }
     
-    /* r = routerDetective(ip_list);
-       list<addr>* ip_list_modified = r.thirdPartyDetection();
-       r.print();*/
-        
+    routerDetective r = routerDetective(ip_list, last_position);
+    res = r.thirdPartyDetection(s_port, dest_port, host);
+    if(res == true) {
+        #ifdef _DEBUG
+            cout<<"Third Party detection has been completed successfully!"<<endl;
+        #endif
+            
+        r.print();
+    }
+   
 	return 0;
 }
