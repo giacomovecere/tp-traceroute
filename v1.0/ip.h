@@ -12,9 +12,9 @@
 class ipClass {
     
 public:
-    setDest(char*);
-    setSource(char*);
-    setTimestampTarget(char*);
+    void setDest(char*);
+    void setSource(char*);
+    void setTimestampTarget(char*);
     int getTimestampNumbers();
 };
 
@@ -24,4 +24,7 @@ public:
     /* param: destAddr, TimestampAddr
        returns the ip struct */
     ip* prepareHeader_UDP(char*, char*);
+    /* param: destAddr, TimestampAddr
+       returns the ip struct */
+    ip* prepareHeader_ICMP(char*, char*);
 };

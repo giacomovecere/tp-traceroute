@@ -35,7 +35,6 @@ class icmpClass{
     ip* sent_ip;
     int icmp_length;
     
-    
     udphdr* udp;     //udp header
     icmp* icmp_msg;  //icmp message          
 
@@ -43,6 +42,8 @@ public:
     
     //in case we are building an ICMP packet to send
     icmpClass();
+    
+    //distructor
     
     //constructs an ICMP packet starting from infos received
     int icmpFill(char*, int);
@@ -57,6 +58,9 @@ public:
     //get ip header
     ip* getSourceIPHeader();
     ip* getDestIPHeader();
+    
+    //get icmp header
+    icmp* getICMPheader();
     
     //get type of icmp
     int getICMPType();
@@ -84,6 +88,17 @@ public:
     //void setICMPSeq(int s=0);
 
     friend ostream& operator<<(ostream& output, icmpClass & ic);
+    
+/*
+    Make an icmp echo request to discover if an address (destAddr) is classifiable or not
+    for third part addresses discovery
+    This function receives the destination address, a timestamp, destination sockaddr_in, buffer and len
+    It has to fill dest, buffer, len in order to make an icmp echo request packet
+    Ip header is prepared by ipManager that adds in the options field the timestamps options for 
+    third part addresses discovery
+    At the end, buffer will contain the ip_header + icmp_header, len is the total packet len
+*/
+    void makeProbe(char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len);
 };
 
 class icmpManager{
@@ -109,9 +124,13 @@ public:
     /* receive function, returns an addr structure, the pointer is useful to 
      * state the type of hop that answers, if it is an intermediate router 
      * or the final destination*/
-    addr* traceRecv(int* htype);	
+    addr* traceRecv(int* htype);
     
+    // receive an icmp echo reply
+    // 
     int tpRecv();
-    // msg, srcAddr, destAddr, timestampAddr
-    tpSend(char*, char*, char*, char*);
+    
+    // send an icmp echo request
+    // msg, destAddr, timestampAddr
+    void tpSend(char*, char*, char*);
 };

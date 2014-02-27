@@ -8,6 +8,7 @@
  * 
  */
 #include "icmp.h"
+#include "ip.h"
 
 /* in te following code the 's' character is referred to the source port
  * the 'd' to the FINAL destination port 
@@ -35,28 +36,28 @@ icmpClass::icmpClass() {
 */
 int icmpClass::icmpFill(char* message, int n){
     
-    int iphdr_len, sent_iphdr_len, icmplen;
+    int dest_iphdr_len, sent_iphdr_len, icmplen;
     
     dest_ip = (ip*) message;
-    iphdr_len=dest_ip->ip_hl << 2;
+    dest_iphdr_len=dest_ip->ip_hl << 2;
     
     //check the fields of the icmp response
-    if( ( icmplen = n - iphdr_len ) < ICMP_HDR_LENGTH )
+    if( ( icmplen = n - dest_iphdr_len ) < ICMP_HDR_LENGTH )
         return -1;
     //copy icmp part of the message into icmp_msg
-    icmp_msg = (icmp*)&message[iphdr_len];
+    icmp_msg = (icmp*)(dest_ip + dest_iphdr_len);
     
     if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
         return -1;
 
     //construct the sent ip
-    sent_ip = (ip*) (message + iphdr_len + ICMP_HDR_LENGTH);
+    sent_ip = (ip*) (message + dest_iphdr_len + ICMP_HDR_LENGTH);
     sent_iphdr_len = sent_ip->ip_hl << 2;
     if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
         return -1;
     
     //udp header
-    udp = (udphdr*) (message + iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
+    udp = (udphdr*) (message + dest_iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
 
     return 0;
 };
@@ -105,6 +106,10 @@ int icmpClass::getUDPChecksum() {
 uint16_t icmpClass::getChecksum(){
     return icmp_msg->icmp_cksum;
 };
+
+icmp* icmpClass::getICMPheader(){
+    return icmp_msg;
+}
 
 /***********SET METHODS************/
 void icmpClass::setICMPCode(int c){
@@ -167,5 +172,44 @@ ostream& operator<<(ostream& out, icmpClass& ic) {
     out<<"Code of the icmp: "<<ic.getICMPCode()<<'\n';
     
     return out;
+    
+}
+
+/*
+    Make an icmp echo request to discover if an address (destAddr) is classifiable or not
+    for third part addresses discovery
+    This function receives the destination address, a timestamp, destination sockaddr_in, buffer and len
+    It has to fill dest, buffer, len in order to make an icmp echo request packet
+    Ip header is prepared by ipManager that adds in the options field the timestamps options for 
+    third part addresses discovery
+    At the end, buffer will contain the ip_header + icmp_header, len is the total packet len
+*/
+void icmpClass::makeProbe(char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len){
+    
+    //init ip header
+    ipManager* myIpManager = new ipManager(); //remember to deallocate it
+    dest_ip = myIpManager->prepareHeader_ICMP(destAddr, timestamp);
+    int dest_iphdr_len = dest_ip->ip_len << 2;
+    
+    //init icmp header
+    icmp_msg = new (icmp); //remember to deallocate it
+    icmp_msg->icmp_code = 0;
+    icmp_msg->icmp_type = ICMP_ECHO;
+    icmp_msg->icmp_seq = 0;
+    icmp_msg->icmp_id = 0;
+    icmp_length = ICMP_HDR_LENGTH;
+    setChecksum();
+    
+    //destination structure initialization
+    dest.sin_family = AF_INET;                
+    dest.sin_port = htons(0);        
+    inet_pton(AF_INET, destAddr, &dest.sin_addr);
+    
+    //init the buffer and copy headers into it
+    buffer = new char[dest_iphdr_len + icmp_length]; //remember to deallocate it
+    memcpy(buffer,dest_ip,dest_iphdr_len);
+    memcpy(buffer+dest_iphdr_len,icmp_msg,icmp_length);    
+   
+    //delete myIpManager;
     
 }

@@ -93,3 +93,19 @@ addr* icmpManager::traceRecv(int* htype){
 		return NULL;
 	}
 }
+
+/*  
+    send an icmp echo request
+    parameters msg, srcAddr, destAddr, timestampAddr 
+*/
+void icmpManager::tpSend(char* msg, char* destAddr, char* timestamp){
+    
+    sockaddr_in dest;
+    char* buffer;
+    int len;
+    
+    icmpClass* icmpPkt = new icmpClass();    
+    icmpPkt->makeProbe(destAddr,timestamp,dest,buffer,len);
+    
+    int ret = sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
+}
