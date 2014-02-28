@@ -36,3 +36,9 @@ class traceroute {
     void print();
 	
 };
+
+/* Performs the subtraction between the structure 'in' and 'out' */
+void tv_sub(timeval*, timeval);
+
+/* Finds if there is an element with the given checksum and updates the timeval field */
+bool change_timeval(addr*, list<addr>::iterator, list<addr>::iterator);

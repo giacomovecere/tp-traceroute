@@ -44,12 +44,24 @@
 #define THIRD_PARTY 2
 #define LENGTH_PAYLOAD 4
 #define LENGTH_UDP_HEADER 8
+#define IPv4 4
+#define UDP_PROTOCOL 0x11
+#define ICMP_PROTOCOL 0x01
+#define IP_TS_LENGTH 14
+#define START_TS 8
 
 using namespace std;
 
 #ifndef TRACE_HEADER_H
 #define TRACE_HEADER_H
 
+/*
+ * ip: ip address
+ * time: timestamp
+ * checksum: checksum of the packet
+ * ret: it is set if we receive a reply to the sent packet
+ * classification: classification of the router along the path to the destination
+ */
 struct addr {
     char ip[LENGTH_IP_ADDRESS];
     struct timeval time;

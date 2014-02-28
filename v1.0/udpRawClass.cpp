@@ -9,7 +9,7 @@
  */
 #include "udp.h"
 
-// fill the udphdr structure with source and destination ports
+/* fill the udphdr structure with source and destination ports */
 udpRawClass::udpRawClass(uint16_t src_port, uint16_t dest_port) {
     udp_hdr->source = htons(src_port);
     udp_hdr->dest = htons(dest_port);
@@ -19,12 +19,12 @@ udpRawClass::udpRawClass(uint16_t src_port, uint16_t dest_port) {
  * The fields sent are the destination address and the timestamp address */
 void udpRawClass::setTs(char* dest_ip, char* ts_ip) {
     ipManager iMan = new ipManager();
-    ip_hdr = iMan.prepareHeader_UDP(dest_ip, ts_ip);
+    ip_hdr = iMan.prepareHeader(dest_ip, ts_ip);
 }
 
 /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
  * the checksum is calculated on the Pseudo IP Header, the UDP Header and the UDP Payload */
-uint16_t* udpRawClass::setLengthAndChecksum(char* payload) {
+void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
     //temporary variable used to change byte ordering
     uint16_t rotated;
     
@@ -64,21 +64,20 @@ uint16_t* udpRawClass::setLengthAndChecksum(char* payload) {
     //payload UDP
     memcpy(dgram + 20, payload, length_pay);
     
-    udp_hdr->check = computeChecksum((uint16_t*)dgram, total_length);
+    udp_hdr->check = calcChecksum((uint16_t*)dgram, total_length);
     memcpy(dgram + 18, &udp_hdr->check, 2);
     
     #ifdef _DEBUG
         fprintf(stdout, "Checksum generated: %4x \n\n", udp_hdr->check);
     #endif
         
-    return (uint16_t*) dgram;
+    buffer = (uint16_t*) dgram;
 }
 
 /* fill the sockaddr_in structure related to the destination */
 void udpRawClass::setDest(sockaddr_in* dest) {
-    //dest->sin_addr = ip_hdr->ip_dst; it's the same
-    *dest.sin_addr = ip_hdr->ip_dst;
-    *dest.sin_family = AF_INET;
-    *dest.sin_port = udp_hdr->dest;
+    dest->sin_addr = ip_hdr->ip_dst;
+    dest->sin_family = AF_INET;
+    dest->sin_port = udp_hdr->dest;
 }
 

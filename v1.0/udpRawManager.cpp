@@ -29,9 +29,13 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     sockaddr_in dest;
     uint16_t* buffer;
     
+    // set the destination and the address of the node that has to put a timpestamp
     udpRawPacket->setTs(dest_ip, ts_ip);
-    buffer = udpRawPacket->setLengthAndChecksum(payload);
     
+    // set the length of the packet and calculate che checksum of the UDP Packet
+    udpRawPacket->setLengthAndChecksum(payload, buffer);
+    
+    // set the destination structure to which the packet is going to be sent
     udpRawPacket->setDest(&dest);
     
     // send the UDP packet 
