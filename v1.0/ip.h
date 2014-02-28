@@ -8,23 +8,32 @@
  * 
  */
 #include "trace_header.h"
+#include <ifaddrs.h>
 
 class ipClass {
     
+    ip* ipHeader;
+    ip_timestamp* ipTimeOpt;
+    
+    //private functions
+    void setSource();
+    uint16_t setChecksum();
+    
 public:
+    ipClass(int len, int id_start);
     void setDest(char*);
-    void setSource(char*);
     void setTimestampTarget(char*);
     int getTimestampNumbers();
+    void setProtocol(int p);
+    uint16_t* pack();
+    ~ipClass();
 };
 
 class ipManager {
     
 public:
+    
     /* param: destAddr, TimestampAddr
        returns the ip struct */
-    ip* prepareHeader_UDP(char*, char*);
-    /* param: destAddr, TimestampAddr
-       returns the ip struct */
-    ip* prepareHeader_ICMP(char*, char*);
+    uint16_t* prepareHeader(char*, char* = 0);
 };
