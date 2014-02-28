@@ -1,0 +1,30 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x1a\x00t\x00p\x00-\x00t\x00r\x00a\x00c\x00e\x00r\x00o\x00u\x00t\x00e)
+
+[Launch]
+Launch Configurations=Launch Configuration 0
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=Debug Launcher
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=www.google.it
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+Dependency Action=Nothing
+EnvironmentGroup=default
+Executable=file:///home/antonio/tp-traceroute/tp-traceroute
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Project Target=
+Use External Terminal=false
+Working Directory=
+isExecutable=true
+
+[MakeBuilder]
+Install As Root=true
+Su Command=2
+
+[Project]
+VersionControlSupport=kdevgit

@@ -16,7 +16,7 @@ ipClass::ipClass(){
      * timestamp option takes 9 * 4 bytes
      * hence ip header length is 14 bytes
     */
-    ipHeader->ip_hl = IP_TS_LENGTH;
+    //ipHeader->ip_hl = IP_TS_LENGTH;
     //we use only IPv4
     ipHeader->ip_v = IPv4;
     /* NOTE: type of service is now deprecated since this field is now used
@@ -25,7 +25,6 @@ ipClass::ipClass(){
      */
     ipHeader->ip_tos = 0x00;
     ipHeader->ip_len = ipHeader->ip_hl + len;
-    ipHeader->ip_id = setID();
     //flags 0x02 means don't fragment
     ipHeader->ip_off = 0x0200;
     ipHeader->ip_ttl = MAX_TTL_DEF;
@@ -92,7 +91,7 @@ void ipClass::setTimestampTarget(char* addr) {
     
     for(int i=0; i<8; i++) {
         
-        inet_pton(AF_INET, addr, &ip_time->data[i]);
+        inet_pton(AF_INET, addr, &ipTimeOpt->data[i]);
         i++;
         //set the timestamp value to 0
         ipTimeOpt->data[i] = 0;

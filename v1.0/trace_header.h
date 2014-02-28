@@ -44,6 +44,11 @@
 #define THIRD_PARTY 2
 #define LENGTH_PAYLOAD 4
 #define LENGTH_UDP_HEADER 8
+#define IPv4 4
+#define UDP_PROTOCOL 0x11
+#define ICMP_PROTOCOL 0x01
+#define IP_TS_LENGTH 14
+#define START_TS 8
 
 using namespace std;
 
