@@ -19,7 +19,7 @@ udpRawClass::udpRawClass(uint16_t src_port, uint16_t dest_port) {
  * The fields sent are the destination address and the timestamp address */
 void udpRawClass::setTs(char* dest_ip, char* ts_ip) {
     ipManager iMan = new ipManager();
-    ip_hdr = iMan.prepareHeader_UDP(dest_ip, ts_ip);
+    ip_hdr = iMan.prepareHeader(dest_ip, ts_ip);
 }
 
 /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
