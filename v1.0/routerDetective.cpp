@@ -10,13 +10,13 @@
 
 #include "routerDetective.h"
 
-//Constructor of the class: sets the last position of the array
+//Constructor of the class: sets the pointer of the array and its the last position  
 routerDetective::routerDetective(list<addr>* list, int last) {
       array_list = list;
       last_position = last;
 }
 
-// Sends an ICMP echo request to each intermediate hop
+// Sends an ICMP echo request to each intermediate hop and receives an icmp echo reply
 int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
    
     char* payload;
@@ -44,17 +44,23 @@ int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
         cerr<<"Error: tpSend error"<<endl;
         exit(EXIT_FAILURE);
     }
-         
+        
+    free(payload);
+        
     if(select(fdmax+1, &read_fds, NULL, NULL, &timeout) == -1) {
         cerr<<"select error\n";
         exit(EXIT_FAILURE);
     }
+    
     if(FD_ISSET(socket, &read_fds)) {
         /* Receives an icmp echo response from an intermediate hop and check 
             the number of timestamps that are in the packet */
         num_ts = icmp_m.tpRecv(destAddr); 
+        
+        //the hop is not classifiable
         if(num_ts < 1 || num_ts > 3)
             return 0;
+        //the hope is classifiable if the number of timestamps received is 1, 2 or 3
         else
             return 1;
     }
@@ -64,13 +70,10 @@ int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
         #endif
         return -1;
     }
-    free(payload);
 }
 
-/* Receives an ICMP echo reply from all the intermediate hops and
-    sends UDP probes to classifiable hops*/
-bool routerDetective::hopsClassificability(uint16_t s_port, char* destAddr, uint16_t dest_port){
-    //list<addr>* ip_list_modified;
+/*Sends UDP probes to classifiable hops and receives an icmp port unreach from intermediate hops*/
+int routerDetective::hopsClassificability(uint16_t s_port, uint16_t dest_port, char* destAddr, char* ts_ip){
     list<addr>::iterator p;
     icmpManager icmp_m = icmpManager(s_port);
     udpRawManager* udpRawManag = new udpRawManager(s_port, dest_port); ;
@@ -98,20 +101,27 @@ bool routerDetective::hopsClassificability(uint16_t s_port, char* destAddr, uint
     if(!udpRawManag.tpSend(destAddr, ts_ip, payload)) {
         cerr<<"Error: tpSend error"<<endl;
         delete udpRawManag;
-        return false;
+        free(payload);
+        return -1;
     }
+    
                     
     if(select(fdmax+1, &read_fds, NULL, NULL, &timeout) == -1) {
         cerr<<"select error\n";
         exit(EXIT_FAILURE);
     }
     
+    free(payload);
+    delete udpRawManag;
+    
     if(FD_ISSET(socket, &read_fds)) {
         /* Receives an icmp echo response from an intermediate hop and check 
             the number of timestamps that are in the packet */
         num_ts = icmp_m.tpRecv(destAddr); 
+        //the hop is a TP
         if(num_ts < 1)
             return 0;
+        //the hop is OP
         else
             return 1;
     }
@@ -121,12 +131,10 @@ bool routerDetective::hopsClassificability(uint16_t s_port, char* destAddr, uint
         #endif
         return -1;
     }
-    free(payload);
-    delete udpRawManag;
-    return true;
 }
 
-//Function that coordinates the classification of hops discovered by traceroute towards the destination
+/*Coordinates the classification of hops discovered by traceroute towards the destination.
+     Hops are classified as: NON CLASSIFIABLE, ON PATH or THIRD PARTY*/
 bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, char* destAddr) {
     list<addr>::iterator p;
     //icmpManager icmp_m = icmpManager(s_port);
@@ -142,9 +150,14 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
         }
         
         for(p = array_list[i].begin(); p != array_list[i].end(); p++){
+           
+            /* The intermediate hop has provided a response to the traceroute
+             * In the traceroute, for each hop, we sent 3 probes
+             * Here we consider only one element of these */
             if(p->ret == true) {
                 ret = echoReqReply(p->ip, s_port);
                  
+                // Timeout expired
                  if(ret == -1)
                      return false;
                  
@@ -154,7 +167,9 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
                  
                  //the hope is classifiable
                  else {
-                    ret = hopsClassificability(s_port, destAddr, dest_port);
+                    ret = hopsClassificability(s_port, dest_port, destAddr, p->ip);
+                    
+                    //Timeout expired
                     if(ret == -1) {
                         cerr<<"Error: hopsClassificability error! "<<endl;
                         return false;

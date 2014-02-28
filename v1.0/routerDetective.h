@@ -27,14 +27,14 @@ public:
     //Constructor of the class
     routerDetective( list<addr>*, int);
     
-    //Sends ICMP echo request to each intermediate hop
-    bool echoReqReply(char*, uint16_t);
+    //Sends an ICMP echo request to each intermediate hop and receives an icmp echo reply
+    int echoReqReply(char*, uint16_t);
     
-    /*Receives ICMP echo response from intermediate hops and
-      send UDP probes to each classifiable hop*/
-    list<addr>* hopsClassificability(uint16_t, char*, uint16_t);
+    /*Sends UDP probes to classifiable hops and receives an icmp port unreach from intermediate hops*/
+    int hopsClassificability(uint16_t, uint16_t, char*, char*);
     
-    /*Receives an ICMP response and set it intermediate hops as TP or OP */
+    /*Coordinates the classification of hops discovered by traceroute towards the destination.
+     Hops are classified as: NON CLASSIFIABLE, ON PATH or THIRD PARTY*/
     bool thirdPartyDetection(uint16_t, uint16_t, char*);
     
     //Prints the elements of the list 
