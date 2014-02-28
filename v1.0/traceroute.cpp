@@ -10,35 +10,6 @@
 
 #include "traceroute.h"
 
-/* Performs the subtraction between the structure 'in' and 'out' */
-void tv_sub(timeval *out, timeval *in) {
-	if ( (out->tv_usec = in->tv_usec - out->tv_usec) < 0) {	/* out -= in */
-		--out->tv_sec;
-		out->tv_usec += 1000000;
-	}
-	out->tv_sec = in->tv_sec - out->tv_sec;
-}
-
-/* Finds if there is an element with the given checksum and updates the timeval field */
-bool change_timeval(addr* address, 
-                    list<addr>::iterator start, list<addr>::iterator end){
-        list<addr>::iterator p;
-        
-        // empty list
-        if(start == end)
-                return false;
-
-        for(p=start; p!= end; p++){
-                if(p->checksum == address->checksum){
-                    p->ret = true;
-                    tv_sub(&p->time, &address->time);
-                    memcpy(p->ip, address->ip, LENGTH_IP_ADDRESS);
-                    return true;
-                }
-        }
-        return false;
-}
-
 traceroute::traceroute(uint16_t s_port) {
     src_port = s_port;
     last_position = 0;
@@ -85,7 +56,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t* dest_port_set) {
     addr no_response;
     
     // udpManager to manage the udp packets are going to be sent
-    udpManager uManager = udpManager(src_port);
+    udpHLManager uManager = udpHLManager(src_port);
     
     FD_SET(socket, &master);
     read_fds = master;
@@ -100,10 +71,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t* dest_port_set) {
         
         // If ttl = 1, it sends 'N_PROBE_DEF' probes with different dest. ports
         if(ttl == 1) {
-            for(int i = 0; i < N_PROBE_DEF; i++) {  
-				/*#ifdef _DEBUG
-					cout<<"N_PROBE-for. i = "<< i <<" ttl = "<< ttl <<endl;
-				#endif*/
+            for(int i = 0; i < N_PROBE_DEF; i++) {
 							 
                 dest_port = dest_port_ini + i;
                 // each packet has different payload and different dest. port
@@ -140,9 +108,6 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t* dest_port_set) {
                 array_ip_list[ttl].push_back(address_vector[i]);
             }
 		}
-        
-        //receive port set to 0 to check if any ICMP message arrives
-        //receive_port = 0;
         
         // loop until we receive all of the 'N_PROBE_DEF' packets or the time expires
         while(packets_in_time) {
@@ -258,13 +223,10 @@ void traceroute::print()  {
     //scan the array of list
     for(int i = 1; i <= last_position; i++) {
         p = tmp[i].begin();
-        //q = tmp[i].end();
         
-        //if(tmp[i].empty() == true) break;
         fprintf(stdout, "%d ", counter);
         counter++;
         
-        //while (p != q) {
         for(int j=0; j < N_PROBE_DEF; j++) {
             if(p->ret == true) {
                 fprintf(stdout, "(%s) ", p->ip);
@@ -275,10 +237,8 @@ void traceroute::print()  {
         }
         
         p = tmp[i].begin();
-        //q = tmp[i].end();
         
         //scanning the list
-        //while(p != q) {
         for(int j=0; j < N_PROBE_DEF; j++) {
             //check if the packet has received response
             if(p->ret == true) {
@@ -295,3 +255,32 @@ void traceroute::print()  {
         fprintf(stdout, "\n\n");
     }
 } 
+
+/* Performs the subtraction between the structure 'in' and 'out' */
+void tv_sub(timeval *out, timeval *in) {
+    if ( (out->tv_usec = in->tv_usec - out->tv_usec) < 0) { /* out -= in */
+        --out->tv_sec;
+        out->tv_usec += 1000000;
+    }
+    out->tv_sec = in->tv_sec - out->tv_sec;
+}
+
+/* Finds if there is an element with the given checksum and updates the timeval field */
+bool change_timeval(addr* address, list<addr>::iterator start, list<addr>::iterator end){
+        list<addr>::iterator p;
+        
+        // empty list
+        if(start == end)
+                return false;
+
+        for(p=start; p!= end; p++){
+                if(p->checksum == address->checksum){
+                    p->ret = true;
+                    tv_sub(&p->time, &address->time);
+                    memcpy(p->ip, address->ip, LENGTH_IP_ADDRESS);
+                    return true;
+                }
+        }
+        return false;
+}
+

@@ -7,17 +7,15 @@
  * YOU NEED TO BE SUPERUSER
  * 
  */
-#include "udp.h"
+ #include "udp.h"
 
-//constructor of the class
-udpClass::udpClass(uint16_t source_port=0) {
-    
-    // Creation of DGram socket
+udpHLManager::udpHLManager(uint16_t src_port) {        
+    // Creation of DGRAM socket
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);  
-        
+    
     //source structure initialization
     src.sin_family = AF_INET;
-    src.sin_port = htons(source_port);
+    src.sin_port = htons(src_port);
     
     //retrieve external ip address of the source host 
     struct ifaddrs * ifAddrStruct = NULL;
@@ -40,49 +38,58 @@ udpClass::udpClass(uint16_t source_port=0) {
     //bind the socket to the source address and port
     bind(sockfd, (sockaddr*)&src, sizeof(sockaddr)); 
     
-    freeifaddrs(ifAddrStruct);
-    	
-}
-
-/* Method for setting the destination address and port */
-void udpClass::setDest(char* dest_addr, uint16_t dest_port) {
-    //destination structure initialization
-    dest.sin_family=AF_INET;                
-    dest.sin_port=htons(dest_port);        
-    inet_pton(AF_INET, dest_addr, &dest.sin_addr);
-}
-
-/* Method for setting the 'Time to Leave' field in the IP Header */
-void udpClass::setTtl(int ttl) {
+    freeifaddrs(ifAddrStruct);  
+} 
+	    
+/* 
+ * Sends 'n_probe' UDP packets to the destination specified in the parameteres
+ * of the method. 
+ * It fills 'vett_addr' with the information required 
+*/
+bool udpHLManager::send(char* ip_address, uint16_t dest_port, int ttl, int payload, int n_probe, addr* vett_addr) {
+    
+    //NOTE c_payload becomes a void pointer to a memory location
+    char c_payload[sizeof(int)];
+    sockaddr_in* dest;
+    int probe;
+    
+    //set the TTL
     setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(int));
-}
+    
+    //destination structure initialization
+    dest->sin_family=AF_INET;                
+    dest->sin_port=htons(dest_port);        
+    inet_pton(AF_INET, ip_address, &dest->sin_addr);
+    
+    for(probe = 0; probe < n_probe; probe++) {
+        // converts payload from int to character
+        memcpy(c_payload, &payload, sizeof(int));
+        
+        // calculates the checksum of the packet
+        vett_addr[probe].checksum = computeChecksum(src, dest, c_payload);
 
-/* The method returns the socket file descriptor of the established connection*/
-int udpClass::getSock() {
-    return sockfd;
-}
+        // setting the current time
+        gettimeofday(&vett_addr[probe].time, NULL);
 
-/* The method returns the sockaddr_in structure that contains the details 
- * of the source host */
-sockaddr_in udpClass::getSrc() {
-    return src;
-}
-
-/* The method returns the sockaddr_in structure that contains the details 
- * of the destination host */
-sockaddr_in* udpClass::getDest() {
-    return &dest;
-}
-
-/* The method returns the payload of the datagram */
-void udpClass::setPayload(char* buff) {
-    memcpy(payload, buff, sizeof(buff));
-}
+        // sends the UDP packet 
+        int x = sendto(sockfd, c_payload, sizeof(c_payload), 0, (sockaddr *)dest, sizeof(sockaddr));
+        if(x == -1) {
+            cerr<<"Error: sendto error"<<endl;
+            return false;
+        }
+        
+        vett_addr[probe].ret = false;
+        
+        // changhes the payload for changing the checksum field [as Paris-traceroute does]
+        payload++;
+    }
+    return true;
+}		
 
 /* Compute Internet Checksum by addind all the data contained in the 
  * datagram. A part of the IP Header (src_address, dest_address, protocol), 
  * the entire UDP Header and the payload*/
-uint16_t computeChecksum(const uint16_t* dgram, int length) {
+uint16_t calcChecksum(const uint16_t* dgram, int length) {
     uint32_t sum = 0;
     
     //scan the datagram and add to each other all the fields
@@ -100,6 +107,7 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
     //complement 1 of the sum
     return ~sum;
 }
+
 /* NOTE: the Internet checksum needs to be computed in the byte ordering used by the network, 
  * not by the processor, source address and port and destination address and port are already 
  * ordered according to the network, this is done in the inet_pton and htons functions in the 
@@ -110,7 +118,7 @@ uint16_t computeChecksum(const uint16_t* dgram, int length) {
  * |        Dest   IP Address       |
  * |  00  | Proto  |   UDP Length   |
  */      
-uint16_t udpClass::getChecksum() {
+uint16_t computeChecksum(sockaddr_in src, sockaddr_in* dest, char* payload) {
     
     //this is a temporary variable used to change byte ordering
     uint16_t rotated;
@@ -133,7 +141,7 @@ uint16_t udpClass::getChecksum() {
     //to compute the checksum
     rotated = htons (proto);
     memcpy(dgram, &src.sin_addr, sizeof(src.sin_addr));
-    memcpy(dgram + 4, &dest.sin_addr, sizeof(dest.sin_addr));
+    memcpy(dgram + 4, &dest->sin_addr, sizeof(dest->sin_addr));
     memcpy(dgram + 8, &rotated, 2);
     
     rotated = htons(length);
@@ -142,7 +150,7 @@ uint16_t udpClass::getChecksum() {
     
     //UDP header
     memcpy(dgram + 12, &src.sin_port, sizeof(src.sin_port));
-    memcpy(dgram + 14, &dest.sin_port, sizeof(dest.sin_port));
+    memcpy(dgram + 14, &dest->sin_port, sizeof(dest->sin_port));
     
     memcpy(dgram + 16, &rotated, 2);
     memcpy(dgram + 18, &chs, 2);
@@ -150,11 +158,11 @@ uint16_t udpClass::getChecksum() {
     //payload UDP
     memcpy(dgram + 20, payload, length_pay);
     
-    chs = computeChecksum((uint16_t*)dgram, total_length);
+    chs = calcChecksum((uint16_t*)dgram, total_length);
     
     #ifdef _DEBUG
         fprintf(stdout, "Checksum generated: %4x \n\n", chs);
     #endif
     return chs;
-}	
+}   
 

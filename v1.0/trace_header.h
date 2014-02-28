@@ -50,6 +50,13 @@ using namespace std;
 #ifndef TRACE_HEADER_H
 #define TRACE_HEADER_H
 
+/*
+ * ip: ip address
+ * time: timestamp
+ * checksum: checksum of the packet
+ * ret: it is set if we receive a reply to the sent packet
+ * classification: classification of the router along the path to the destination
+ */
 struct addr {
     char ip[LENGTH_IP_ADDRESS];
     struct timeval time;
