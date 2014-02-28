@@ -98,21 +98,50 @@ addr* icmpManager::traceRecv(int* htype){
     send an icmp echo request
     parameters msg, srcAddr, destAddr, timestampAddr 
 */
-int icmpManager::tpSend(char* msg, char* destAddr, char* timestamp){
+int icmpManager::tpSend(char* msg, char* destAddr){
     
     sockaddr_in dest;
     char* buffer;
     int len;
     
     icmpClass* icmpPkt = new icmpClass();    
-    icmpPkt->makeProbe(msg,destAddr,timestamp,dest,buffer,len);
+    icmpPkt->makeProbe(msg,destAddr,destAddr,dest,buffer,len);
     
-    return sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
+    int ret =  sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
+    if(ret > 0)
+        return 1; //ok
+    else
+        return 0; //error
 }
 
-/*
- *
- * 
+
+/* 
+    Params: destAddr is the address from which we wait a icmp echo response
+    Receives an icmp echo response from an intermediate hop and returns 
+    the number of timestamps that are in the packet 
 */
-int icmpManager::tpRecv(){
+int icmpManager::tpRecv(char* destAddr){
+    
+    char buffer[MESSAGE_SIZE];
+    sockaddr_in rm_addr;
+    socklen_t rm_addr_size;
+    
+    memset((char *)&rm_addr, 0, sizeof(rm_addr));
+    
+    // to get the right ip address from the recvfrom function
+    rm_addr_size = sizeof(struct sockaddr_in);
+    //receive the response message
+    int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
+    if(ret != -1) {
+        icmpClass* icmpPkt = new icmpClass();
+        //non so se questa icmpFill va bene perché 
+        //era pensata per un altro tipo di pacchetto (ICMP_TIME_EXCEEDED)
+        //fill object with received message
+        int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
+        if(fill != -1){ 
+            ip* iphdr = icmpPkt->getDestIPHeader();
+            //check timestamps
+            //TODO
+        }
+    }
 }

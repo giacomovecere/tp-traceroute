@@ -36,7 +36,7 @@ class icmpClass{
     int icmp_length;
     
     udphdr* udp;     //udp header
-    icmp* icmp_msg;  //icmp message          
+    icmp* icmp_msg;  //icmp message 
 
 public:
     
@@ -127,10 +127,10 @@ public:
     addr* traceRecv(int* htype);
     
     // receive an icmp echo reply
-    // 
-    int tpRecv();
+    // returns the number of timestamps in the ip header options field
+    int tpRecv(char*);
     
     // send an icmp echo request
     // msg, destAddr, timestampAddr
-    int tpSend(char*, char*, char*);
+    int tpSend(char* msg, char* destAddr);
 };

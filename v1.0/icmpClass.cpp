@@ -188,7 +188,7 @@ void icmpClass::makeProbe(char* msg, char* destAddr, char* timestamp, sockaddr_i
     
     //init ip header
     ipManager* myIpManager = new ipManager(); //remember to deallocate it
-    dest_ip = myIpManager->prepareHeader_ICMP(destAddr, timestamp);
+    dest_ip = (ip*)myIpManager->prepareHeader(destAddr, timestamp);
     int dest_iphdr_len = dest_ip->ip_len << 2;
     
     //init icmp header
