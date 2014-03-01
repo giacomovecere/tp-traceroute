@@ -47,15 +47,16 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     udpRawPacket->setDest(&dest);
     
     /*IP part*/
-    ipManager ipm = new ipManager;
-    ipHdr=ipm.prepareHeader();
-    
-    
+    ipManager ipm = ipManager();
+    ipHdr=ipm.prepareHeader(dest_ip, ts_ip);
+    memcpy(total_buffer, ipHdr, IP_TS_LENGTH*4);
+    memcpy(total_buffer+IP_TS_LENGTH*4, buffer, LENGTH_PAYLOAD);
     
     // send the UDP packet 
-    r = sendto(sockfd, buffer, sizeof(buffer), 0, (sockaddr *)dest, sizeof(sockaddr));
+    r = sendto(sockfd, total_buffer, (IP_TS_LENGTH*4)+LENGTH_PAYLOAD, 0, 
+               (sockaddr *)&dest, sizeof(sockaddr));
     if(r == -1) {
-        cerr<<"Error: sendto error"<<endl;
+        cout<<"Error: sendto error"<<endl;
         return false;
     }
     

@@ -33,8 +33,11 @@ class udpHLManager {
 
 /* Handles the creation of an UDP packet prepared for being trasmitted on a RAW socket */
 class udpRawClass {
-    ip* ip_hdr;         //ip header
+    ipManager ipM;
+    in_addr src_address;
+    in_addr dst_address;
     udphdr* udp_hdr;    //udp header
+    uint16_t* ipHdr;
     
 public:
     // fill the udphdr structure with source and destination ports
@@ -64,7 +67,7 @@ public:
     udpRawManager(uint16_t, uint16_t);
     
     /* Sends an UDP Probe to the destination specified. Puts the timestamp address in the IP Header */
-    bool tpSend(char*, char*);
+    bool tpSend(char*, char*, char*);
 };
 
 /* The two functions compute the Internet Checksum by addind all the data contained in the 

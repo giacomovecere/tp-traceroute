@@ -57,7 +57,7 @@ ipClass::ipClass(){
 void ipClass::setSource() {
     
     //retrieve external ip address of the source host 
-    /*struct ifaddrs * ifAddrStruct = NULL;
+    struct ifaddrs * ifAddrStruct = NULL;
     struct ifaddrs * ifa = NULL;
     void * tmpAddrPtr = NULL;
 
@@ -76,7 +76,7 @@ void ipClass::setSource() {
     memcpy(&ipHeader->ip_src, tmpAddrPtr, sizeof(in_addr));
     
     freeifaddrs(ifAddrStruct);
-    */
+    
 }
 
 //set the destination address in the IP header
@@ -116,7 +116,7 @@ int ipClass::getTimestampNumbers(){
 }
 
 //ip checksum
-uint16_t ipClass::setChecksum() {} //TODO
+uint16_t ipClass::setChecksum() {}
 
 //set protocol above IP (above is referred to the transmission OSI view)
 void ipClass::setProtocol(int proto) {
@@ -131,7 +131,7 @@ uint16_t* ipClass::pack() {
     
     /* IP_TS_LENGTH is referred to long (32 bits) here we use 16 bits, more
      * useful to compute the checksum also*/
-    uint16_t ipPacked[IP_TS_LENGTH * 2];
+    uint16_t* ipPacked = new uint16_t[IP_TS_LENGTH * 2];
     
     //before packing set the checksum
     setChecksum();

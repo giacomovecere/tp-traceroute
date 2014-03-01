@@ -18,8 +18,8 @@ udpRawClass::udpRawClass(uint16_t src_port, uint16_t dest_port) {
 /* fill the iphdr structure by calling an instance of ipManager.
  * The fields sent are the destination address and the timestamp address */
 void udpRawClass::setTs(char* dest_ip, char* ts_ip) {
-    ipManager iMan = new ipManager();
-    ip_hdr = iMan.prepareHeader(dest_ip, ts_ip);
+    //ipManager iMan = ipManager();
+    ipHdr = ipM.prepareHeader(dest_ip, ts_ip);
 }
 
 /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
@@ -42,13 +42,16 @@ void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
     int zeros = 0x0000; // zeros
     int z;
     
+    src_address = ipM.getSource();
+    dst_address = ipM.getDest();
+    
     // Set the length in the udp_hdr structure
     udp_hdr->len = htons(sizeof(struct udphdr) + sizeof(payload));
     
     // Pseudo IP Header
     rotated = htons (proto);
-    memcpy(dgram, &ip_hdr->ip_src, sizeof(ip_hdr->ip_src));
-    memcpy(dgram + 4, &ip_hdr->ip_dst, sizeof(ip_hdr->ip_dst));
+    memcpy(dgram, &src_address, sizeof(src_address));
+    memcpy(dgram + 4, &dst_address, sizeof(dst_address));
     memcpy(dgram + 8, &rotated, 2);
     
     rotated = htons(length);
@@ -76,7 +79,7 @@ void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
 
 /* fill the sockaddr_in structure related to the destination */
 void udpRawClass::setDest(sockaddr_in* dest) {
-    dest->sin_addr = ip_hdr->ip_dst;
+    dest->sin_addr = dst_address;
     dest->sin_family = AF_INET;
     dest->sin_port = udp_hdr->dest;
 }
