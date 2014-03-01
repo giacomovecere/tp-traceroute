@@ -24,6 +24,6 @@ ipManager.o: 	ipManager.cpp
 	
 clean:
 	rm *.o
-	rm tp-traceroute
+	rm iptrial
 clean_obj:
 	rm *.o

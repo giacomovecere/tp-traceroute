@@ -2,7 +2,7 @@ CFLAGS := -ggdb
 CC := g++
 DEBUG ?= 
 
-OBJS := traceroute.o icmpManager.o icmpClass.o udpHLManager.o udpRawClass.o udpRawManager-o
+OBJS := traceroute.o icmpManager.o icmpClass.o udpHLManager.o udpRawClass.o udpRawManager.o
 
 all: tp-traceroute
 

@@ -27,6 +27,7 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
         cout<<"error in building the socket\n";
         exit(EXIT_FAILURE);
     }
+    cout<<"udpRawManager ok"<<endl;
 }
 
 /* Sends an UDP Probe to the destination specified. 
@@ -47,10 +48,10 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     udpRawPacket->setDest(&dest);
     
     /*IP part*/
-    ipManager ipm = ipManager();
-    ipHdr=ipm.prepareHeader(dest_ip, ts_ip);
+    //ipManager ipm = ipManager();
+    //ipHdr=ipm.prepareHeader(dest_ip, ts_ip);
     memcpy(total_buffer, ipHdr, IP_TS_LENGTH*4);
-    memcpy(total_buffer+IP_TS_LENGTH*4, buffer, LENGTH_PAYLOAD);
+    memcpy(total_buffer+IP_TS_LENGTH*4, payload, LENGTH_PAYLOAD);
     
     cout<<"printing\n";
     

@@ -33,11 +33,11 @@ class udpHLManager {
 
 /* Handles the creation of an UDP packet prepared for being trasmitted on a RAW socket */
 class udpRawClass {
-    ipManager ipM;
+    ipManager* ipM;
     in_addr src_address;
     in_addr dst_address;
-    udphdr* udp_hdr;    //udp header
-    uint16_t* ipHdr;
+    udphdr udp_hdr;    //udp header
+    uint16_t* ip_hdr;
     
 public:
     // fill the udphdr structure with source and destination ports
