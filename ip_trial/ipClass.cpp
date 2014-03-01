@@ -4,6 +4,8 @@
 /* NOTE: as stated in the RAW(7) some of the fields are filled by the kernel hence 
  * there may be the interface of the calling to the function, but it will not 
  * be implemented since the hardware provides the answer to this question
+ * 
+ * NOTE: ALL THE IP FIELDS MUST BE IN NETWORK ORDERING
  */
 ipClass::ipClass(){
     
@@ -18,16 +20,15 @@ ipClass::ipClass(){
     */
     //ipHeader->ip_hl = IP_TS_LENGTH;
     //we use only IPv4
-    ipHeader->ip_v = IPv4;
+    ipHeader->ip_v = htons(IPv4);
     /* NOTE: type of service is now deprecated since this field is now used
      * for differentiate service, we initialize it at 0 to say that we use 
      * BEST-EFFORT
      */
     ipHeader->ip_tos = 0x00;
-    ipHeader->ip_len = ipHeader->ip_hl + len;
     //flags 0x02 means don't fragment
-    ipHeader->ip_off = 0x0200;
-    ipHeader->ip_ttl = MAX_TTL_DEF;
+    ipHeader->ip_off = htons(0x0200);
+    ipHeader->ip_ttl = htons(MAX_TTL_DEF);
     ipHeader->ip_sum = 0;
     
     //set the source
@@ -39,24 +40,24 @@ ipClass::ipClass(){
     //BEGIN initialization of the ip timestamp structure
     
     //code is timestamp
-    ipTimeOpt->ipt_code = IPOPT_TS;
+    ipTimeOpt->ipt_code = htons(IPOPT_TS);
     /* NOTE: the flag field must be prespecified because we specify the 
      * possible ips from which receive the timestamp before
     */
-    ipTimeOpt->ipt_flg = IPOPT_TS_PRESPEC;
+    ipTimeOpt->ipt_flg = htons(IPOPT_TS_PRESPEC);
     
-    ipTimeOpt->ipt_len = 32;
+    ipTimeOpt->ipt_len = htons(32);
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
-    ipTimeOpt->ipt_ptr = START_TS;
+    ipTimeOpt->ipt_ptr = htons(START_TS);
 }
 
 //set the source address for the IP
 void ipClass::setSource() {
     
     //retrieve external ip address of the source host 
-    /*struct ifaddrs * ifAddrStruct = NULL;
+    struct ifaddrs * ifAddrStruct = NULL;
     struct ifaddrs * ifa = NULL;
     void * tmpAddrPtr = NULL;
 
@@ -75,7 +76,7 @@ void ipClass::setSource() {
     memcpy(&ipHeader->ip_src, tmpAddrPtr, sizeof(in_addr));
     
     freeifaddrs(ifAddrStruct);
-    */
+    
 }
 
 //set the destination address in the IP header
@@ -115,7 +116,7 @@ int ipClass::getTimestampNumbers(){
 }
 
 //ip checksum
-uint16_t ipClass::setChecksum() {} //TODO
+uint16_t ipClass::setChecksum() {}
 
 //set protocol above IP (above is referred to the transmission OSI view)
 void ipClass::setProtocol(int proto) {
@@ -130,7 +131,7 @@ uint16_t* ipClass::pack() {
     
     /* IP_TS_LENGTH is referred to long (32 bits) here we use 16 bits, more
      * useful to compute the checksum also*/
-    uint16_t ipPacked[IP_TS_LENGTH * 2];
+    uint16_t* ipPacked = new uint16_t[IP_TS_LENGTH * 2];
     
     //before packing set the checksum
     setChecksum();

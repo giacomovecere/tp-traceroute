@@ -4,7 +4,7 @@
 uint16_t* ipManager::prepareHeader(char* dest, char* time) {
     
     //a way to generate a sequence number that doesn't start from 0
-    ipClass ipHdr = new ipClass();
+    ipHdr = ipClass();
     
     //set the protocol
     if(time == 0)  {
