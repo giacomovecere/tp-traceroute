@@ -34,12 +34,14 @@ icmpClass::icmpClass() {
  *                   it in order to build correctly the various headers, the structure 
  *                   of message can be seen in the header file 
 */
-int icmpClass::icmpFill(char* message, int n){
+int icmpClass::icmpFillTrace(char* message, int n){
     
     int dest_iphdr_len, sent_iphdr_len, icmplen;
     
     dest_ip = (ip*) message;
-    dest_iphdr_len=dest_ip->ip_hl << 2;
+    //ip_hl contains the number of 32-bit word in the ip header (min 5)
+    //if we want to have the number of bytes we have to multiply it by 4
+    dest_iphdr_len=dest_ip->ip_hl << 2; //ip_hl * 4
     
     //check the fields of the icmp response
     if( ( icmplen = n - dest_iphdr_len ) < ICMP_HDR_LENGTH )
@@ -60,7 +62,37 @@ int icmpClass::icmpFill(char* message, int n){
     udp = (udphdr*) (message + dest_iphdr_len + sent_iphdr_len + ICMP_HDR_LENGTH);
 
     return 0;
-};
+}
+
+//fills the fields of the class basing on the received message
+/*
+ * returns: 
+ *       0 if ok
+ *      -1 if error
+  same behavior of icmpFillTrace but used to parse an icmp echo reply
+*/
+int icmpClass::icmpFillTP(char* message, int n){
+    
+    int dest_iphdr_len, icmp_len;
+    
+    dest_ip = (ip*) message;
+    //ip_hl contains the number of 32-bit word in the ip header (min 5)
+    //if we want to have the number of bytes we have to multiply it by 4
+    dest_iphdr_len = dest_ip->ip_hl << 2;
+    
+    //check the fields of the icmp response
+    icmp_len = n - dest_iphdr_len;
+    if(icmp_len < ICMP_HDR_LENGTH)
+        return -1;
+    
+    //copy icmp part of the message into icmp_msg
+    icmp_msg = (icmp*)(dest_ip + dest_iphdr_len);
+    
+    if(icmp_len < ICMP_HDR_LENGTH + sizeof(ip)) 
+        return -1;
+
+    return 0;
+}
 
 /* once we receive something from the network we need to modify the bytes
  * ordering in order to be coherent with the one we're using on our host.
@@ -177,18 +209,23 @@ ostream& operator<<(ostream& out, icmpClass& ic) {
 
 /*
     Make an icmp echo request to discover if an address (destAddr) is classifiable or not
-    for third part addresses discovery
-    This function receives the destination address, a timestamp, destination sockaddr_in, buffer and len
-    It has to fill dest, buffer, len in order to make an icmp echo request packet
+    for third part addresses discovery. It has to fill buffer with an icmp echo request packet.
     Ip header is prepared by ipManager that adds in the options field the timestamps options for 
     third part addresses discovery
-    At the end, buffer will contain the ip_header + icmp_header + msg, len is the total packet len
+    params:
+        (IN)
+            msg: payload
+            destAdd: destination address
+        (OUT)
+            buffer: buffer that will contain the entire packet
+            len: length of the buffer
 */
-void icmpClass::makeProbe(char* msg, char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len){
+void icmpClass::makeProbe(char* msg, char* destAddr, char* buffer, int& len){
     
     //init ip header
     ipManager* myIpManager = new ipManager(); //remember to deallocate it
-    dest_ip = (ip*)myIpManager->prepareHeader(destAddr, timestamp);
+    dest_ip = (ip*)myIpManager->prepareHeader(destAddr, 0);
+    //bytes length of the ip header
     int dest_iphdr_len = dest_ip->ip_len << 2;
     
     //init icmp header
@@ -200,17 +237,12 @@ void icmpClass::makeProbe(char* msg, char* destAddr, char* timestamp, sockaddr_i
     icmp_length = ICMP_HDR_LENGTH;
     setChecksum();
     
-    //destination structure initialization
-    dest.sin_family = AF_INET;                
-    dest.sin_port = htons(0);        
-    inet_pton(AF_INET, destAddr, &dest.sin_addr);
-    
     //init the buffer and copy headers and payload into it
     buffer = new char[dest_iphdr_len + icmp_length + LENGTH_PAYLOAD]; //remember to deallocate it
     memcpy(buffer,dest_ip,dest_iphdr_len);
     memcpy(buffer+dest_iphdr_len,icmp_msg,icmp_length);
     memcpy(buffer+dest_iphdr_len+icmp_length,msg,LENGTH_PAYLOAD);
    
-    //delete myIpManager;
+    delete myIpManager;
     
 }

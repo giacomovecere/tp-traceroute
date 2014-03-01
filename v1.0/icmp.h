@@ -45,9 +45,12 @@ public:
     
     //distructor
     
-    //constructs an ICMP packet starting from infos received
-    int icmpFill(char*, int);
+    //constructs an ICMP packet starting from infos received for traceroute
+    int icmpFillTrace(char*, int);
 
+    //constructs an ICMP packet starting from infos received for tp detect
+    int icmpFillTP(char*, int);
+    
     //Adapts udp field to network format
     static void adaptFromNetwork(udphdr* u);
     
@@ -91,22 +94,30 @@ public:
     
 /*
     Make an icmp echo request to discover if an address (destAddr) is classifiable or not
-    for third part addresses discovery
-    This function receives the destination address, a timestamp, destination sockaddr_in, buffer and len
-    It has to fill dest, buffer, len in order to make an icmp echo request packet
+    for third part addresses discovery. It has to fill buffer with an icmp echo request packet.
     Ip header is prepared by ipManager that adds in the options field the timestamps options for 
     third part addresses discovery
-    At the end, buffer will contain the ip_header + icmp_header + msg, len is the total packet len
+    params:
+        (IN)
+            msg: payload
+            destAdd: destination address
+        (OUT)
+            buffer: buffer that will contain the entire packet
+            len: length of the buffer
 */
-    void makeProbe(char* msg, char* destAddr, char* timestamp, sockaddr_in& dest, char* buffer, int& len);
+    void makeProbe(char* msg, char* destAddr, char* buffer, int& len);
 };
 
 class icmpManager{
+    
     //file descriptor of the socket
     int sockfd;
-    uint16_t s_port;  //source port
-    uint16_t d_port;  //destination port
-    sockaddr_in* my_addr; //source address
+    //source port
+    uint16_t s_port;
+    //destination port
+    uint16_t d_port;
+    //source address
+    sockaddr_in* my_addr; 
     
 public:
     
@@ -121,16 +132,32 @@ public:
     int getSourcePort();
     int getDestPort();
     
-    /* receive function, returns an addr structure, the pointer is useful to 
-     * state the type of hop that answers, if it is an intermediate router 
-     * or the final destination*/
+    /* 
+        returns an addr structure, the pointer is useful to 
+        state the type of hop that answers, if it is an intermediate router 
+        or the final destination
+    */
     addr* traceRecv(int* htype);
     
-    // receive an icmp echo reply
-    // returns the number of timestamps in the ip header options field
-    int tpRecv(char*);
+    /* 
+        receive an icmp packet
+        params: type of response attended (icmp echo reply or icmp port unreach)
+            0 icmp echo reply
+            1 icmp port unreach
+        returns: 
+            number of timestamps in the ip header options field
+        
+    */          
+    int tpRecv(int type);
     
-    // send an icmp echo request
-    // msg, destAddr, timestampAddr
+    /*
+        send an icmp echo request
+        params:
+            msg -> payload of the message
+            destAddr -> destination address
+        returns:  
+            1 -> ok
+            0 -> error
+    */
     int tpSend(char* msg, char* destAddr);
 };

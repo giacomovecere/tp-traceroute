@@ -59,18 +59,18 @@ addr* icmpManager::traceRecv(int* htype){
     if(ret != -1) {
         icmpClass* icmpPkt = new icmpClass();
         //fill object with received message  
-            int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
+        int fill_ret = icmpPkt->icmpFillTrace(buffer,MESSAGE_SIZE);
             
             //Change byte ordering according to our host and then retrieve port destination
         icmpPkt->adaptFromNetwork(icmpPkt->getUDPHeader());
-            d_port = icmpPkt->getUDPHeader()->dest;
+        d_port = icmpPkt->getUDPHeader()->dest;
 
         addr* address = new addr;
         //set router ip address
-            inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, 20);
+        inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, 20);
         //set current time
         gettimeofday (&(address->time), NULL);
-            address->checksum = icmpPkt->getUDPChecksum();
+        address->checksum = icmpPkt->getUDPChecksum();
         address->ret = false;
 
         //check if intermediate router reached 
@@ -105,7 +105,12 @@ int icmpManager::tpSend(char* msg, char* destAddr){
     int len;
     
     icmpClass* icmpPkt = new icmpClass();    
-    icmpPkt->makeProbe(msg,destAddr,destAddr,dest,buffer,len);
+    icmpPkt->makeProbe(msg,destAddr, buffer, len);
+
+    //destination structure initialization
+    dest.sin_family = AF_INET;                
+    dest.sin_port = htons(0);        
+    inet_pton(AF_INET, destAddr, &dest.sin_addr);
     
     int ret =  sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
     if(ret > 0)
@@ -116,32 +121,57 @@ int icmpManager::tpSend(char* msg, char* destAddr){
 
 
 /* 
-    Params: destAddr is the address from which we wait a icmp echo response
+    params: type of response attended (icmp echo reply or icmp port unreach)
+            0 icmp echo reply
+            1 icmp port unreach
     Receives an icmp echo response from an intermediate hop and returns 
     the number of timestamps that are in the packet 
 */
-int icmpManager::tpRecv(char* destAddr){
+int icmpManager::tpRecv(int type){
     
     char buffer[MESSAGE_SIZE];
     sockaddr_in rm_addr;
     socklen_t rm_addr_size;
+    int timestamps = 0;
     
     memset((char *)&rm_addr, 0, sizeof(rm_addr));
     
     // to get the right ip address from the recvfrom function
     rm_addr_size = sizeof(struct sockaddr_in);
-    //receive the response message
+    
+    // receive the response message
     int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
+    
     if(ret != -1) {
         icmpClass* icmpPkt = new icmpClass();
-        //non so se questa icmpFill va bene perché 
-        //era pensata per un altro tipo di pacchetto (ICMP_TIME_EXCEEDED)
         //fill object with received message
-        int fill_ret = icmpPkt->icmpFill(buffer,MESSAGE_SIZE);
-        if(fill != -1){ 
-            ip* iphdr = icmpPkt->getDestIPHeader();
-            //check timestamps
-            //TODO
+        int fill_ret = icmpPkt->icmpFillTP(buffer,MESSAGE_SIZE);
+        if(fill_ret != -1){
+            //check if what we receive is what we attend 
+            if((icmpPkt->getICMPType() == ICMP_ECHOREPLY && type == 0)
+              ||(icmpPkt->getICMPType() == ICMP_UNREACH && type == 1)){
+                //get the ip header of received packet
+                ip* ip_hdr = icmpPkt->getDestIPHeader();
+                //bytes length of ip header
+                int ip_hdr_len = ip_hdr->ip_hl << 2;
+                //if ip_hdr_len > 20 there is something in the options field
+                if(ip_hdr_len > 20){
+                    ip_timestamp* timestamp_opt = (ip_timestamp*)(ip_hdr + 20);
+                    //check if option is a timestamp
+                    if(timestamp_opt->ipt_code == IPOPT_TS){
+                        //count the number of timestamps in the option
+                        //I suppose that they can be counted using timestamp_opt->ipt_len
+                        for(int i=1; i<8; i+=2) {
+                            if(timestamp_opt->data[i] != 0)
+                                timestamps++;
+                            else
+                                break;
+                        }
+                        return timestamps;
+                    }
+                }
+            }       
         }
     }
+    return -1;
 }
