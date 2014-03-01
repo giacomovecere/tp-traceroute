@@ -23,8 +23,8 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     //set the option to let the OS know that the ip header will be put by us
     setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &on , sizeof(on));
     
-    if(sockfd < 0) {
-        cerr<<"error in building the socket\n";
+    if(sockfd < 0 || on < 0) {
+        cout<<"error in building the socket\n";
         exit(EXIT_FAILURE);
     }
 }
@@ -51,6 +51,11 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     ipHdr=ipm.prepareHeader(dest_ip, ts_ip);
     memcpy(total_buffer, ipHdr, IP_TS_LENGTH*4);
     memcpy(total_buffer+IP_TS_LENGTH*4, buffer, LENGTH_PAYLOAD);
+    
+    cout<<"printing\n";
+    
+    for(int i=0; i<(IP_TS_LENGTH*4)+LENGTH_PAYLOAD; i++)
+        cout<<total_buffer[i]<<endl;
     
     // send the UDP packet 
     r = sendto(sockfd, total_buffer, (IP_TS_LENGTH*4)+LENGTH_PAYLOAD, 0, 
