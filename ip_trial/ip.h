@@ -33,12 +33,12 @@ public:
 
 class ipManager {
     
-    ipClass ipHdr;
+    ipClass ip_hdr;
     
 public:
-    
-    in_addr getSource() {ipHdr.getSource();};
-    in_addr getDest() {ipHdr.getDest();};
+    ipManager();
+    in_addr getSource() {ip_hdr.getSource();};
+    in_addr getDest() {ip_hdr.getDest();};
     /* param: destAddr, TimestampAddr
        returns the ip struct */
     uint16_t* prepareHeader(char*, char* = 0);
