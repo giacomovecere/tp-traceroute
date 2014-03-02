@@ -40,17 +40,17 @@ ipClass::ipClass(){
     //BEGIN initialization of the ip timestamp structure
     
     //code is timestamp
-    ipTimeOpt->ipt_code = htons(IPOPT_TS);
+    ipTimeOpt->ipt_code = IPOPT_TS;
     /* NOTE: the flag field must be prespecified because we specify the 
      * possible ips from which receive the timestamp before
     */
-    ipTimeOpt->ipt_flg = htons(IPOPT_TS_PRESPEC);
+    ipTimeOpt->ipt_flg = IPOPT_TS_PRESPEC;
     
-    ipTimeOpt->ipt_len = htons(32);
+    ipTimeOpt->ipt_len = 32;
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
-    ipTimeOpt->ipt_ptr = htons(START_TS);
+    ipTimeOpt->ipt_ptr = START_TS;
 }
 
 //set the source address for the IP
