@@ -54,6 +54,8 @@ public:
     /* fill the sockaddr_in structure related to the destination */
     void setDest(sockaddr_in*);
     
+    uint8_t* getHeader() {return (uint8_t*)&udp_hdr;};
+    
 };
 
 /* Manages the transmission of an UDP packet on a RAW socket, using a RAW packet created by udpRawClass */

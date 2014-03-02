@@ -18,7 +18,7 @@ ipClass::ipClass(){
      * timestamp option takes 9 * 4 bytes
      * hence ip header length is 14 bytes
     */
-    //ipHeader->ip_hl = IP_TS_LENGTH * 4;
+    ipHeader->ip_hl = IP_TS_LENGTH;
     //we use only IPv4
     ipHeader->ip_v = IPv4;
     /* NOTE: type of service is now deprecated since this field is now used
