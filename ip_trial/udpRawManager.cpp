@@ -12,18 +12,19 @@
 /* Constructor of the class: sets the information that are the same for the entire detection process */
 udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     
-    int on;
+    int one = 1;
     
     // Create a packet with the provided information
     udpRawPacket = new udpRawClass(src_port, dest_port);
     
     // Create a raw socket with UDP protocol
-    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_IP); 
+    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP); 
     
     //set the option to let the OS know that the ip header will be put by us
-    setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &on , sizeof(on));
+    if(setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &one , sizeof(one))<0) 
+        cout<<"ERROR\n";
     
-    if(sockfd < 0 || on < 0) {
+    if(sockfd < 0 || one < 0) {
         cout<<"error in building the socket\n";
         exit(EXIT_FAILURE);
     }

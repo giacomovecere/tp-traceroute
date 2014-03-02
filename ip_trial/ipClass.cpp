@@ -20,7 +20,7 @@ ipClass::ipClass(){
     */
     //ipHeader->ip_hl = IP_TS_LENGTH * 4;
     //we use only IPv4
-    ipHeader->ip_v = htons(IPv4);
+    ipHeader->ip_v = IPv4;
     /* NOTE: type of service is now deprecated since this field is now used
      * for differentiate service, we initialize it at 0 to say that we use 
      * BEST-EFFORT
@@ -28,7 +28,7 @@ ipClass::ipClass(){
     ipHeader->ip_tos = 0x00;
     //flags 0x02 means don't fragment
     ipHeader->ip_off = htons(0x0200);
-    ipHeader->ip_ttl = htons(MAX_TTL_DEF);
+    ipHeader->ip_ttl = MAX_TTL_DEF;
     ipHeader->ip_sum = 0;
     
     //set the source
@@ -133,10 +133,17 @@ uint8_t* ipClass::pack() {
      * useful to compute the checksum also*/
     uint8_t* ipPacked = new uint8_t[IP_TS_LENGTH * 4];
     
+    //stampa
+    cout<<(int)ipHeader->ip_v<<'\n';
+    cout<<(int)ipHeader->ip_hl<<'\n';
+    cout<<(int)ipHeader->ip_off<<'\n';
+    cout<<(int)ipHeader->ip_ttl<<'\n';
+    
+    
     //before packing set the checksum
     setChecksum();
-    memcpy(ipPacked, ipHeader, 20);
-    memcpy(ipPacked + 20, ipTimeOpt, 36);
+    memcpy(ipPacked, (void*)ipHeader, 20);
+    memcpy(ipPacked + 20, (void*)ipTimeOpt, 36);
     
     cout<<"pack: \n";
     
