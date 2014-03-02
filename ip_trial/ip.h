@@ -27,7 +27,7 @@ public:
     void setProtocol(int p);
     in_addr getSource() {return ipHeader->ip_src;};
     in_addr getDest() {return ipHeader->ip_dst;};
-    uint16_t* pack();
+    uint8_t* pack();
     ~ipClass();
 };
 
@@ -41,5 +41,5 @@ public:
     in_addr getDest() {ip_hdr.getDest();};
     /* param: destAddr, TimestampAddr
        returns the ip struct */
-    uint16_t* prepareHeader(char*, char* = 0);
+    uint8_t* prepareHeader(char*, char* = 0);
 };

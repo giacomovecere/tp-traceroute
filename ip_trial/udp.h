@@ -37,7 +37,7 @@ class udpRawClass {
     in_addr src_address;
     in_addr dst_address;
     udphdr udp_hdr;    //udp header
-    uint16_t* ip_hdr;
+    uint8_t* ip_hdr;
     
 public:
     // fill the udphdr structure with source and destination ports
@@ -45,7 +45,7 @@ public:
     
     /* fill the iphdr structure by calling an instance of ipManager.
     * The fields sent are the destination address and the timestamp address */
-    void setTs(char*, char*);
+    uint8_t* setTs(char*, char*);
        
     /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
     * the checksum is calculated on the Pseudo IP Header, the UDP Header and the UDP Payload */
@@ -53,6 +53,7 @@ public:
     
     /* fill the sockaddr_in structure related to the destination */
     void setDest(sockaddr_in*);
+    
 };
 
 /* Manages the transmission of an UDP packet on a RAW socket, using a RAW packet created by udpRawClass */

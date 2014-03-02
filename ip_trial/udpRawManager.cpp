@@ -18,7 +18,7 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     udpRawPacket = new udpRawClass(src_port, dest_port);
     
     // Create a raw socket with UDP protocol
-    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP); 
+    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_IP); 
     
     //set the option to let the OS know that the ip header will be put by us
     setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &on , sizeof(on));
@@ -36,10 +36,10 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     int r;
     sockaddr_in dest;
     uint16_t* buffer;
-    uint16_t* ipHdr;
-    uint16_t total_buffer[(IP_TS_LENGTH*4)+LENGTH_PAYLOAD];
+    uint8_t* ipHdr;
+    uint8_t total_buffer[(IP_TS_LENGTH*4)+LENGTH_PAYLOAD];
     // set the destination and the address of the node that has to put a timpestamp
-    udpRawPacket->setTs(dest_ip, ts_ip);
+    ipHdr = udpRawPacket->setTs(dest_ip, ts_ip);
     
     // set the length of the packet and calculate che checksum of the UDP Packet
     udpRawPacket->setLengthAndChecksum(payload, buffer);
@@ -56,7 +56,8 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     cout<<"printing\n";
     
     for(int i=0; i<(IP_TS_LENGTH*4)+LENGTH_PAYLOAD; i++)
-        cout<<total_buffer[i]<<endl;
+        cout<<(int)total_buffer[i]<<'\t';
+    cout<<endl;
     
     // send the UDP packet 
     r = sendto(sockfd, total_buffer, (IP_TS_LENGTH*4)+LENGTH_PAYLOAD, 0, 

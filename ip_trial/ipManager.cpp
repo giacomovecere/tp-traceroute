@@ -6,8 +6,7 @@ ipManager::ipManager() {
 }
 
 //prepare the header UDP 
-uint16_t* ipManager::prepareHeader(char* dest, char* time) {
-    
+uint8_t* ipManager::prepareHeader(char* dest, char* time) {
     
     //set the protocol
     if(time == 0)  {
@@ -19,7 +18,12 @@ uint16_t* ipManager::prepareHeader(char* dest, char* time) {
     ip_hdr.setDest(dest);
     ip_hdr.setTimestampTarget(time);
     
-    uint16_t* packetIP = ip_hdr.pack();
+    uint8_t* packetIP = ip_hdr.pack();
     
+    /*cout<<"ipManager:\n";
+    for(int i=0; i<IP_TS_LENGTH * 4; i++) 
+        cout<<(int)packetIP[i]<<'\t';
+    cout<<endl<<endl;
+    */
     return packetIP;
 }

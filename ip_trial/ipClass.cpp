@@ -18,7 +18,7 @@ ipClass::ipClass(){
      * timestamp option takes 9 * 4 bytes
      * hence ip header length is 14 bytes
     */
-    //ipHeader->ip_hl = IP_TS_LENGTH;
+    //ipHeader->ip_hl = IP_TS_LENGTH * 4;
     //we use only IPv4
     ipHeader->ip_v = htons(IPv4);
     /* NOTE: type of service is now deprecated since this field is now used
@@ -55,9 +55,9 @@ ipClass::ipClass(){
 
 //set the source address for the IP
 void ipClass::setSource() {
-    
+    /*
     //retrieve external ip address of the source host 
-    struct ifaddrs * ifAddrStruct = NULL;
+    ifaddrs * ifAddrStruct = new ifaddrs;
     struct ifaddrs * ifa = NULL;
     void * tmpAddrPtr = NULL;
 
@@ -76,7 +76,7 @@ void ipClass::setSource() {
     memcpy(&ipHeader->ip_src, tmpAddrPtr, sizeof(in_addr));
     
     freeifaddrs(ifAddrStruct);
-    
+    */
 }
 
 //set the destination address in the IP header
@@ -127,16 +127,22 @@ void ipClass::setProtocol(int proto) {
  * separate data structure is important for our purposes to pack them into
  * a single structure to be put on the top of the packet
  */
-uint16_t* ipClass::pack() {
+uint8_t* ipClass::pack() {
     
     /* IP_TS_LENGTH is referred to long (32 bits) here we use 16 bits, more
      * useful to compute the checksum also*/
-    uint16_t* ipPacked = new uint16_t[IP_TS_LENGTH * 2];
+    uint8_t* ipPacked = new uint8_t[IP_TS_LENGTH * 4];
     
     //before packing set the checksum
     setChecksum();
-    memcpy(ipPacked, ipHeader, 10);
-    memcpy(ipPacked+10, ipTimeOpt, 9);
+    memcpy(ipPacked, ipHeader, 20);
+    memcpy(ipPacked + 20, ipTimeOpt, 36);
+    
+    cout<<"pack: \n";
+    
+    for(int i=0; i<IP_TS_LENGTH * 4; i++)
+        cout<<(int)ipPacked[i]<<'\t';
+    cout<<endl;
     
     return ipPacked;
 }

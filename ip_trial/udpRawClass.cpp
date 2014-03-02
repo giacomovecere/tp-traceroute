@@ -20,9 +20,11 @@ udpRawClass::udpRawClass(uint16_t src_port, uint16_t dest_port) {
 
 /* fill the iphdr structure by calling an instance of ipManager.
  * The fields sent are the destination address and the timestamp address */
-void udpRawClass::setTs(char* dest_ip, char* ts_ip) {
+uint8_t* udpRawClass::setTs(char* dest_ip, char* ts_ip) {
     //ipManager iMan = ipManager();
-    ip_hdr = ipM->prepareHeader(dest_ip, ts_ip);
+    uint8_t* iph;
+    iph = ip_hdr = ipM->prepareHeader(dest_ip, ts_ip);
+    return iph;
 }
 
 /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
