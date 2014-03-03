@@ -18,7 +18,7 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     udpRawPacket = new udpRawClass(src_port, dest_port);
     
     // Create a raw socket with UDP protocol
-    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_IP); 
+    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP); 
     
     //set the option to let the OS know that the ip header will be put by us
     setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &on , sizeof(on));
@@ -27,7 +27,6 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
         cout<<"error in building the socket\n";
         exit(EXIT_FAILURE);
     }
-    cout<<"udpRawManager ok"<<endl;
 }
 
 /* Sends an UDP Probe to the destination specified. 

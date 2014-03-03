@@ -20,7 +20,7 @@ ipClass::ipClass(){
     */
     //ipHeader->ip_hl = IP_TS_LENGTH * 4;
     //we use only IPv4
-    ipHeader->ip_v = htons(IPv4);
+    //ipHeader->ip_v = htons(IPv4);
     /* NOTE: type of service is now deprecated since this field is now used
      * for differentiate service, we initialize it at 0 to say that we use 
      * BEST-EFFORT
@@ -28,7 +28,7 @@ ipClass::ipClass(){
     ipHeader->ip_tos = 0x00;
     //flags 0x02 means don't fragment
     ipHeader->ip_off = htons(0x0200);
-    ipHeader->ip_ttl = htons(MAX_TTL_DEF);
+    //ipHeader->ip_ttl = htons(MAX_TTL_DEF);
     ipHeader->ip_sum = 0;
     
     //set the source
