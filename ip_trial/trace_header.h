@@ -29,7 +29,7 @@
 #include <netinet/udp.h>
 #include <netinet/in_systm.h>
 
-#define MAX_TTL_DEF 30
+#define MAX_TTL_DEF 40
 #define TRACEROUTE_PORT 33434
 #define N_PROBE_DEF 3
 #define N_ATTEMPTS 3

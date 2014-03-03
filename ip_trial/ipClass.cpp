@@ -18,9 +18,13 @@ ipClass::ipClass(){
      * timestamp option takes 9 * 4 bytes
      * hence ip header length is 14 bytes
     */
-    //ipHeader->ip_hl = IP_TS_LENGTH * 4;
+    ipHeader->ip_hl = IP_TS_LENGTH;
     //we use only IPv4
+<<<<<<< HEAD
     //ipHeader->ip_v = htons(IPv4);
+=======
+    ipHeader->ip_v = IPv4;
+>>>>>>> 198ab75d1241625366a9bad4dc382a1c042a961d
     /* NOTE: type of service is now deprecated since this field is now used
      * for differentiate service, we initialize it at 0 to say that we use 
      * BEST-EFFORT
@@ -28,7 +32,11 @@ ipClass::ipClass(){
     ipHeader->ip_tos = 0x00;
     //flags 0x02 means don't fragment
     ipHeader->ip_off = htons(0x0200);
+<<<<<<< HEAD
     //ipHeader->ip_ttl = htons(MAX_TTL_DEF);
+=======
+    ipHeader->ip_ttl = MAX_TTL_DEF;
+>>>>>>> 198ab75d1241625366a9bad4dc382a1c042a961d
     ipHeader->ip_sum = 0;
     
     //set the source
@@ -40,17 +48,17 @@ ipClass::ipClass(){
     //BEGIN initialization of the ip timestamp structure
     
     //code is timestamp
-    ipTimeOpt->ipt_code = htons(IPOPT_TS);
+    ipTimeOpt->ipt_code = IPOPT_TS;
     /* NOTE: the flag field must be prespecified because we specify the 
      * possible ips from which receive the timestamp before
     */
-    ipTimeOpt->ipt_flg = htons(IPOPT_TS_PRESPEC);
+    ipTimeOpt->ipt_flg = IPOPT_TS_PRESPEC;
     
-    ipTimeOpt->ipt_len = htons(32);
+    ipTimeOpt->ipt_len = 32;
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
-    ipTimeOpt->ipt_ptr = htons(START_TS);
+    ipTimeOpt->ipt_ptr = START_TS;
 }
 
 //set the source address for the IP
@@ -133,10 +141,17 @@ uint8_t* ipClass::pack() {
      * useful to compute the checksum also*/
     uint8_t* ipPacked = new uint8_t[IP_TS_LENGTH * 4];
     
+    //stampa
+    cout<<(int)ipHeader->ip_v<<'\n';
+    cout<<(int)ipHeader->ip_hl<<'\n';
+    cout<<(int)ipHeader->ip_off<<'\n';
+    cout<<(int)ipHeader->ip_ttl<<'\n';
+    
+    
     //before packing set the checksum
     setChecksum();
-    memcpy(ipPacked, ipHeader, 20);
-    memcpy(ipPacked + 20, ipTimeOpt, 36);
+    memcpy(ipPacked, (void*)ipHeader, 20);
+    memcpy(ipPacked + 20, (void*)ipTimeOpt, 36);
     
     cout<<"pack: \n";
     
