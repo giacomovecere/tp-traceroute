@@ -50,29 +50,28 @@ bool udpHLManager::send(char* ip_address, uint16_t dest_port, int ttl, int paylo
     
     //NOTE c_payload becomes a void pointer to a memory location
     char c_payload[sizeof(int)];
-    sockaddr_in* dest;
     int probe;
     
     //set the TTL
     setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(int));
     
     //destination structure initialization
-    dest->sin_family=AF_INET;                
-    dest->sin_port=htons(dest_port);        
-    inet_pton(AF_INET, ip_address, &dest->sin_addr);
+    dest.sin_family=AF_INET;                
+    dest.sin_port=htons(dest_port);        
+    inet_pton(AF_INET, ip_address, &dest.sin_addr);
     
     for(probe = 0; probe < n_probe; probe++) {
         // converts payload from int to character
         memcpy(c_payload, &payload, sizeof(int));
         
         // calculates the checksum of the packet
-        vett_addr[probe].checksum = computeChecksum(src, dest, c_payload);
+        vett_addr[probe].checksum = computeChecksum(src, &dest, c_payload);
 
         // setting the current time
         gettimeofday(&vett_addr[probe].time, NULL);
 
         // sends the UDP packet 
-        int x = sendto(sockfd, c_payload, sizeof(c_payload), 0, (sockaddr *)dest, sizeof(sockaddr));
+        int x = sendto(sockfd, c_payload, sizeof(c_payload), 0, (sockaddr *)&dest, sizeof(sockaddr));
         if(x == -1) {
             cerr<<"Error: sendto error"<<endl;
             return false;
