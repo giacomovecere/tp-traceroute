@@ -13,12 +13,12 @@
 udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     
     int one = 1;
-    
+    sockaddr_in s_addr;
     // Create a packet with the provided information
     udpRawPacket = new udpRawClass(src_port, dest_port);
     
     // Create a raw socket with UDP protocol
-    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP); 
+    sockfd = socket(PF_INET, SOCK_RAW, IPPROTO_RAW); 
     
     //set the option to let the OS know that the ip header will be put by us
     if(setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &one , sizeof(one))<0) 
@@ -28,6 +28,14 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
         cout<<"error in building the socket\n";
         exit(EXIT_FAILURE);
     }
+    
+    s_addr.sin_family = AF_INET;
+    s_addr.sin_port = htons(src_port);
+    s_addr.sin_addr = udpRawPacket->getSource();
+    
+    bind(sockfd, (sockaddr *) &s_addr, sizeof(sockaddr) ); 
+    
+    
     cout<<"udpRawManager ok"<<endl;
 }
 

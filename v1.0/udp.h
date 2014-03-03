@@ -25,16 +25,19 @@ class udpHLManager {
     /* 
      * Sends 'n_probe' UDP packets to the destination specified in the parameteres
      * of the method. 
-	 * It fills 'vett_addr' with the information required 
+     * It fills 'vett_addr' with the information required 
     */
-    bool send(char*, uint16_t, int, int, int, addr*);	
+    bool send(char*, uint16_t, int, int, int, addr*);   
 
 };
 
 /* Handles the creation of an UDP packet prepared for being trasmitted on a RAW socket */
 class udpRawClass {
-    ip* ip_hdr;         //ip header
-    udphdr* udp_hdr;    //udp header
+    ipManager* ipM;
+    in_addr src_address;
+    in_addr dst_address;
+    udphdr udp_hdr;    //udp header
+    uint8_t* ip_hdr;
     
 public:
     // fill the udphdr structure with source and destination ports
@@ -42,7 +45,7 @@ public:
     
     /* fill the iphdr structure by calling an instance of ipManager.
     * The fields sent are the destination address and the timestamp address */
-    void setTs(char*, char*);
+    uint8_t* setTs(char*, char*);
        
     /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
     * the checksum is calculated on the Pseudo IP Header, the UDP Header and the UDP Payload */
@@ -50,6 +53,10 @@ public:
     
     /* fill the sockaddr_in structure related to the destination */
     void setDest(sockaddr_in*);
+    
+    uint8_t* getHeader() {return (uint8_t*)&udp_hdr;};
+    in_addr getSource() {return src_address;};
+    
 };
 
 /* Manages the transmission of an UDP packet on a RAW socket, using a RAW packet created by udpRawClass */

@@ -4,6 +4,8 @@
 /* NOTE: as stated in the RAW(7) some of the fields are filled by the kernel hence 
  * there may be the interface of the calling to the function, but it will not 
  * be implemented since the hardware provides the answer to this question
+ * 
+ * NOTE: ALL THE IP FIELDS MUST BE IN NETWORK ORDERING
  */
 ipClass::ipClass(){
     
@@ -16,7 +18,7 @@ ipClass::ipClass(){
      * timestamp option takes 9 * 4 bytes
      * hence ip header length is 14 bytes
     */
-    //ipHeader->ip_hl = IP_TS_LENGTH;
+    ipHeader->ip_hl = IP_TS_LENGTH;
     //we use only IPv4
     ipHeader->ip_v = IPv4;
     /* NOTE: type of service is now deprecated since this field is now used
@@ -24,9 +26,8 @@ ipClass::ipClass(){
      * BEST-EFFORT
      */
     ipHeader->ip_tos = 0x00;
-    ipHeader->ip_len = ipHeader->ip_hl + len;
     //flags 0x02 means don't fragment
-    ipHeader->ip_off = 0x0200;
+    ipHeader->ip_off = htons(0x0200);
     ipHeader->ip_ttl = MAX_TTL_DEF;
     ipHeader->ip_sum = 0;
     
@@ -45,7 +46,7 @@ ipClass::ipClass(){
     */
     ipTimeOpt->ipt_flg = IPOPT_TS_PRESPEC;
     
-    ipTimeOpt->ipt_len = 32;
+    ipTimeOpt->ipt_len = 36;
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
@@ -56,7 +57,7 @@ ipClass::ipClass(){
 void ipClass::setSource() {
     
     //retrieve external ip address of the source host 
-    /*struct ifaddrs * ifAddrStruct = NULL;
+    ifaddrs * ifAddrStruct = new ifaddrs;
     struct ifaddrs * ifa = NULL;
     void * tmpAddrPtr = NULL;
 
@@ -75,7 +76,7 @@ void ipClass::setSource() {
     memcpy(&ipHeader->ip_src, tmpAddrPtr, sizeof(in_addr));
     
     freeifaddrs(ifAddrStruct);
-    */
+    
 }
 
 //set the destination address in the IP header
@@ -115,7 +116,7 @@ int ipClass::getTimestampNumbers(){
 }
 
 //ip checksum
-uint16_t ipClass::setChecksum() {} //TODO
+uint16_t ipClass::setChecksum() {}
 
 //set protocol above IP (above is referred to the transmission OSI view)
 void ipClass::setProtocol(int proto) {
@@ -126,16 +127,16 @@ void ipClass::setProtocol(int proto) {
  * separate data structure is important for our purposes to pack them into
  * a single structure to be put on the top of the packet
  */
-uint16_t* ipClass::pack() {
+uint8_t* ipClass::pack() {
     
     /* IP_TS_LENGTH is referred to long (32 bits) here we use 16 bits, more
      * useful to compute the checksum also*/
-    uint16_t ipPacked[IP_TS_LENGTH * 2];
+    uint8_t* ipPacked = new uint8_t[IP_TS_LENGTH * 4];
     
     //before packing set the checksum
     setChecksum();
-    memcpy(ipPacked, ipHeader, 10);
-    memcpy(ipPacked+10, ipTimeOpt, 9);
+    memcpy(ipPacked, (void*)ipHeader, 20);
+    memcpy(ipPacked + 20, (void*)ipTimeOpt, 36);
     
     return ipPacked;
 }

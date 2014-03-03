@@ -46,7 +46,7 @@ ipClass::ipClass(){
     */
     ipTimeOpt->ipt_flg = IPOPT_TS_PRESPEC;
     
-    ipTimeOpt->ipt_len = 32;
+    ipTimeOpt->ipt_len = 36;
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
@@ -55,7 +55,7 @@ ipClass::ipClass(){
 
 //set the source address for the IP
 void ipClass::setSource() {
-    /*
+    
     //retrieve external ip address of the source host 
     ifaddrs * ifAddrStruct = new ifaddrs;
     struct ifaddrs * ifa = NULL;
@@ -76,7 +76,7 @@ void ipClass::setSource() {
     memcpy(&ipHeader->ip_src, tmpAddrPtr, sizeof(in_addr));
     
     freeifaddrs(ifAddrStruct);
-    */
+    
 }
 
 //set the destination address in the IP header

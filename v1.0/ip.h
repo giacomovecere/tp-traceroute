@@ -20,20 +20,26 @@ class ipClass {
     uint16_t setChecksum();
     
 public:
-    ipClass(int len, int id_start);
+    ipClass();
     void setDest(char*);
     void setTimestampTarget(char*);
     int getTimestampNumbers();
     void setProtocol(int p);
-    uint16_t* pack();
+    in_addr getSource() {return ipHeader->ip_src;};
+    in_addr getDest() {return ipHeader->ip_dst;};
+    uint8_t* pack();
     ~ipClass();
 };
 
 class ipManager {
     
-public:
+    ipClass* ip_hdr;
     
+public:
+    ipManager();
+    in_addr getSource() {ip_hdr->getSource();};
+    in_addr getDest() {ip_hdr->getDest();};
     /* param: destAddr, TimestampAddr
        returns the ip struct */
-    uint16_t* prepareHeader(char*, char* = 0);
+    uint8_t* prepareHeader(char*, char* = 0);
 };

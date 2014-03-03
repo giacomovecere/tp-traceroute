@@ -55,6 +55,7 @@ public:
     void setDest(sockaddr_in*);
     
     uint8_t* getHeader() {return (uint8_t*)&udp_hdr;};
+    in_addr getSource() {return src_address;};
     
 };
 
