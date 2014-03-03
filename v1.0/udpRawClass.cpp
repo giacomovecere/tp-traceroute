@@ -11,15 +11,20 @@
 
 /* fill the udphdr structure with source and destination ports */
 udpRawClass::udpRawClass(uint16_t src_port, uint16_t dest_port) {
-    udp_hdr->source = htons(src_port);
-    udp_hdr->dest = htons(dest_port);
+    //udp_hdr = new udphdr;
+    udp_hdr.source = htons(src_port);
+    udp_hdr.dest = htons(dest_port);
+    
+    ipM = new ipManager();
 }
 
 /* fill the iphdr structure by calling an instance of ipManager.
  * The fields sent are the destination address and the timestamp address */
-void udpRawClass::setTs(char* dest_ip, char* ts_ip) {
-    ipManager iMan = new ipManager();
-    ip_hdr = iMan.prepareHeader(dest_ip, ts_ip);
+uint8_t* udpRawClass::setTs(char* dest_ip, char* ts_ip) {
+    //ipManager iMan = ipManager();
+    uint8_t* iph;
+    iph = ip_hdr = ipM->prepareHeader(dest_ip, ts_ip);
+    return iph;
 }
 
 /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
@@ -42,21 +47,24 @@ void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
     int zeros = 0x0000; // zeros
     int z;
     
+    src_address = ipM->getSource();
+    dst_address = ipM->getDest();
+    
     // Set the length in the udp_hdr structure
-    udp_hdr->len = htons(sizeof(struct udphdr) + sizeof(payload));
+    udp_hdr.len = htons(sizeof(struct udphdr) + sizeof(payload));
     
     // Pseudo IP Header
     rotated = htons (proto);
-    memcpy(dgram, &ip_hdr->ip_src, sizeof(ip_hdr->ip_src));
-    memcpy(dgram + 4, &ip_hdr->ip_dst, sizeof(ip_hdr->ip_dst));
+    memcpy(dgram, &src_address, sizeof(src_address));
+    memcpy(dgram + 4, &dst_address, sizeof(dst_address));
     memcpy(dgram + 8, &rotated, 2);
     
     rotated = htons(length);
     memcpy(dgram + 10, &rotated, 2);
     
     //UDP header
-    memcpy(dgram + 12, &udp_hdr->source, sizeof(udp_hdr->source));
-    memcpy(dgram + 14, &udp_hdr->dest, sizeof(udp_hdr->dest));
+    memcpy(dgram + 12, &udp_hdr.source, sizeof(udp_hdr.source));
+    memcpy(dgram + 14, &udp_hdr.dest, sizeof(udp_hdr.dest));
     
     memcpy(dgram + 16, &rotated, 2);
     memcpy(dgram + 18, &zeros, 2);
@@ -64,11 +72,11 @@ void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
     //payload UDP
     memcpy(dgram + 20, payload, length_pay);
     
-    udp_hdr->check = calcChecksum((uint16_t*)dgram, total_length);
-    memcpy(dgram + 18, &udp_hdr->check, 2);
+    udp_hdr.check = calcChecksum((uint16_t*)dgram, total_length);
+    memcpy(dgram + 18, &udp_hdr.check, 2);
     
     #ifdef _DEBUG
-        fprintf(stdout, "Checksum generated: %4x \n\n", udp_hdr->check);
+        fprintf(stdout, "Checksum generated: %4x \n\n", udp_hdr.check);
     #endif
         
     buffer = (uint16_t*) dgram;
@@ -76,8 +84,9 @@ void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
 
 /* fill the sockaddr_in structure related to the destination */
 void udpRawClass::setDest(sockaddr_in* dest) {
-    dest->sin_addr = ip_hdr->ip_dst;
+    dest->sin_addr = dst_address;
     dest->sin_family = AF_INET;
-    dest->sin_port = udp_hdr->dest;
+    dest->sin_port = udp_hdr.dest;
 }
+
 

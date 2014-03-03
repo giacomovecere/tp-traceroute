@@ -2,7 +2,7 @@ CFLAGS := -ggdb
 CC := g++
 DEBUG ?= 
 
-OBJS := traceroute.o icmpManager.o icmpClass.o udpHLManager.o udpRawClass.o udpRawManager.o
+OBJS := traceroute.o icmpManager.o icmpClass.o udpHLManager.o udpRawClass.o udpRawManager.o ipClass.o ipManager.o
 
 all: tp-traceroute
 
@@ -21,6 +21,10 @@ udpRawClass.o:	udpRawClass.cpp
 		g++ -c $(CFLAGS) $(DEBUG) udpRawClass.cpp
 udpRawManager.o:udpRawManager.cpp
 		g++ -c $(CFLAGS) $(DEBUG) udpRawManager.cpp
+ipClass.o:	ipClass.cpp
+		g++ -c $(CFLAGS) $(DEBUG) ipClass.cpp
+ipManager.o:	ipManager.cpp
+		g++ -c $(CFLAGS) $(DEBUG) ipManager.cpp
 						
 	
 clean:

@@ -25,12 +25,14 @@ int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
     int fdmax;  //max number of file descriptor
     fd_set master, read_fds;
     int num_ts;
+    int echoReply = 0;
     
     fdmax = socket;
     
     struct timeval timeout;
     timeout.tv_sec = TIMEOUT_SELECT;
     timeout.tv_usec = 0;
+    
     
     FD_SET(socket, &master);
     read_fds = master;
@@ -55,7 +57,7 @@ int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
     if(FD_ISSET(socket, &read_fds)) {
         /* Receives an icmp echo response from an intermediate hop and check 
             the number of timestamps that are in the packet */
-        num_ts = icmp_m.tpRecv(destAddr); 
+        num_ts = icmp_m.tpRecv(echoReply); 
         
         //the hop is not classifiable
         if(num_ts < 1 || num_ts > 3)
@@ -83,6 +85,7 @@ int routerDetective::hopsClassificability(uint16_t s_port, uint16_t dest_port, c
     int fdmax;  //max number of file descriptor
     fd_set master, read_fds;
     int num_ts;
+    int portUnreach = 1;
     
     fdmax = socket;
     
@@ -117,7 +120,7 @@ int routerDetective::hopsClassificability(uint16_t s_port, uint16_t dest_port, c
     if(FD_ISSET(socket, &read_fds)) {
         /* Receives an icmp echo response from an intermediate hop and check 
             the number of timestamps that are in the packet */
-        num_ts = icmp_m.tpRecv(destAddr); 
+        num_ts = icmp_m.tpRecv(portUnreach); 
         //the hop is a TP
         if(num_ts < 1)
             return 0;
