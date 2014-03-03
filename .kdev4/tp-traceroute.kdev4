@@ -11,11 +11,11 @@ Name=Debug Launcher
 Type=Native Application
 
 [Launch][Launch Configuration 0][Data]
-Arguments=173.194.35.31
+Arguments=212.189.243.53
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 EnvironmentGroup=default
-Executable=file:///home/giacomo/projects/tp-traceroute.git/ip_trial/iptrial
+Executable=file:///home/giacomo/projects/tp-traceroute.git/v1.0/tp-traceroute
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Project Target=
 Use External Terminal=false
