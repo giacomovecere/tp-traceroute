@@ -19,7 +19,7 @@ routerDetective::routerDetective(list<addr>* list, int last) {
 // Sends an ICMP echo request to each intermediate hop and receives an icmp echo reply
 int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
    
-    char* payload;
+    char payload[LENGTH_PAYLOAD];
     icmpManager icmp_m = icmpManager(s_port);
     int socket = icmp_m.getSocket(); //get the file descriptor which needs to be read
     int fdmax;  //max number of file descriptor
@@ -37,7 +37,7 @@ int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
     FD_SET(socket, &master);
     read_fds = master;
         
-    payload = malloc(LENGTH_PAYLOAD);
+    //payload = malloc(LENGTH_PAYLOAD);
     //paylod = 4 bytes equal to 0;
     memset(payload, 0, LENGTH_PAYLOAD);
 
@@ -47,7 +47,7 @@ int routerDetective::echoReqReply(char* destAddr, uint16_t s_port) {
         exit(EXIT_FAILURE);
     }
         
-    free(payload);
+    //free(payload);
         
     if(select(fdmax+1, &read_fds, NULL, NULL, &timeout) == -1) {
         cerr<<"select error\n";
@@ -80,11 +80,10 @@ int routerDetective::hopsClassificability(uint16_t s_port, uint16_t dest_port, c
     icmpManager icmp_m = icmpManager(s_port);
     udpRawManager* udpRawManag = new udpRawManager(s_port, dest_port); ;
     int num_ts;
-    char* payload;
+    char payload[LENGTH_PAYLOAD];
     int socket = icmp_m.getSocket(); //get the file descriptor which needs to be read
     int fdmax;  //max number of file descriptor
     fd_set master, read_fds;
-    int num_ts;
     int portUnreach = 1;
     
     fdmax = socket;
@@ -96,15 +95,15 @@ int routerDetective::hopsClassificability(uint16_t s_port, uint16_t dest_port, c
     FD_SET(socket, &master);
     read_fds = master;
     
-    payload = malloc(LENGTH_PAYLOAD);
+    //payload = malloc(LENGTH_PAYLOAD);
     //paylod = 4 bytes equal to 0;
     memset(payload, 0, LENGTH_PAYLOAD);
 
     //Sends udp probe to a classifiable hop
-    if(!udpRawManag.tpSend(destAddr, ts_ip, payload)) {
+    if(!udpRawManag->tpSend(destAddr, ts_ip, payload)) {
         cerr<<"Error: tpSend error"<<endl;
         delete udpRawManag;
-        free(payload);
+        //free(payload);
         return -1;
     }
     
@@ -114,7 +113,7 @@ int routerDetective::hopsClassificability(uint16_t s_port, uint16_t dest_port, c
         exit(EXIT_FAILURE);
     }
     
-    free(payload);
+    //free(payload);
     delete udpRawManag;
     
     if(FD_ISSET(socket, &read_fds)) {
