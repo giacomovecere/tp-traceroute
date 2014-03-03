@@ -58,26 +58,7 @@ int main(int argc, char** argv) {
 	// ip address or hostname of the destination to reach
 	host = argv[optind];
 	        
-    /*hints = new addrinfo;
-	bzero(hints, sizeof(struct addrinfo));
-	hints->ai_family = AF_INET;		// 0, AF_INET, AF_INET6, etc. 
-	hints->ai_socktype = SOCK_DGRAM;	// 0, SOCK_STREAM, SOCK_DGRAM, etc. 
-	hints->ai_flags = AI_CANONNAME;
-    //getting the information of the destination
-	if ( (n = getaddrinfo(host, NULL, hints, &result)) != 0) {
-		cout <<"getaddrinfo error" << endl;
-		exit(EXIT_FAILURE);
-	}
-	
-	inet_ntop(AF_INET, &(result->ai_addr), ip_host, result->ai_addrlen);
-		
-	cout<<result->ai_canonname<<endl;
-	cout<<"traceroute to "<< result->ai_canonname;
-	cout<<" ("<< ip_host <<") : "<< max_ttl;
-	cout<<" hops max, "<< dest_port_ini << " initial destination port"<< endl;
-	*/
-	// The source port depends on the PID of the instance of the traceroute
-	s_port = (getpid() & 0xffff) | 0x8000;
+    s_port = (getpid() & 0xffff) | 0x8000;
     
 	attempts = 0;
     // tries 'N_ATTEMPTS' times to do the traceroute to the destination by changing the dest. port

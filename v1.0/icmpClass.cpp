@@ -47,7 +47,7 @@ int icmpClass::icmpFillTrace(char* message, int n){
     if( ( icmplen = n - dest_iphdr_len ) < ICMP_HDR_LENGTH )
         return -1;
     //copy icmp part of the message into icmp_msg
-    icmp_msg = (icmp*)(dest_ip + dest_iphdr_len);
+    icmp_msg = (icmp*)(message + dest_iphdr_len);
     
     if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
         return -1;
@@ -226,7 +226,7 @@ void icmpClass::makeProbe(char* msg, char* destAddr, char* buffer, int& len){
     ipManager* myIpManager = new ipManager(); //remember to deallocate it
     dest_ip = (ip*)myIpManager->prepareHeader(destAddr, 0);
     //bytes length of the ip header
-    int dest_iphdr_len = dest_ip->ip_len << 2;
+    int dest_iphdr_len = dest_ip->ip_hl * 4;
     
     //init icmp header
     icmp_msg = new (icmp); //remember to deallocate it
