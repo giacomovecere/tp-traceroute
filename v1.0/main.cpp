@@ -13,6 +13,7 @@
 */
 
 #include "traceroute.h"
+#include "routerDetective.h"
 
 int main(int argc, char** argv) {
 	int opt, attempts, n;

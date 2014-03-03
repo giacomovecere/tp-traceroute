@@ -8,6 +8,7 @@
  * YOU NEED TO BE SUPERUSER
  * 
  */
+#pragma once    /* Avoid multiple include of this file during compilation */
 #include "trace_header.h"
 
 /*NOTE the received message will have a dimension that is at most

@@ -9,7 +9,7 @@
  * General Header
  * 
  */
-
+#pragma once    /* Avoid multiple include of this file during compilation */
 #include <string.h>
 #include <stdio.h>
 #include <iostream>

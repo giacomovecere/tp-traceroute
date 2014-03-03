@@ -7,7 +7,7 @@
  * YOU NEED TO BE SUPERUSER
  * 
  */
-
+#pragma once    /* Avoid multiple include of this file during compilation */
 #include "ip.h"
 #include <iomanip>
 #include <ifaddrs.h>

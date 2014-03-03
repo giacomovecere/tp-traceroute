@@ -9,7 +9,7 @@
  * routerDetective Header File
  * 
  */
-
+#pragma once    /* Avoid multiple include of this file during compilation */
 #include "ip.h"
 #include "icmp.h"
 #include "udp.h"
