@@ -189,10 +189,10 @@ uint16_t computeIcmpChecksum(const uint16_t* dgram, int length) {
 
 //set the icmp checksum field
 void icmpClass::setChecksum(){
-    
+    /*
     int chs;
     chs=computeIcmpChecksum((uint16_t*) icmp_msg, icmp_length);
-    icmp_msg->icmp_cksum=chs;
+    icmp_msg->icmp_cksum=chs;*/
 };
 
 /*Redefine operator << in order to have simpler print functions*/
@@ -220,29 +220,44 @@ ostream& operator<<(ostream& out, icmpClass& ic) {
             buffer: buffer that will contain the entire packet
             len: length of the buffer
 */
-char* icmpClass::makeProbe(char* msg, char* destAddr, int& len){
+char* icmpClass::makeProbe(char* payload, char* destAddr, int& len){
     char* buffer;
     //init ip header
     ipManager* myIpManager = new ipManager(); //remember to deallocate it
     dest_ip = (ip*)myIpManager->prepareHeader(destAddr, 0);
+    
     //bytes length of the ip header
     int dest_iphdr_len = dest_ip->ip_hl * 4;
-    
+    uint8_t dgram[ICMP_HDR_LENGTH + LENGTH_PAYLOAD];
+    int chs = 0x0000;
+
     //init icmp header
     icmp_msg = new (icmp); //remember to deallocate it
     icmp_msg->icmp_code = 0;
     icmp_msg->icmp_type = ICMP_ECHO;
     icmp_msg->icmp_seq = 0;
     icmp_msg->icmp_id = getpid();
+    //icmp_msg->icmp_cksum = 0;
     icmp_length = ICMP_HDR_LENGTH;
-    setChecksum();
+
+    /* ICMP HEADER */ 
+    memcpy(dgram, &icmp_msg->icmp_type, sizeof(icmp_msg->icmp_type));
+    memcpy(dgram + 1, &icmp_msg->icmp_code, sizeof(icmp_msg->icmp_code));
+    memcpy(dgram + 2, &chs, 2);
+    memcpy(dgram + 4, &icmp_msg->icmp_id, sizeof(icmp_msg->icmp_id));
+    memcpy(dgram + 6, &icmp_msg->icmp_seq, sizeof(icmp_msg->icmp_seq));
+    
+    /* PAYLOAD */
+    memcpy(dgram + 8, payload, LENGTH_PAYLOAD);
+    /* the ICMP cheksum is computed on the ICMP Header and the Payload */
+    icmp_msg->icmp_cksum = computeIcmpChecksum((uint16_t*) dgram, ICMP_HDR_LENGTH + LENGTH_PAYLOAD);
     
     //init the buffer and copy headers and payload into it
-    len = dest_iphdr_len + icmp_length;// + LENGTH_PAYLOAD;
+    len = dest_iphdr_len + icmp_length + LENGTH_PAYLOAD;
     buffer = new char[len]; //remember to deallocate it
     memcpy(buffer,dest_ip,dest_iphdr_len);
     memcpy(buffer+dest_iphdr_len,icmp_msg,icmp_length);
-    //memcpy(buffer+dest_iphdr_len+icmp_length,msg,LENGTH_PAYLOAD);
+    memcpy(buffer+dest_iphdr_len+icmp_length,payload,LENGTH_PAYLOAD);
     
     delete icmp_msg;
     delete myIpManager;

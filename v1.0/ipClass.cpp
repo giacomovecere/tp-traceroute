@@ -26,6 +26,7 @@ ipClass::ipClass(){
      * BEST-EFFORT
      */
     ipHeader->ip_tos = 0x00;
+    ipHeader->ip_id = (getpid() & 0xffff) | 0x8000;
     //flags 0x4000 means don't fragment
     ipHeader->ip_off = htons(0x4000);
     ipHeader->ip_ttl = MAX_TTL_DEF;

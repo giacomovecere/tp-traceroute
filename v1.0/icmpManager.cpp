@@ -108,14 +108,14 @@ addr* icmpManager::traceRecv(int* htype){
     send an icmp echo request
     parameters msg, srcAddr, destAddr, timestampAddr 
 */
-int icmpManager::tpSend(char* msg, char* destAddr){
+int icmpManager::tpSend(char* payload, char* destAddr){
     
     sockaddr_in dest;
     char* buffer;
     int len;
     
     icmpClass* icmpPkt = new icmpClass();    
-    buffer = icmpPkt->makeProbe(msg, destAddr, len);
+    buffer = icmpPkt->makeProbe(payload, destAddr, len);
 
     //destination structure initialization
     dest.sin_family = AF_INET;                

@@ -106,7 +106,7 @@ public:
             buffer: buffer that will contain the entire packet
             len: length of the buffer
 */
-    char* makeProbe(char* msg, char* destAddr, int& len);
+    char* makeProbe(char* payload, char* destAddr, int& len);
 };
 
 class icmpManager{

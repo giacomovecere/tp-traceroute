@@ -12,7 +12,7 @@ uint8_t* ipManager::prepareHeader(char* dest, char* timeStampTarget) {
     if(timeStampTarget == 0)  {
         timeStampTarget = dest;
         //ip_hdr->setProtocol(ICMP_PROTOCOL);
-        ip_hdr->setProtocol(IPPROTO_UDP);
+        ip_hdr->setProtocol(IPPROTO_ICMP);
     }
     else
         ip_hdr->setProtocol(UDP_PROTOCOL);
