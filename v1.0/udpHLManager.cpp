@@ -134,7 +134,6 @@ uint16_t computeChecksum(sockaddr_in src, sockaddr_in* dest, char* payload) {
     uint8_t dgram[total_length];
     uint16_t proto = 0x0011;
     int chs = 0x0000;
-    int z;
     
     //all the memcopy are useful to preapre the structure on which we need 
     //to compute the checksum

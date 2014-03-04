@@ -26,8 +26,8 @@ ipClass::ipClass(){
      * BEST-EFFORT
      */
     ipHeader->ip_tos = 0x00;
-    //flags 0x02 means don't fragment
-    ipHeader->ip_off = htons(0x0200);
+    //flags 0x4000 means don't fragment
+    ipHeader->ip_off = htons(0x4000);
     ipHeader->ip_ttl = MAX_TTL_DEF;
     ipHeader->ip_sum = 0;
     
@@ -50,7 +50,7 @@ ipClass::ipClass(){
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
-    ipTimeOpt->ipt_ptr = START_TS;
+    ipTimeOpt->ipt_ptr = 5;//START_TS;
 }
 
 //set the source address for the IP
@@ -82,8 +82,13 @@ void ipClass::setSource() {
 //set the destination address in the IP header
 void ipClass::setDest(char* addr){
     
-    if(addr != NULL) 
-        inet_pton(AF_INET, addr, &ipHeader->ip_dst);
+    if(addr != NULL) {
+        int ret = inet_pton(AF_INET, addr, &ipHeader->ip_dst);
+        if(ret != 1) {
+            cout<<"ipClass::setDest error, ret = "<<ret<<endl;
+            exit(EXIT_FAILURE);
+        }
+    }
     
 }
 
@@ -116,7 +121,7 @@ int ipClass::getTimestampNumbers(){
 }
 
 //ip checksum
-uint16_t ipClass::setChecksum() {}
+void ipClass::setChecksum() {}
 
 //set protocol above IP (above is referred to the transmission OSI view)
 void ipClass::setProtocol(int proto) {
@@ -142,8 +147,6 @@ uint8_t* ipClass::pack() {
 }
 
 ipClass::~ipClass() {
-    
     delete ipHeader;
     delete ipTimeOpt;
-    
 }

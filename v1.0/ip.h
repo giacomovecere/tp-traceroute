@@ -18,7 +18,7 @@ class ipClass {
     
     //private functions
     void setSource();
-    uint16_t setChecksum();
+    void setChecksum();
     
 public:
     ipClass();
@@ -38,8 +38,9 @@ class ipManager {
     
 public:
     ipManager();
-    in_addr getSource() {ip_hdr->getSource();};
-    in_addr getDest() {ip_hdr->getDest();};
+    ~ipManager();
+    in_addr getSource() {return ip_hdr->getSource();};
+    in_addr getDest() {return ip_hdr->getDest();};
     /* param: destAddr, TimestampAddr
        returns the ip struct */
     uint8_t* prepareHeader(char*, char* = 0);

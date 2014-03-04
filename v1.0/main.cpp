@@ -16,16 +16,15 @@
 #include "routerDetective.h"
 
 int main(int argc, char** argv) {
-	int opt, attempts, n;
+	int opt, attempts;
 	int max_ttl = MAX_TTL_DEF;
-	bool verbose = false, res;
+	bool res;
 	char* host;
 	list<addr>* ip_list;
 	uint16_t s_port, dest_port;
 	uint16_t dest_port_ini = TRACEROUTE_PORT;
 	int shift = 20;
     int last_position;
-	struct addrinfo	*hints, *result;
 
 	// All of the options are optional: both m and p require arguments
 	while ((opt = getopt (argc, argv, "m:p:")) != -1) {
@@ -56,7 +55,11 @@ int main(int argc, char** argv) {
 		exit(EXIT_FAILURE);
 	}
 	// ip address or hostname of the destination to reach
-	host = argv[optind];
+	int l = strlen(argv[optind]);
+	host = new char[l+1];
+    strncpy(host, argv[optind], l);
+    host[l+1] = '\0';
+	//host = argv[optind];
 	        
     s_port = (getpid() & 0xffff) | 0x8000;
     

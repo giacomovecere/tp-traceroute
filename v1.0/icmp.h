@@ -106,7 +106,7 @@ public:
             buffer: buffer that will contain the entire packet
             len: length of the buffer
 */
-    void makeProbe(char* msg, char* destAddr, char* buffer, int& len);
+    char* makeProbe(char* msg, char* destAddr, int& len);
 };
 
 class icmpManager{
@@ -118,13 +118,15 @@ class icmpManager{
     //destination port
     uint16_t d_port;
     //source address
-    sockaddr_in* my_addr; 
+    sockaddr_in my_addr; 
     
 public:
     
     //constructors
     icmpManager(){};
 	icmpManager(uint16_t s);
+    /* Destroyer */
+    ~icmpManager();
         
     //returns the socket on which receive the ICMP
     int getSocket();

@@ -29,7 +29,7 @@ uint8_t* udpRawClass::setTs(char* dest_ip, char* ts_ip) {
 
 /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
  * the checksum is calculated on the Pseudo IP Header, the UDP Header and the UDP Payload */
-void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
+uint16_t* udpRawClass::setLengthAndChecksum(char* payload) {
     //temporary variable used to change byte ordering
     uint16_t rotated;
     
@@ -42,10 +42,9 @@ void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
     uint16_t total_length = LENGTH_PSEUDO_IP + LENGTH_UDP_HEADER + LENGTH_PAYLOAD;
     uint16_t length = LENGTH_UDP_HEADER + LENGTH_PAYLOAD; 
     uint16_t length_pay =  LENGTH_PAYLOAD;
-    uint8_t dgram[total_length];
     uint16_t proto = 0x0011; // UDP Protocol value
     int zeros = 0x0000; // zeros
-    int z;
+    uint8_t* dgram = new uint8_t[total_length];
     
     src_address = ipM->getSource();
     dst_address = ipM->getDest();
@@ -79,7 +78,7 @@ void udpRawClass::setLengthAndChecksum(char* payload, uint16_t* buffer) {
         fprintf(stdout, "Checksum generated: %4x \n\n", udp_hdr.check);
     #endif
         
-    buffer = (uint16_t*) dgram;
+    return (uint16_t*) dgram;
 }
 
 /* fill the sockaddr_in structure related to the destination */
@@ -89,4 +88,6 @@ void udpRawClass::setDest(sockaddr_in* dest) {
     dest->sin_port = udp_hdr.dest;
 }
 
-
+udpRawClass::~udpRawClass() {
+    delete ipM;
+}

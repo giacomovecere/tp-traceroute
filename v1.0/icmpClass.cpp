@@ -220,8 +220,8 @@ ostream& operator<<(ostream& out, icmpClass& ic) {
             buffer: buffer that will contain the entire packet
             len: length of the buffer
 */
-void icmpClass::makeProbe(char* msg, char* destAddr, char* buffer, int& len){
-    
+char* icmpClass::makeProbe(char* msg, char* destAddr, int& len){
+    char* buffer;
     //init ip header
     ipManager* myIpManager = new ipManager(); //remember to deallocate it
     dest_ip = (ip*)myIpManager->prepareHeader(destAddr, 0);
@@ -233,16 +233,19 @@ void icmpClass::makeProbe(char* msg, char* destAddr, char* buffer, int& len){
     icmp_msg->icmp_code = 0;
     icmp_msg->icmp_type = ICMP_ECHO;
     icmp_msg->icmp_seq = 0;
-    icmp_msg->icmp_id = 0;
+    icmp_msg->icmp_id = getpid();
     icmp_length = ICMP_HDR_LENGTH;
     setChecksum();
     
     //init the buffer and copy headers and payload into it
-    buffer = new char[dest_iphdr_len + icmp_length + LENGTH_PAYLOAD]; //remember to deallocate it
+    len = dest_iphdr_len + icmp_length;// + LENGTH_PAYLOAD;
+    buffer = new char[len]; //remember to deallocate it
     memcpy(buffer,dest_ip,dest_iphdr_len);
     memcpy(buffer+dest_iphdr_len,icmp_msg,icmp_length);
-    memcpy(buffer+dest_iphdr_len+icmp_length,msg,LENGTH_PAYLOAD);
-   
+    //memcpy(buffer+dest_iphdr_len+icmp_length,msg,LENGTH_PAYLOAD);
+    
+    delete icmp_msg;
     delete myIpManager;
     
+    return buffer;
 }

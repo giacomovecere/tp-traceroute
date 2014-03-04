@@ -18,7 +18,8 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     udpRawPacket = new udpRawClass(src_port, dest_port);
     
     // Create a raw socket with UDP protocol
-    sockfd = socket(PF_INET, SOCK_RAW, IPPROTO_RAW); 
+    //sockfd = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);  
+    sockfd = socket(PF_INET, SOCK_RAW, IPPROTO_UDP); /* UDP o RAW???*/
     
     //set the option to let the OS know that the ip header will be put by us
     if(setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &one , sizeof(one))<0) 
@@ -34,9 +35,6 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
     s_addr.sin_addr = udpRawPacket->getSource();
     
     bind(sockfd, (sockaddr *) &s_addr, sizeof(sockaddr) ); 
-    
-    
-    cout<<"udpRawManager ok"<<endl;
 }
 
 /* Sends an UDP Probe to the destination specified. 
@@ -52,7 +50,7 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     ipHdr = udpRawPacket->setTs(dest_ip, ts_ip);
     udpHdr = udpRawPacket->getHeader();
     // set the length of the packet and calculate che checksum of the UDP Packet
-    udpRawPacket->setLengthAndChecksum(payload, buffer);
+    buffer = udpRawPacket->setLengthAndChecksum(payload);
     
     // set the destination structure to which the packet is going to be sent
     udpRawPacket->setDest(&dest);
@@ -65,7 +63,6 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     memcpy(total_buffer+IP_TS_LENGTH*4+LENGTH_UDP_HEADER, payload, LENGTH_PAYLOAD);
     
     cout<<"printing\n";
-    
     for(int i=0; i<(IP_TS_LENGTH*4)+LENGTH_PAYLOAD; i++)
         cout<<(int)total_buffer[i]<<'\t';
     cout<<endl;
@@ -79,4 +76,9 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     }
     
     return true;
+}
+
+udpRawManager::~udpRawManager() {
+    close(sockfd);
+    delete udpRawPacket;
 }

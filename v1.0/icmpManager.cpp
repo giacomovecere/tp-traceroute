@@ -12,20 +12,25 @@
 
 icmpManager::icmpManager(uint16_t s){
     s_port = s;
+    int one = 1;
+    
     //socket that receives icmp packet
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-    if(sockfd == -1) {
-        cerr<<"error in building the socket\n";
+    
+    if(setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &one , sizeof(one)) < 0) 
+        cout<<"ERROR\n";
+    
+    if(sockfd < 0 || one < 0) {
+        cout<<"error in building the socket\n";
         exit(EXIT_FAILURE);
     }
-    //init struct for binding
-    my_addr = new sockaddr_in;
-    memset((char *)my_addr, 0, sizeof(*my_addr)); 
-    my_addr->sin_family = AF_INET; 
-    my_addr->sin_addr.s_addr = htonl(INADDR_ANY); 
-    my_addr->sin_port = htons(s_port);
     
-    bind(sockfd, (sockaddr*)my_addr, sizeof(*my_addr));
+    //init struct for binding
+    my_addr.sin_family = AF_INET; 
+    my_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
+    my_addr.sin_port = htons(s_port);
+    
+    bind(sockfd, (sockaddr*)&my_addr, sizeof(my_addr));
 }
 
 int icmpManager::getSocket() { return sockfd; }
@@ -60,8 +65,12 @@ addr* icmpManager::traceRecv(int* htype){
         icmpClass* icmpPkt = new icmpClass();
         //fill object with received message  
         int fill_ret = icmpPkt->icmpFillTrace(buffer,MESSAGE_SIZE);
+        if(fill_ret < 0) {
+            cout<<"icmpManager::traceRecv error"<<endl;
+            exit(EXIT_FAILURE);
+        }
             
-            //Change byte ordering according to our host and then retrieve port destination
+        //Change byte ordering according to our host and then retrieve port destination
         icmpPkt->adaptFromNetwork(icmpPkt->getUDPHeader());
         d_port = icmpPkt->getUDPHeader()->dest;
 
@@ -86,6 +95,7 @@ addr* icmpManager::traceRecv(int* htype){
             *htype = -1;
         }
 
+        delete icmpPkt;
         return address;
     }
     else{
@@ -105,7 +115,7 @@ int icmpManager::tpSend(char* msg, char* destAddr){
     int len;
     
     icmpClass* icmpPkt = new icmpClass();    
-    icmpPkt->makeProbe(msg,destAddr, buffer, len);
+    buffer = icmpPkt->makeProbe(msg, destAddr, len);
 
     //destination structure initialization
     dest.sin_family = AF_INET;                
@@ -113,10 +123,14 @@ int icmpManager::tpSend(char* msg, char* destAddr){
     inet_pton(AF_INET, destAddr, &dest.sin_addr);
     
     int ret =  sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
-    if(ret > 0)
+    if(ret > 0) {
+        delete icmpPkt;
         return 1; //ok
-    else
+    }
+    else {
+        delete icmpPkt;
         return 0; //error
+    }
 }
 
 
@@ -167,11 +181,18 @@ int icmpManager::tpRecv(int type){
                             else
                                 break;
                         }
+                        delete icmpPkt;
                         return timestamps;
                     }
                 }
             }       
         }
+        delete icmpPkt;
     }
     return -1;
+}
+
+/* Destroyer */
+icmpManager::~icmpManager() {
+    close(sockfd);
 }

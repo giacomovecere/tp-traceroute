@@ -42,6 +42,7 @@ class udpRawClass {
 public:
     // fill the udphdr structure with source and destination ports
     udpRawClass(uint16_t, uint16_t);
+    ~udpRawClass();
     
     /* fill the iphdr structure by calling an instance of ipManager.
     * The fields sent are the destination address and the timestamp address */
@@ -49,7 +50,7 @@ public:
        
     /* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
     * the checksum is calculated on the Pseudo IP Header, the UDP Header and the UDP Payload */
-    void setLengthAndChecksum(char*, uint16_t*);
+    uint16_t* setLengthAndChecksum(char*);
     
     /* fill the sockaddr_in structure related to the destination */
     void setDest(sockaddr_in*);
@@ -69,6 +70,7 @@ public:
     
     /* Constructor of the class: creates a raw udp socket and creates a new udpRawPacket */
     udpRawManager(uint16_t, uint16_t);
+    ~udpRawManager();
     
     /* Sends an UDP Probe to the destination specified. Puts the timestamp address in the IP Header */
     bool tpSend(char*, char*, char*);
