@@ -51,7 +51,7 @@ ipClass::ipClass(){
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
-    ipTimeOpt->ipt_ptr = 5;//START_TS;
+    ipTimeOpt->ipt_ptr = START_TS;
 }
 
 //set the source address for the IP

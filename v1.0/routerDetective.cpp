@@ -41,11 +41,11 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
              * In the traceroute, for each hop, we sent 3 probes
              * Here we consider only one element of these */
             if(p->ret == true) {
-                char* hop_address = new char[15];
-                strncpy(hop_address, p->ip, strlen(p->ip)+1);
-                echo_resp = echoReqReply(hop_address, s_port);
+                //char* hop_address = new char[15];
+                //strncpy(hop_address, p->ip, strlen(p->ip)+1);
+                echo_resp = echoReqReply(p->ip, s_port);
                 
-                delete hop_address;
+                //delete hop_address;
                 #ifdef _DEBUG
                     cout<<"send "<<i<<" done. The response is "<<echo_resp<<endl;
                 #endif
@@ -67,13 +67,11 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
                         //Timeout expired
                         if(class_ret == -1) {
                             p->classification = NO_RESPONSE_UDP;
-                            /*cerr<<"Error: hopsClassificability error! "<<endl;
-                            return false;*/
                         }
                         else 
                             if(class_ret == 1) 
                                 p->classification = ON_PATH;
-                            // class_ret = 0
+                            // class_ret == 0
                             else   
                                 p->classification = THIRD_PARTY;
                         break;

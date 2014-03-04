@@ -43,9 +43,7 @@ public:
     
     //in case we are building an ICMP packet to send
     icmpClass();
-    
-    //distructor
-    
+        
     //constructs an ICMP packet starting from infos received for traceroute
     int icmpFillTrace(char*, int);
 
@@ -84,15 +82,7 @@ public:
     void setChecksum();
 
     uint16_t getChecksum();
-    
-    //the commented functions aren't needed now but they may be in the future
-    //void setDestIPAddress(char*);
-    //void setICMPPid(int p=0);
-    //void setSourceIPAddress(char* );
-    //void setICMPSeq(int s=0);
-
-    friend ostream& operator<<(ostream& output, icmpClass & ic);
-    
+        
 /*
     Make an icmp echo request to discover if an address (destAddr) is classifiable or not
     for third part addresses discovery. It has to fill buffer with an icmp echo request packet.

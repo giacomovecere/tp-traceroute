@@ -44,16 +44,16 @@ int icmpClass::icmpFillTrace(char* message, int n){
     dest_iphdr_len=dest_ip->ip_hl << 2; //ip_hl * 4
     
     //check the fields of the icmp response
-    if( ( icmplen = n - dest_iphdr_len ) < ICMP_HDR_LENGTH )
+    if( ( icmplen = n - dest_iphdr_len ) < (int)ICMP_HDR_LENGTH )
         return -1;
     //copy icmp part of the message into icmp_msg
     icmp_msg = (icmp*)(message + dest_iphdr_len);
     
-    if(icmplen < ICMP_HDR_LENGTH + sizeof(ip)) 
+    if(icmplen < (int)ICMP_HDR_LENGTH + (int)sizeof(ip)) 
         return -1;
 
     //construct the sent ip
-    sent_ip = (ip*) (message + dest_iphdr_len + ICMP_HDR_LENGTH);
+    sent_ip = (ip*) (message + dest_iphdr_len + (int)ICMP_HDR_LENGTH);
     sent_iphdr_len = sent_ip->ip_hl << 2;
     if(icmplen < ICMP_HDR_LENGTH + sent_iphdr_len + 4) 
         return -1;
@@ -88,7 +88,7 @@ int icmpClass::icmpFillTP(char* message, int n){
     //copy icmp part of the message into icmp_msg
     icmp_msg = (icmp*)(dest_ip + dest_iphdr_len);
     
-    if(icmp_len < ICMP_HDR_LENGTH + sizeof(ip)) 
+    if(icmp_len < (int)ICMP_HDR_LENGTH + (int)sizeof(ip)) 
         return -1;
 
     return 0;
@@ -194,18 +194,6 @@ void icmpClass::setChecksum(){
     chs=computeIcmpChecksum((uint16_t*) icmp_msg, icmp_length);
     icmp_msg->icmp_cksum=chs;*/
 };
-
-/*Redefine operator << in order to have simpler print functions*/
-ostream& operator<<(ostream& out, icmpClass& ic) {
-    
-    //out<<"Final destination port: "<<ic.dest_port<<'\n';
-    //out<<"Source port: "<<ic.source_port<<'\n';
-    out<<"Type of the icmp: "<<ic.getICMPType()<<'\t';
-    out<<"Code of the icmp: "<<ic.getICMPCode()<<'\n';
-    
-    return out;
-    
-}
 
 /*
     Make an icmp echo request to discover if an address (destAddr) is classifiable or not
