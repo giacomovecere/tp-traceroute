@@ -29,6 +29,8 @@ class traceroute {
     * for finding one from which the router along the path will reply */
     bool trace(char*, int, uint16_t*);
     
+    void setSourcePort(uint16_t s_port) {src_port = s_port;};
+    
     /* Returns the pointer of the array that contains the lists of the 'addr' elements */
     list<addr>* getArrayList(int*);
     

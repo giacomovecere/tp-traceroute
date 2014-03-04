@@ -10,6 +10,9 @@
 
 #include "routerDetective.h"
 
+#define WAIT_FOR_ECHO_REPLY     0
+#define WAIT_FOR_PORT_UNREACH   1
+
 //Constructor of the class: sets the pointer of the array and its the last position  
 routerDetective::routerDetective(list<addr>* list, int last) {
       array_list = list;
@@ -21,7 +24,7 @@ routerDetective::routerDetective(list<addr>* list, int last) {
 bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, char* destAddr) {
     list<addr>::iterator p;
     //icmpManager icmp_m = icmpManager(s_port);
-    int ret;
+    int echo_resp, class_ret;
     
     //for each elements of the array that contains hops discovered by traceroute
     for(int i=1; i<= last_position; i++)
@@ -39,33 +42,44 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
              * Here we consider only one element of these */
             if(p->ret == true) {
                 char* hop_address = new char[15];
-                strncpy(hop_address, destAddr, 15);
-                ret = echoReqReply(hop_address, s_port);
-                 
-                // Timeout expired
-                 if(ret == -1)
-                     return false;
-                 
-                 // the hope is not classifiable
-                 if(ret == 0) 
-                    p->classification = NON_CLASSIFIABLE;
-                 
-                 //the hope is classifiable
-                 else {
-                    ret = hopsClassificability(s_port, dest_port, destAddr, p->ip);
-                    
-                    //Timeout expired
-                    if(ret == -1) {
-                        cerr<<"Error: hopsClassificability error! "<<endl;
-                        return false;
-                    }
-                    if(ret == 1) 
-                        p->classification = ON_PATH;
-                    else
-                        p->classification = THIRD_PARTY;
-                 }
-                 break;
-             }
+                strncpy(hop_address, p->ip, strlen(p->ip)+1);
+                echo_resp = echoReqReply(hop_address, s_port);
+                
+                delete hop_address;
+                #ifdef _DEBUG
+                    cout<<"send "<<i<<" done. The response is "<<echo_resp<<endl;
+                #endif
+                
+                switch(echo_resp) {
+                    // Timeout expired
+                    case -1:
+                        p->classification = NO_RESPONSE;
+                        break;
+                    // the hope is not classifiable
+                    case 0:
+                        p->classification = NO_CLASSIFIABLE;
+                        break;
+                        
+                    //the hope is classifiable
+                    case 1:
+                        class_ret = hopsClassificability(s_port, dest_port, destAddr, p->ip);
+                        
+                        //Timeout expired
+                        if(class_ret == -1) {
+                            p->classification = NO_RESPONSE_UDP;
+                            /*cerr<<"Error: hopsClassificability error! "<<endl;
+                            return false;*/
+                        }
+                        else 
+                            if(class_ret == 1) 
+                                p->classification = ON_PATH;
+                            // class_ret = 0
+                            else   
+                                p->classification = THIRD_PARTY;
+                        break;
+                }
+                break;
+            }
         }
     }
     return true;
@@ -88,22 +102,29 @@ void routerDetective::print()  {
         
         for(int j=0; j < N_PROBE_DEF; j++) {
             if(p->ret == true) {
-                fprintf(stdout, "(%s) ", p->ip);
+                cout<<"("<<p->ip<<") ";
                 
-                if(p->classification == NON_CLASSIFIABLE)
-                    fprintf(stdout, " NON CLASSIFIABLE ");
-                if(p->classification == ON_PATH)
-                    fprintf(stdout, " ON PATH ");
-                else
-                    fprintf(stdout, " THIRD PARTY ");
-                break;
+                switch(p->classification) {
+                    case NO_CLASSIFIABLE:
+                        cout<<" NO CLASSIFIABLE "<<endl;
+                        break;
+                    case NO_RESPONSE_UDP:
+                        cout<<" NO RESPONSE UDP "<<endl;
+                        break;
+                    case ON_PATH:
+                        cout<<" ON PATH "<<endl;
+                        break;
+                    case THIRD_PARTY:
+                        cout<<" THIRD PARTY "<<endl;    
+                        break;
+                }
             }
-            if(j == N_PROBE_DEF)
-                fprintf(stdout, "   *    ");
+            /*if(j == N_PROBE_DEF)
+                fprintf(stdout, "   *    ");*/
             p++;
         }
         
-        fprintf(stdout, "\n\n");
+        cout<<endl;
     }
 } 
  
@@ -116,8 +137,7 @@ int echoReqReply(char* destAddr, uint16_t s_port) {
     int socket = icmpM.getSocket(); //get the file descriptor which needs to be read
     int fdmax;  //max number of file descriptor
     fd_set master, read_fds;
-    int num_ts;
-    int echoReply = 0;
+    int num_ts, ret;
     
     fdmax = socket;
     
@@ -129,12 +149,11 @@ int echoReqReply(char* destAddr, uint16_t s_port) {
     FD_SET(socket, &master);
     read_fds = master;
         
-    //payload = malloc(LENGTH_PAYLOAD);
-    //paylod = 4 bytes equal to 0;
     memset(payload, 0, LENGTH_PAYLOAD);
 
     // Sends an icmp echo request
-    if(!icmpM.tpSend(payload, destAddr)) {
+    ret = icmpM.tpSend(payload, destAddr);
+    if(ret == 0) {
         cerr<<"Error: tpSend error"<<endl;
         exit(EXIT_FAILURE);
     }
@@ -147,7 +166,7 @@ int echoReqReply(char* destAddr, uint16_t s_port) {
     if(FD_ISSET(socket, &read_fds)) {
         /* Receives an icmp echo response from an intermediate hop and check 
             the number of timestamps that are in the packet */
-        num_ts = icmpM.tpRecv(echoReply); 
+        num_ts = icmpM.tpRecv(WAIT_FOR_ECHO_REPLY); 
         
         //the hop is not classifiable
         if(num_ts < 1 || num_ts > 3)
@@ -170,11 +189,10 @@ int hopsClassificability(uint16_t s_port, uint16_t dest_port, char* destAddr, ch
     list<addr>::iterator p;
     icmpManager icmpM = icmpManager(s_port);
     udpRawManager* udpRawManag = new udpRawManager(s_port, dest_port); ;
-    int num_ts;
+    int num_ts, ret;
     char payload[LENGTH_PAYLOAD];
     int fdmax;  //max number of file descriptor
     fd_set master, read_fds;
-    int portUnreach = 1;
     int socket = icmpM.getSocket(); //get the file descriptor which needs to be read
     
     fdmax = socket;
@@ -186,29 +204,27 @@ int hopsClassificability(uint16_t s_port, uint16_t dest_port, char* destAddr, ch
     FD_SET(socket, &master);
     read_fds = master;
     
-    //payload = malloc(LENGTH_PAYLOAD);
-    //paylod = 4 bytes equal to 0;
     memset(payload, 0, LENGTH_PAYLOAD);
 
     //Sends udp probe to a classifiable hop
-    if(!udpRawManag->tpSend(destAddr, ts_ip, payload)) {
+    ret = udpRawManag->tpSend(destAddr, ts_ip, payload);
+    if(ret == 0) {
         cerr<<"Error: tpSend error"<<endl;
         delete udpRawManag;
         return -1;
     }
-    
-                    
+    delete udpRawManag;
+
     if(select(fdmax+1, &read_fds, NULL, NULL, &timeout) == -1) {
         cerr<<"select error\n";
         exit(EXIT_FAILURE);
     }
-    
-    delete udpRawManag;
-    
+        
     if(FD_ISSET(socket, &read_fds)) {
         /* Receives an icmp echo response from an intermediate hop and check 
             the number of timestamps that are in the packet */
-        num_ts = icmpM.tpRecv(portUnreach); 
+        num_ts = icmpM.tpRecv(WAIT_FOR_PORT_UNREACH); 
+        
         //the hop is a TP
         if(num_ts < 1)
             return 0;

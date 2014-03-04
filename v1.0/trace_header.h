@@ -39,9 +39,13 @@
 #define FINAL_DESTINATION 1
 #define TIMEOUT_SELECT 3
 #define N_TIMES_TO_GO_AHEAD 5
-#define NON_CLASSIFIABLE 0
-#define ON_PATH 1
-#define THIRD_PARTY 2
+
+#define NO_CLASSIFIABLE 0
+#define ON_PATH         1
+#define THIRD_PARTY     2
+#define NO_RESPONSE     3
+#define NO_RESPONSE_UDP 4
+
 #define LENGTH_PAYLOAD 4
 #define LENGTH_UDP_HEADER 8
 #define IPv4 4

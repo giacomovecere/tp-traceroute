@@ -62,10 +62,10 @@ bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     memcpy(total_buffer+IP_TS_LENGTH*4, udpHdr, LENGTH_UDP_HEADER);
     memcpy(total_buffer+IP_TS_LENGTH*4+LENGTH_UDP_HEADER, payload, LENGTH_PAYLOAD);
     
-    cout<<"printing\n";
+    /*cout<<"printing\n";
     for(int i=0; i<(IP_TS_LENGTH*4)+LENGTH_PAYLOAD; i++)
         cout<<(int)total_buffer[i]<<'\t';
-    cout<<endl;
+    cout<<endl;*/
     
     // send the UDP packet 
     r = sendto(sockfd, total_buffer, (IP_TS_LENGTH*4)+LENGTH_UDP_HEADER+

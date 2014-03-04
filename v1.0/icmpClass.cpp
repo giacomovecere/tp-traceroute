@@ -237,7 +237,6 @@ char* icmpClass::makeProbe(char* payload, char* destAddr, int& len){
     icmp_msg->icmp_type = ICMP_ECHO;
     icmp_msg->icmp_seq = 0;
     icmp_msg->icmp_id = getpid();
-    //icmp_msg->icmp_cksum = 0;
     icmp_length = ICMP_HDR_LENGTH;
 
     /* ICMP HEADER */ 

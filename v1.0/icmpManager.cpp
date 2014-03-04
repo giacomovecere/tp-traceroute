@@ -76,7 +76,8 @@ addr* icmpManager::traceRecv(int* htype){
 
         addr* address = new addr;
         //set router ip address
-        inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, 20);
+        inet_ntop(AF_INET, &(rm_addr.sin_addr), address->ip, LENGTH_IP_ADDRESS);
+        address->ip[strlen(address->ip)+1] = '\0';
         //set current time
         gettimeofday (&(address->time), NULL);
         address->checksum = icmpPkt->getUDPChecksum();
@@ -106,7 +107,7 @@ addr* icmpManager::traceRecv(int* htype){
 
 /*  
     send an icmp echo request
-    parameters msg, srcAddr, destAddr, timestampAddr 
+    parameters payload, destAddr 
 */
 int icmpManager::tpSend(char* payload, char* destAddr){
     

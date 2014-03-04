@@ -22,10 +22,10 @@ uint8_t* ipManager::prepareHeader(char* dest, char* timeStampTarget) {
     
     uint8_t* packetIP = ip_hdr->pack();
     
-    cout<<"ipManager:\n";
+    /*cout<<"ipManager:\n";
     for(int i=0; i<IP_TS_LENGTH * 4; i++) 
         cout<<(int)packetIP[i]<<'\t';
-    cout<<endl<<endl;
+    cout<<endl<<endl;*/
     
     return packetIP;
 }

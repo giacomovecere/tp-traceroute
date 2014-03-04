@@ -62,6 +62,7 @@ int main(int argc, char** argv) {
 	//host = argv[optind];
 	        
     s_port = (getpid() & 0xffff) | 0x8000;
+    traceroute t = traceroute(s_port);
     
 	attempts = 0;
     // tries 'N_ATTEMPTS' times to do the traceroute to the destination by changing the dest. port
@@ -71,7 +72,6 @@ int main(int argc, char** argv) {
 		#endif
             
         dest_port = dest_port_ini;
-        traceroute t = traceroute(s_port);
 		
 		res = t.trace(host, max_ttl, &dest_port);
 		// if the traceroute has reached the destination, stop
@@ -99,6 +99,7 @@ int main(int argc, char** argv) {
             cout << "Traceroute failed: it was not possible to reach the destination after "<< N_ATTEMPTS << " attempts of traceroute"<< endl;
             return 0;
         }
+        t.setSourcePort(s_port);
     }
     
     routerDetective r = routerDetective(ip_list, last_position);
