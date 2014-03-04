@@ -78,23 +78,21 @@ public:
     void setICMPCode(int );
     
     void setICMPPayload(char*, int );
-    
-    void setChecksum();
 
     uint16_t getChecksum();
         
-/*
-    Make an icmp echo request to discover if an address (destAddr) is classifiable or not
-    for third part addresses discovery. It has to fill buffer with an icmp echo request packet.
-    Ip header is prepared by ipManager that adds in the options field the timestamps options for 
-    third part addresses discovery
-    params:
-        (IN)
-            msg: payload
-            destAdd: destination address
-        (OUT)
-            buffer: buffer that will contain the entire packet
-            len: length of the buffer
+/* @Purpose: Make an icmp echo request to discover if an address (destAddr) is 
+ *      classifiable or not for third part addresses discovery. It has to fill 
+ *      buffer with an icmp echo request packet. Ip header is prepared by 
+ *      ipManager that adds in the options field the timestamps options for 
+ *      third part addresses discovery
+ * @Parameters:
+ *       (IN)
+ *           msg: payload
+ *           destAdd: destination address
+ *       (OUT)
+ *           len: length of the buffer
+ * @Return: buffer that contains the whole icmp probe
 */
     char* makeProbe(char* payload, char* destAddr, int& len);
 };
@@ -125,32 +123,32 @@ public:
     int getSourcePort();
     int getDestPort();
     
-    /* 
-        returns an addr structure, the pointer is useful to 
-        state the type of hop that answers, if it is an intermediate router 
-        or the final destination
+    /* @Purpose: do the receive of an icmp packet in the udp Traceroute
+     * @Parameters: 
+     *          (OUT) htype represents the type of ICMP message received, 
+     *                it may be PORT_UNREACHABLE, TTL_EXPIRED, ERROR
+     * @Returns: addr* is the address of an addr structure 
     */
     addr* traceRecv(int* htype);
     
-    /* 
-        receive an icmp packet
-        params: type of response attended (icmp echo reply or icmp port unreach)
-            0 icmp echo reply
-            1 icmp port unreach
-        returns: 
-            number of timestamps in the ip header options field
-        
-    */          
+    /* @Purpose:receive an icmp packet for third party detection
+     * @Parameters: 
+     *      (IN) type of response attended (icmp echo reply or icmp port unreach)
+     *       0 icmp echo reply
+     *       1 icmp port unreach
+     * @Returns: 
+     *       number of timestamps in the ip header options field  
+    */
     int tpRecv(int type);
     
-    /*
-        send an icmp echo request
-        params:
-            msg -> payload of the message
-            destAddr -> destination address
-        returns:  
-            1 -> ok
-            0 -> error
+    /* @Purpose: send an icmp echo request
+     * @Params:
+     *      (IN)
+     *       msg -> payload of the message
+     *       destAddr -> destination address
+     * @Returns:  
+     *       1 -> ok
+     *       0 -> error
     */
     int tpSend(char* msg, char* destAddr);
 };

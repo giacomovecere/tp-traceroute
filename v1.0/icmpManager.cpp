@@ -17,6 +17,7 @@ icmpManager::icmpManager(uint16_t s){
     //socket that receives icmp packet
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     
+    //set the option to put our IP header not the one made by the kernel
     if(setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &one , sizeof(one)) < 0) 
         cout<<"ERROR\n";
     
@@ -30,6 +31,7 @@ icmpManager::icmpManager(uint16_t s){
     my_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
     my_addr.sin_port = htons(s_port);
     
+    //bind to source port
     bind(sockfd, (sockaddr*)&my_addr, sizeof(my_addr));
 }
 
@@ -41,17 +43,17 @@ int icmpManager::getSourcePort() { return s_port; }
 //referred to the destination
 int icmpManager::getDestPort() {return d_port;}
 
-/*
- * Return a struct addr* that contains 
- * response router informations and
- * sets host type:
- *    intermediate router
- *    final destination
- *    -1  error
+/* @Purpose: do the receive of an icmp packet in the udp Traceroute
+ * @Parameters: 
+ *          (OUT) htype represents the type of ICMP message received, 
+ *                it may be PORT_UNREACHABLE, TTL_EXPIRED, ERROR
+ * @Returns: addr* is the address of an addr structure 
 */
 addr* icmpManager::traceRecv(int* htype){
     
+    //buffer in which put the received message
     char buffer[MESSAGE_SIZE];
+    //rm stands for remote
     sockaddr_in rm_addr;
     socklen_t rm_addr_size;
     
@@ -60,7 +62,8 @@ addr* icmpManager::traceRecv(int* htype){
     // to get the right ip address from the recvfrom function
     rm_addr_size = sizeof(struct sockaddr_in);
     //receive the response message
-    int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,&rm_addr_size);
+    int ret = recvfrom(sockfd,(void *)buffer,MESSAGE_SIZE,0,(sockaddr*)&rm_addr,
+                       &rm_addr_size);
     if(ret != -1) {
         icmpClass* icmpPkt = new icmpClass();
         //fill object with received message  
@@ -69,8 +72,9 @@ addr* icmpManager::traceRecv(int* htype){
             cout<<"icmpManager::traceRecv error"<<endl;
             exit(EXIT_FAILURE);
         }
-            
-        //Change byte ordering according to our host and then retrieve port destination
+        
+        /*Change byte ordering according to our host 
+        and then retrieve port destination*/
         icmpPkt->adaptFromNetwork(icmpPkt->getUDPHeader());
         d_port = icmpPkt->getUDPHeader()->dest;
 
@@ -84,7 +88,8 @@ addr* icmpManager::traceRecv(int* htype){
         address->ret = false;
 
         //check if intermediate router reached 
-        if(icmpPkt->getICMPType() == ICMP_TIME_EXCEEDED && icmpPkt->getICMPCode() == ICMP_TIMXCEED_INTRANS){ 
+        if(icmpPkt->getICMPType() == ICMP_TIME_EXCEEDED && 
+            icmpPkt->getICMPCode() == ICMP_TIMXCEED_INTRANS){ 
             *htype = INTERMEDIATE_ROUTER;
         }
         //check if final destination reached 
@@ -105,16 +110,24 @@ addr* icmpManager::traceRecv(int* htype){
     }
 }
 
-/*  
-    send an icmp echo request
-    parameters payload, destAddr 
-*/
+/* @Purpose: send an icmp echo request
+ * @Params:
+ *      (IN)
+ *       msg -> payload of the message
+ *       destAddr -> destination address
+ * @Returns:  
+ *       1 -> ok
+ *       0 -> error
+ */
 int icmpManager::tpSend(char* payload, char* destAddr){
     
+    //destination address in network format
     sockaddr_in dest;
+    //buffer is where we put the whole packet, including th IP header
     char* buffer;
     int len;
     
+    //create a new icmp packet
     icmpClass* icmpPkt = new icmpClass();    
     buffer = icmpPkt->makeProbe(payload, destAddr, len);
 
@@ -123,24 +136,25 @@ int icmpManager::tpSend(char* payload, char* destAddr){
     dest.sin_port = htons(0);        
     inet_pton(AF_INET, destAddr, &dest.sin_addr);
     
+    //send operation
     int ret =  sendto(sockfd,buffer,len,0,(sockaddr *)&dest,sizeof(sockaddr));
+    delete icmpPkt;
+    //check the result of the send
     if(ret > 0) {
-        delete icmpPkt;
         return 1; //ok
     }
     else {
-        delete icmpPkt;
         return 0; //error
     }
 }
 
-
-/* 
-    params: type of response attended (icmp echo reply or icmp port unreach)
-            0 icmp echo reply
-            1 icmp port unreach
-    Receives an icmp echo response from an intermediate hop and returns 
-    the number of timestamps that are in the packet 
+/* @Purpose:receive an icmp packet for third party detection
+ * @Parameters: 
+ *      (IN) type of response attended (icmp echo reply or icmp port unreach)
+ *       0 icmp echo reply
+ *       1 icmp port unreach
+ * @Returns: 
+ *       number of timestamps in the ip header options field  
 */
 int icmpManager::tpRecv(int type){
     
@@ -166,6 +180,8 @@ int icmpManager::tpRecv(int type){
             if((icmpPkt->getICMPType() == ICMP_ECHOREPLY && type == 0)
               ||(icmpPkt->getICMPType() == ICMP_UNREACH && type == 1)){
                 //get the ip header of received packet
+                
+//TODO create an ipClass from the received IP
                 ip* ip_hdr = icmpPkt->getDestIPHeader();
                 //bytes length of ip header
                 int ip_hdr_len = ip_hdr->ip_hl << 2;
@@ -175,7 +191,8 @@ int icmpManager::tpRecv(int type){
                     //check if option is a timestamp
                     if(timestamp_opt->ipt_code == IPOPT_TS){
                         //count the number of timestamps in the option
-                        //I suppose that they can be counted using timestamp_opt->ipt_len
+                        //I suppose that they can be counted using 
+                        //timestamp_opt->ipt_len
                         for(int i=1; i<8; i+=2) {
                             if(timestamp_opt->data[i] != 0)
                                 timestamps++;

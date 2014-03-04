@@ -5,31 +5,38 @@ ipManager::ipManager() {
     ip_hdr = new ipClass();
 }
 
-//prepare the header UDP 
+/* @Purpose: prepare the ip header with the destination address
+ *          and the addresses from which we want to receive the
+ *          the timestamp option
+ * @Parameters:
+ *      (IN): first parameter is the destination address
+ *            second parameter is the timestamp address
+ *            both are in host format
+ * @Returns: a buffer that contains the whole IP header 
+ *           including timestamp option
+ */
+     
 uint8_t* ipManager::prepareHeader(char* dest, char* timeStampTarget) {
     
     //set the protocol
     if(timeStampTarget == 0)  {
         timeStampTarget = dest;
-        //ip_hdr->setProtocol(ICMP_PROTOCOL);
         ip_hdr->setProtocol(IPPROTO_ICMP);
     }
     else
         ip_hdr->setProtocol(UDP_PROTOCOL);
     
+    //set the needed addresses
     ip_hdr->setDest(dest);
     ip_hdr->setTimestampTarget(timeStampTarget);
     
+    //do the pack
     uint8_t* packetIP = ip_hdr->pack();
-    
-    /*cout<<"ipManager:\n";
-    for(int i=0; i<IP_TS_LENGTH * 4; i++) 
-        cout<<(int)packetIP[i]<<'\t';
-    cout<<endl<<endl;*/
     
     return packetIP;
 }
 
+//destroyer
 ipManager::~ipManager() {
     delete ip_hdr;
 }

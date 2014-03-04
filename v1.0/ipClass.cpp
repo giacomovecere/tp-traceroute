@@ -52,9 +52,13 @@ ipClass::ipClass(){
     
     //start of the timestamp field
     ipTimeOpt->ipt_ptr = START_TS;
+    //END
 }
 
-//set the source address for the IP
+/* @Purpose: Set the source address of the packet
+ * NOTE: this is done by getting all the IP addresses associated to our machine
+ * and then selecting only the first IPv4
+ */
 void ipClass::setSource() {
     
     //retrieve external ip address of the source host 
@@ -70,6 +74,7 @@ void ipClass::setSource() {
             tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             char addressBuffer[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+            return; //TODO check if it's correct
         }
     }
     
@@ -93,7 +98,11 @@ void ipClass::setDest(char* addr){
     
 }
 
-//set the timestamp targets
+/* NOTE: the timestamp buffer (the 8 bytes after the option header) 
+ * is formed by 4 couple of 32 bits field, the first field of the couple 
+ * represents the address from which we want to receive the timestamp, the
+ * second field represents the effective timestamp and will be filled by routers
+ */
 void ipClass::setTimestampTarget(char* addr) {
     
     for(int i=0; i<8; i++) {
@@ -111,6 +120,7 @@ int ipClass::getTimestampNumbers(){
     
     int number = 0;
     
+    //scan the timestamp buffer and check if the timestamp field is set or not
     for(int i=1; i<8; i+=2) {
         
         if(ipTimeOpt->data[i] != 0)
@@ -133,6 +143,10 @@ void ipClass::setProtocol(int proto) {
  * separate data structure is important for our purposes to pack them into
  * a single structure to be put on the top of the packet
  */
+/* @Purpose: pack the whole ip header with 
+ *      timestamp option into a single buffer
+ * @Returns: the address of the buffer
+ */
 uint8_t* ipClass::pack() {
     
     /* IP_TS_LENGTH is referred to long (32 bits) here we use 16 bits, more
@@ -147,6 +161,7 @@ uint8_t* ipClass::pack() {
     return ipPacked;
 }
 
+//destroyer
 ipClass::~ipClass() {
     delete ipHeader;
     delete ipTimeOpt;

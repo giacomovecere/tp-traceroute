@@ -19,20 +19,21 @@
 icmpClass::icmpClass() {
 }
 
-
-//fills the fields of the class basing on the received message
-/*
- * returns: 
+/* @Purpose: starting from the received message this function parses
+ *           it in order to build correctly the various headers, the structure 
+ *           of message can be seen in the header file
+ * @Parameters: 
+ *          (IN) message: all the message received with IP header
+ *               n: size of the message
+ * @Returns: 
  *       0 if ok
  *      -1 if error
- * source is the host that receives the message, destination is
+ * 
+ * NOTE: source is the host that receives the message, destination is
  * the host that sends the message, this role interchanging is due
  * to the fact that we decided to fix the role once for all, so be careful
  * and keep in mind this fact
- * 
- * @purpose: starting from the received message this function parses
- *                   it in order to build correctly the various headers, the structure 
- *                   of message can be seen in the header file 
+ *  
 */
 int icmpClass::icmpFillTrace(char* message, int n){
     
@@ -64,13 +65,7 @@ int icmpClass::icmpFillTrace(char* message, int n){
     return 0;
 }
 
-//fills the fields of the class basing on the received message
-/*
- * returns: 
- *       0 if ok
- *      -1 if error
-  same behavior of icmpFillTrace but used to parse an icmp echo reply
-*/
+//same behavior of icmpFillTrace but used to parse an icmp echo reply
 int icmpClass::icmpFillTP(char* message, int n){
     
     int dest_iphdr_len, icmp_len;
@@ -94,13 +89,16 @@ int icmpClass::icmpFillTP(char* message, int n){
     return 0;
 }
 
-/* once we receive something from the network we need to modify the bytes
+/* NOTE: 
+ * once we receive something from the network we need to modify the bytes
  * ordering in order to be coherent with the one we're using on our host.
  * To do so we use a function named htons (host to network)
- * 
- * NOTE: since the checksum is computed on fields that are already in 
+ * NOTE: 
+ * since the checksum is computed on fields that are already in 
  * network ordering, we don't need to change the byte ordering of this field
  */
+
+/* @Purpose: adapt the received udp in the host format*/
 void icmpClass::adaptFromNetwork(udphdr* u){
     u->source = htons(u->source);
     u->dest = htons(u->dest);
@@ -169,8 +167,12 @@ void icmpClass::setICMPPayload(char* data, int len){
     
 }
 
-/* Compute Internet Checksum by adding all the data contained in the 
- * datagram. In this case we need just the infos contained in the icmp*/
+/* @Purpose: compute the icmp checksum
+ * @Parameters: 
+ *          (IN) dgram: fields needed to compute the checksum
+ *               length: size of dgram
+ * @Returns: checksum
+ */
 uint16_t computeIcmpChecksum(const uint16_t* dgram, int length) {
         uint32_t sum = 0;
 
@@ -187,26 +189,18 @@ uint16_t computeIcmpChecksum(const uint16_t* dgram, int length) {
         return ~sum;
 }
 
-//set the icmp checksum field
-void icmpClass::setChecksum(){
-    /*
-    int chs;
-    chs=computeIcmpChecksum((uint16_t*) icmp_msg, icmp_length);
-    icmp_msg->icmp_cksum=chs;*/
-};
-
-/*
-    Make an icmp echo request to discover if an address (destAddr) is classifiable or not
-    for third part addresses discovery. It has to fill buffer with an icmp echo request packet.
-    Ip header is prepared by ipManager that adds in the options field the timestamps options for 
-    third part addresses discovery
-    params:
-        (IN)
-            msg: payload
-            destAdd: destination address
-        (OUT)
-            buffer: buffer that will contain the entire packet
-            len: length of the buffer
+/* @Purpose: Make an icmp echo request to discover if an address (destAddr) is 
+ *      classifiable or not for third part addresses discovery. It has to fill 
+ *      buffer with an icmp echo request packet. Ip header is prepared by 
+ *      ipManager that adds in the options field the timestamps options for 
+ *      third part addresses discovery
+ * @Parameters:
+ *       (IN)
+ *           msg: payload
+ *           destAdd: destination address
+ *       (OUT)
+ *           len: length of the buffer
+ * @Return: buffer that contains the whole icmp probe
 */
 char* icmpClass::makeProbe(char* payload, char* destAddr, int& len){
     char* buffer;
@@ -246,6 +240,7 @@ char* icmpClass::makeProbe(char* payload, char* destAddr, int& len){
     memcpy(buffer+dest_iphdr_len,icmp_msg,icmp_length);
     memcpy(buffer+dest_iphdr_len+icmp_length,payload,LENGTH_PAYLOAD);
     
+    //destroy the classes created
     delete icmp_msg;
     delete myIpManager;
     
