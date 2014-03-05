@@ -40,7 +40,7 @@
 #define INTERMEDIATE_ROUTER 0
 #define FINAL_DESTINATION 1
 #define TIMEOUT_SELECT 3
-#define N_TIMES_TO_GO_AHEAD 5
+#define N_TIMES_TO_GO_AHEAD 10
 
 #define NON_CLASSIFIABLE 0
 #define ON_PATH         1

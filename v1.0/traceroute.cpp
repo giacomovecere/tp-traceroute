@@ -166,7 +166,7 @@ bool traceroute::trace(char* ip_address, uint16_t* dest_port_set) {
                       we need to restart the traceroute (with another dest. port) */
                     go_ahead--;                    
                     if(go_ahead == 0) {
-                        cout<<"No response messages along the path for "<< N_TIMES_TO_GO_AHEAD <<" times consecutively: TRACEROUTE FAILED! \n\n";
+                        cout<<"No response messages along the path from "<< N_TIMES_TO_GO_AHEAD <<" different routers consecutively: TRACEROUTE FAILED! \n\n";
                         return false;
                     }          
                     
@@ -192,6 +192,8 @@ bool traceroute::trace(char* ip_address, uint16_t* dest_port_set) {
         timeout.tv_sec = TIMEOUT_SELECT;
         timeout.tv_usec = 0;
         type = 2;
+        FD_SET(socket, &master);
+        read_fds = master;
     }
     
     return true;   

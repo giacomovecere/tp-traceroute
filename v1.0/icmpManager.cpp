@@ -174,20 +174,20 @@ int icmpManager::tpRecv(int type){
     if(ret != -1) {
         icmpClass* icmpPkt = new icmpClass();
         //fill object with received message
-        int fill_ret = icmpPkt->icmpFillTP(buffer,MESSAGE_SIZE);
+        int fill_ret = icmpPkt->icmpFillTP(buffer, ret);
         if(fill_ret != -1){
             //check if what we receive is what we attend 
             if((icmpPkt->getICMPType() == ICMP_ECHOREPLY && type == 0)
               ||(icmpPkt->getICMPType() == ICMP_UNREACH && type == 1)){
                 //get the ip header of received packet
                 
-/* create an ipClass from the received IP
+                /*//create an ipClass from the received IP
                 ip* ip_hdr = icmpPkt->getDestIPHeader();
                 //bytes length of ip header
                 int ip_hdr_len = ip_hdr->ip_hl << 2;
                 //if ip_hdr_len > 20 there is something in the options field
                 if(ip_hdr_len > 20){
-                    ip_timestamp* timestamp_opt = (ip_timestamp*)(ip_hdr + 20);
+                    ip_timestamp* timestamp_opt = (ip_timestamp*)(buffer + 20);
                     //check if option is a timestamp
                     if(timestamp_opt->ipt_code == IPOPT_TS){
                         //count the number of timestamps in the option
@@ -203,14 +203,14 @@ int icmpManager::tpRecv(int type){
                         return timestamps;
                     }
                 }*/
-            ipManager* ipM = new ipManager((uint8_t*)icmpPkt->getDestIPHeader());
-            timestamps = ipM->getTimestamps();
-            delete ipM;
+            ipManager* ipMan = new ipManager((uint8_t*)buffer);
+            timestamps = ipMan->getTimestamps();
+            delete ipMan;
             delete icmpPkt;
             return timestamps;
             }       
         }
-        delete icmpPkt;
+        //delete icmpPkt;
     }
     return -1;
 }

@@ -62,7 +62,7 @@ void udpRawClass::setLengthAndChecksum(char* payload) {
     dst_address = ipM->getDest();
     
     // Set the length in the udp_hdr structure
-    udp_hdr.len = htons(sizeof(struct udphdr) + sizeof(payload));
+    udp_hdr.len = htons(length);
     
     // Pseudo IP Header
     rotated = htons (proto);

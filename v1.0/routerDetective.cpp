@@ -85,49 +85,64 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
 
 
 /* Prints the elements of the list stored */
-void routerDetective::print()  {
+void routerDetective::print(char* destAddr)  {
 	list<addr>* tmp;
     list<addr>::iterator p, q;
     tmp = array_list;
     int counter = 1;
+    FILE* f;
+    char folder[30];
+    strcpy(folder, (char*)"./outcomes/");
+    strcpy(folder + 11, (const char*)destAddr);
+    cout<<folder<<endl;
+    f = fopen(folder, "w");
     
     //scan the array of list
     for(int i = 1; i <= last_position; i++) {
         p = tmp[i].begin();
 
         cout<<counter;
-        
-        for(int j=0; j < N_PROBE_DEF; j++) {
+        int j;
+        for(j=0; j < N_PROBE_DEF; j++) {
             if(p->ret == true) {
                 cout<<" ("<<p->ip<<") \t";
-                
+                fprintf(f, "%s\t", p->ip);
+
                 switch(p->classification) {
                     case NO_RESPONSE:
                         cout<<" NO RESPONSE"<<endl;
+                        fprintf(f, "NO_RESPONSE\n");
                         break;
                     case NON_CLASSIFIABLE:
                         cout<<" NON-CLASSIFIABLE "<<endl;
+                        fprintf(f, "NON_CLASSIFIABLE\n");
                         break;
                     case NO_RESPONSE_UDP:
                         cout<<" NO RESPONSE - UDP "<<endl;
+                        fprintf(f, "NO_RESPONSE-UDP\n");
                         break;
                     case ON_PATH:
                         cout<<" ON PATH "<<endl;
+                        fprintf(f, "ON_PATH\n");
                         break;
                     case THIRD_PARTY:
-                        cout<<" THIRD PARTY "<<endl;    
+                        cout<<" THIRD PARTY "<<endl;
+                        fprintf(f, "THIRD_PARTY\n");    
                         break;
                 }
                 break;
             }
             p++;
         }
+        if(j == N_PROBE_DEF) {
+            cout<<" * \t * \t *"<<endl;
+        }
                 
         counter++;
         cout<<endl;
     }
+    fclose(f);
 } 
- 
 
 // Sends an ICMP echo request to each intermediate hop and receives an icmp echo reply
 int echoReqReply(char* destAddr, uint16_t s_port) {

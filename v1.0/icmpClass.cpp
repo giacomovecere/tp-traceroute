@@ -74,16 +74,15 @@ int icmpClass::icmpFillTP(char* message, int n){
     //if we want to have the number of bytes we have to multiply it by 4
     dest_iphdr_len = dest_ip->ip_hl << 2;
     
+    //int n1 = dest_ip->ip_len << 2;
+    
     //check the fields of the icmp response
     icmp_len = n - dest_iphdr_len;
     if(icmp_len < ICMP_HDR_LENGTH)
         return -1;
     
     //copy icmp part of the message into icmp_msg
-    icmp_msg = (icmp*)(dest_ip + dest_iphdr_len);
-    
-    if(icmp_len < (int)ICMP_HDR_LENGTH + (int)sizeof(ip)) 
-        return -1;
+    icmp_msg = (icmp*)(message + dest_iphdr_len);
 
     return 0;
 }

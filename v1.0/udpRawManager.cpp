@@ -50,7 +50,6 @@ udpRawManager::udpRawManager(uint16_t src_port, uint16_t dest_port) {
 bool udpRawManager::tpSend(char* dest_ip, char* ts_ip, char* payload) {
     int r;
     sockaddr_in dest;
-    uint16_t* buffer;
     uint8_t* ipHdr;
     uint8_t* udpHdr;
     uint8_t total_buffer[(IP_TS_LENGTH*4)+ LENGTH_UDP_HEADER + LENGTH_PAYLOAD];

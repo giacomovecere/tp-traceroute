@@ -60,7 +60,7 @@ ipClass::ipClass(){
     ipTimeOpt->ipt_oflw = 0;
     
     //start of the timestamp field
-    ipTimeOpt->ipt_ptr = START_TS;
+    ipTimeOpt->ipt_ptr = 5;//START_TS;
     //END
 }
 
@@ -69,6 +69,8 @@ ipClass::ipClass(){
  *              (IN) an ip header with timestamp options
  */
 ipClass::ipClass(uint8_t* iphdr) {
+    ipHeader = new ip;
+    ipTimeOpt = new ip_timestamp;
     //copy the first 20 bytes in the ipheader
     memcpy(ipHeader, iphdr, 20);
     //copy the other bytes in the timestamp option

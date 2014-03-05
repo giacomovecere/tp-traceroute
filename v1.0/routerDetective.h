@@ -28,7 +28,7 @@ public:
     bool thirdPartyDetection(uint16_t, uint16_t, char*);
     
     //Prints the elements of the list 
-    void print();
+    void print(char*);
 };
 
 //Sends an ICMP echo request to each intermediate hop and receives an icmp echo reply

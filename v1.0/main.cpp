@@ -97,7 +97,8 @@ int main(int argc, char** argv) {
 		s_port++;
         attempts++;
         if(attempts == N_ATTEMPTS) {
-            cout << "Traceroute failed: it was not possible to reach the destination after "<< N_ATTEMPTS << " attempts of traceroute"<< endl;
+            cout << "Traceroute failed: it was not possible to reach the" 
+            <<"destination after "<< N_ATTEMPTS << " attempts of traceroute"<< endl;
             return 0;
         }
         t.resetObj(s_port, max_ttl);
@@ -112,7 +113,7 @@ int main(int argc, char** argv) {
             
         cout<< "Third Party process to "<<host<<"."<<endl;
         
-        r.print();
+        r.print(host);
     }
    
 	return 0;
