@@ -231,7 +231,8 @@ char* icmpClass::makeProbe(char* payload, char* destAddr, int& len){
     /* PAYLOAD */
     memcpy(dgram + 8, payload, LENGTH_PAYLOAD);
     /* the ICMP cheksum is computed on the ICMP Header and the Payload */
-    icmp_msg->icmp_cksum = computeIcmpChecksum((uint16_t*) dgram, ICMP_HDR_LENGTH + LENGTH_PAYLOAD);
+    icmp_msg->icmp_cksum = computeIcmpChecksum((uint16_t*) dgram, 
+                                             ICMP_HDR_LENGTH + LENGTH_PAYLOAD);
     
     //init the buffer and copy headers and payload into it
     len = dest_iphdr_len + icmp_length + LENGTH_PAYLOAD;

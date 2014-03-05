@@ -24,6 +24,7 @@ public:
     
     //constructor (NOTE for further details see the ipClass.cpp) 
     ipClass();
+    ipClass(uint8_t*);
     //Destroyer
     ~ipClass();
     void setDest(char*);
@@ -33,11 +34,7 @@ public:
     in_addr getSource() {return ipHeader->ip_src;};
     in_addr getDest() {return ipHeader->ip_dst;};
     
-    /* @Purpose: pack the whole ip header with 
-     *      timestamp option into a single buffer
-     * @Parameters:
-     *      (OUT): returns the address of the buffer
-     */
+    //pack the whole ip header with timestamp option into a single buffer
     uint8_t* pack();
 };
 
@@ -49,21 +46,14 @@ public:
     
     //constructor
     ipManager();
+    ipManager(uint8_t*);
     //destroyer
     ~ipManager();
     
     in_addr getSource() {return ip_hdr->getSource();};
     in_addr getDest() {return ip_hdr->getDest();};
+    int getTimestamps() {return ip_hdr->getTimestampNumbers();};
     
-    /* @Purpose: prepare the ip header with the destination address
-     *          and the addresses from which we want to receive the
-     *          the timestamp option
-     * @Parameters:
-     *      (IN): first parameter is the destination address
-     *            second parameter is the timestamp address
-     *            both are in host format
-     * @Returns: a buffer that contains the whole IP header 
-     *          including timestamp option
-     */
+    //prepare the ipHeader according to timestamp option
     uint8_t* prepareHeader(char*, char* = 0);
 };

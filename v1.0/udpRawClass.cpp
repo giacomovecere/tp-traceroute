@@ -18,8 +18,13 @@ udpRawClass::udpRawClass(uint16_t src_port, uint16_t dest_port) {
     ipM = new ipManager();
 }
 
-/* fill the iphdr structure by calling an instance of ipManager.
- * The fields sent are the destination address and the timestamp address */
+/* @Purpose: set the timestamp option
+ * @Parameters: 
+ *              (IN) 
+ *                  des_ip: destination ip address in host format
+ *                  ts_ip: timestamp target address in host format
+ * @Returns: the ip header packed with the timestamp option
+ */
 uint8_t* udpRawClass::setTs(char* dest_ip, char* ts_ip) {
     //ipManager iMan = ipManager();
     uint8_t* iph;
@@ -27,9 +32,16 @@ uint8_t* udpRawClass::setTs(char* dest_ip, char* ts_ip) {
     return iph;
 }
 
-/* sets the length field in the udp_hdr structure and compute the checksum for the UDP Header.
- * the checksum is calculated on the Pseudo IP Header, the UDP Header and the UDP Payload */
-uint16_t* udpRawClass::setLengthAndChecksum(char* payload) {
+/* @Purpose: arrange the fields to compute the checksum and then do it
+ * @Parameters:
+ *          (IN)
+ *              src: source address in network format
+ *              dst: destination address in network format
+ *              payload: payload of the UDP packet 
+ * @Returns: the computed checksum
+ */
+//NOTE: for further informations go to udpHLManager.cpp:computechecksum
+void udpRawClass::setLengthAndChecksum(char* payload) {
     //temporary variable used to change byte ordering
     uint16_t rotated;
     
@@ -77,8 +89,7 @@ uint16_t* udpRawClass::setLengthAndChecksum(char* payload) {
     #ifdef _DEBUG
         fprintf(stdout, "Checksum generated: %4x \n\n", udp_hdr.check);
     #endif
-        
-    return (uint16_t*) dgram;
+
 }
 
 /* fill the sockaddr_in structure related to the destination */

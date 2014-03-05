@@ -55,6 +55,17 @@ ipClass::ipClass(){
     //END
 }
 
+/* @Purpose: constructor of an ip class basing on the received IP
+ * @Parameters:
+ *              (IN) an ip header with timestamp options
+ */
+ipClass::ipClass(uint8_t* iphdr) {
+    //copy the first 20 bytes in the ipheader
+    memcpy(ipHeader, iphdr, 20);
+    //copy the other bytes in the timestamp option
+    memcpy(ipTimeOpt, iphdr+20, 36);
+}
+
 /* @Purpose: Set the source address of the packet
  * NOTE: this is done by getting all the IP addresses associated to our machine
  * and then selecting only the first IPv4
@@ -74,7 +85,7 @@ void ipClass::setSource() {
             tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             char addressBuffer[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-            return; //TODO check if it's correct
+            break;
         }
     }
     
@@ -102,6 +113,10 @@ void ipClass::setDest(char* addr){
  * is formed by 4 couple of 32 bits field, the first field of the couple 
  * represents the address from which we want to receive the timestamp, the
  * second field represents the effective timestamp and will be filled by routers
+ */
+/* @Purpose: set the timestamp target
+ * @Parameters: 
+ *              (IN) an address in host format
  */
 void ipClass::setTimestampTarget(char* addr) {
     

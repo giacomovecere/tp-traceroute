@@ -111,10 +111,10 @@ addr* icmpManager::traceRecv(int* htype){
 }
 
 /* @Purpose: send an icmp echo request
- * @Params:
- *      (IN)
- *       msg -> payload of the message
- *       destAddr -> destination address
+ * @Parameters:
+ *          (IN)
+ *              msg: payload of the message
+ *              destAddr: destination address
  * @Returns:  
  *       1 -> ok
  *       0 -> error
@@ -181,7 +181,7 @@ int icmpManager::tpRecv(int type){
               ||(icmpPkt->getICMPType() == ICMP_UNREACH && type == 1)){
                 //get the ip header of received packet
                 
-//TODO create an ipClass from the received IP
+/* create an ipClass from the received IP
                 ip* ip_hdr = icmpPkt->getDestIPHeader();
                 //bytes length of ip header
                 int ip_hdr_len = ip_hdr->ip_hl << 2;
@@ -202,7 +202,12 @@ int icmpManager::tpRecv(int type){
                         delete icmpPkt;
                         return timestamps;
                     }
-                }
+                }*/
+            ipManager* ipM = new ipManager(icmpPkt->getDestIPHeader());
+            timestamps = ipM->getTimestamps();
+            delete ipM;
+            delete icmpPkt;
+            return timestamps;
             }       
         }
         delete icmpPkt;

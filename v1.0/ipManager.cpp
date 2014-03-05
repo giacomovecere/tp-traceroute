@@ -5,6 +5,10 @@ ipManager::ipManager() {
     ip_hdr = new ipClass();
 }
 
+ipManager::ipManager(uint8_t* iphdr) {
+    ip_hdr = new ipClass(iphdr);
+}
+
 /* @Purpose: prepare the ip header with the destination address
  *          and the addresses from which we want to receive the
  *          the timestamp option

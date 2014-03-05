@@ -81,19 +81,7 @@ public:
 
     uint16_t getChecksum();
         
-/* @Purpose: Make an icmp echo request to discover if an address (destAddr) is 
- *      classifiable or not for third part addresses discovery. It has to fill 
- *      buffer with an icmp echo request packet. Ip header is prepared by 
- *      ipManager that adds in the options field the timestamps options for 
- *      third part addresses discovery
- * @Parameters:
- *       (IN)
- *           msg: payload
- *           destAdd: destination address
- *       (OUT)
- *           len: length of the buffer
- * @Return: buffer that contains the whole icmp probe
-*/
+    //make an icmp echo request packet
     char* makeProbe(char* payload, char* destAddr, int& len);
 };
 
@@ -123,32 +111,12 @@ public:
     int getSourcePort();
     int getDestPort();
     
-    /* @Purpose: do the receive of an icmp packet in the udp Traceroute
-     * @Parameters: 
-     *          (OUT) htype represents the type of ICMP message received, 
-     *                it may be PORT_UNREACHABLE, TTL_EXPIRED, ERROR
-     * @Returns: addr* is the address of an addr structure 
-    */
+    //receive an icmp packet in the udp traceroute
     addr* traceRecv(int* htype);
     
-    /* @Purpose:receive an icmp packet for third party detection
-     * @Parameters: 
-     *      (IN) type of response attended (icmp echo reply or icmp port unreach)
-     *       0 icmp echo reply
-     *       1 icmp port unreach
-     * @Returns: 
-     *       number of timestamps in the ip header options field  
-    */
+    //receive an icmp packet for third party detection
     int tpRecv(int type);
     
-    /* @Purpose: send an icmp echo request
-     * @Params:
-     *      (IN)
-     *       msg -> payload of the message
-     *       destAddr -> destination address
-     * @Returns:  
-     *       1 -> ok
-     *       0 -> error
-    */
+    //send an icmp echo request
     int tpSend(char* msg, char* destAddr);
 };
