@@ -9,7 +9,6 @@
  */
 #pragma once    /* Avoid multiple include of this file during compilation */
 #include "trace_header.h"
-#include <ifaddrs.h>
 
 class ipClass {
     

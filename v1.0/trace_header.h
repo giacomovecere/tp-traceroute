@@ -9,7 +9,7 @@
  * General Header
  * 
  */
-#pragma once    /* Avoid multiple include of this file during compilation */
+//#pragma once    /* Avoid multiple include of this file during compilation */
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
@@ -28,6 +28,8 @@
 #include <netinet/ip_icmp.h>
 #include <netinet/udp.h>
 #include <netinet/in_systm.h>
+#include <ifaddrs.h>
+#include <iomanip>
 
 #define MAX_TTL_DEF 64
 #define TRACEROUTE_PORT 33434

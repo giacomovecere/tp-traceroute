@@ -9,15 +9,11 @@
  * routerDetective Header File
  * 
  */
-#pragma once    /* Avoid multiple include of this file during compilation */
-#include "ip.h"
+//#pragma once    /* Avoid multiple include of this file during compilation */
 #include "icmp.h"
 #include "udp.h"
-#include "trace_header.h"
 
-using namespace std;
-
- class routerDetective {
+class routerDetective {
     //list<addr> array_list[MAX_TTL_DEF];
     list<addr>* array_list;
     int last_position;
