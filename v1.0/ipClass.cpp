@@ -1,3 +1,12 @@
+/*
+ * 
+ * @Authors: Vecere Giacomo Razzano Alessia Piras Francesco La Marra Antonio
+ * @Topic: UDP Paris-Traceroute to identify Third Party Addresses
+ * USE OF IPv4
+ * ONLY SUPERUSER CAN CREATE RAW DATAGRAMS HENCE TO RUN THE PROGRAM
+ * YOU NEED TO BE SUPERUSER
+ * 
+ */
 #include "ip.h"
 
 //this is the constructor of the ip class, we initialize all the constants fields
@@ -85,7 +94,6 @@ void ipClass::setSource() {
             tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             char addressBuffer[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-            break;
         }
     }
     

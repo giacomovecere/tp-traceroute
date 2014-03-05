@@ -8,7 +8,6 @@
  * 
  */
 #include "icmp.h"
-#include "ip.h"
 
 /* in te following code the 's' character is referred to the source port
  * the 'd' to the FINAL destination port 

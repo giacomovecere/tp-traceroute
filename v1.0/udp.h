@@ -9,8 +9,6 @@
  */
 #pragma once    /* Avoid multiple include of this file during compilation */
 #include "ip.h"
-#include <iomanip>
-#include <ifaddrs.h>
 
 /* UDP High Level Manager: manages the transmission of an UDP packet with SOCK_DGRAM socket */
 class udpHLManager {

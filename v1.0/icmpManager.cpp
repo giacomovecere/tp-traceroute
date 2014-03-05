@@ -203,7 +203,7 @@ int icmpManager::tpRecv(int type){
                         return timestamps;
                     }
                 }*/
-            ipManager* ipM = new ipManager(icmpPkt->getDestIPHeader());
+            ipManager* ipM = new ipManager((uint8_t*)icmpPkt->getDestIPHeader());
             timestamps = ipM->getTimestamps();
             delete ipM;
             delete icmpPkt;

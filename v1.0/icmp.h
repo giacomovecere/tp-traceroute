@@ -9,7 +9,7 @@
  * 
  */
 #pragma once    /* Avoid multiple include of this file during compilation */
-#include "trace_header.h"
+#include "ip.h"
 
 /*NOTE the received message will have a dimension that is at most
  * 56 bytes (basing on the structure we've seen in the header)
