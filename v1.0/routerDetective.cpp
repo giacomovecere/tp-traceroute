@@ -57,7 +57,7 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
                         break;
                     // the hope is not classifiable
                     case 0:
-                        p->classification = NO_CLASSIFIABLE;
+                        p->classification = NON_CLASSIFIABLE;
                         break;
                         
                     //the hope is classifiable
@@ -95,19 +95,21 @@ void routerDetective::print()  {
     for(int i = 1; i <= last_position; i++) {
         p = tmp[i].begin();
 
-        fprintf(stdout, "%d ", counter);
-        counter++;
+        cout<<counter;
         
         for(int j=0; j < N_PROBE_DEF; j++) {
             if(p->ret == true) {
-                cout<<"("<<p->ip<<") ";
+                cout<<" ("<<p->ip<<") \t";
                 
                 switch(p->classification) {
-                    case NO_CLASSIFIABLE:
-                        cout<<" NO CLASSIFIABLE "<<endl;
+                    case NO_RESPONSE:
+                        cout<<" NO RESPONSE"<<endl;
+                        break;
+                    case NON_CLASSIFIABLE:
+                        cout<<" NON-CLASSIFIABLE "<<endl;
                         break;
                     case NO_RESPONSE_UDP:
-                        cout<<" NO RESPONSE UDP "<<endl;
+                        cout<<" NO RESPONSE - UDP "<<endl;
                         break;
                     case ON_PATH:
                         cout<<" ON PATH "<<endl;
@@ -116,12 +118,12 @@ void routerDetective::print()  {
                         cout<<" THIRD PARTY "<<endl;    
                         break;
                 }
+                break;
             }
-            /*if(j == N_PROBE_DEF)
-                fprintf(stdout, "   *    ");*/
             p++;
         }
-        
+                
+        counter++;
         cout<<endl;
     }
 } 

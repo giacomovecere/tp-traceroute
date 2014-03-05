@@ -78,6 +78,8 @@ int main(int argc, char** argv) {
             #ifdef _DEBUG
                 cout<<"Traceroute ok: destination has replied! \n";
             #endif
+
+            cout<< "Traceroute to "<<host<<":"<<dest_port<<", "<<max_ttl<<" hops max."<<endl;
                 
             t.print();
             
@@ -108,6 +110,8 @@ int main(int argc, char** argv) {
             cout<<"Third Party detection has been completed successfully!"<<endl;
         #endif
             
+        cout<< "Third Party process to "<<host<<"."<<endl;
+        
         r.print();
     }
    

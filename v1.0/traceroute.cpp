@@ -232,12 +232,11 @@ void traceroute::print()  {
     for(int i = 1; i <= last_position; i++) {
         p = tmp[i].begin();
         
-        fprintf(stdout, "%d ", counter);
-        counter++;
+        cout<<counter;
         
         for(int j=0; j < N_PROBE_DEF; j++) {
             if(p->ret == true) {
-                fprintf(stdout, "(%s) ", p->ip);
+                cout<<" ("<<p->ip<<") \t";
                 break;
             }
             
@@ -256,11 +255,12 @@ void traceroute::print()  {
                 fprintf(stdout, " %4.3f ms ", rtt);
             }
             else 
-                fprintf(stdout, "   *    ");
+                cout<<"   *    ";
             
             p++;
         }
-        fprintf(stdout, "\n\n");
+        counter++;
+        cout<<endl<<endl;
     }
 } 
 
