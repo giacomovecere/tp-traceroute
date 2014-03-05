@@ -7,8 +7,7 @@ while read numberItAS;
         while read Address ASnumber;
         do
             if [ ${numberItAS} == ${ASnumber} ]; then
-                echo ${Address};
-                echo ${Address} >> Targets.txt
+                echo ${Address} " " ${numberItAS} >> Targets.txt
             fi
         done < "Prefix_AS.txt"
     done < "ItalianStubs.txt"
