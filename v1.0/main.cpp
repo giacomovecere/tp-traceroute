@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 	uint16_t s_port, dest_port;
 	uint16_t dest_port_ini = TRACEROUTE_PORT;
 	int shift = 20;
-    int last_position;
+    int last_position, len_ip;
 
 	// All of the options are optional: both m and p require arguments
 	while ((opt = getopt (argc, argv, "m:p:")) != -1) {
@@ -55,14 +55,13 @@ int main(int argc, char** argv) {
 		exit(EXIT_FAILURE);
 	}
 	// ip address or hostname of the destination to reach
-	int l = strlen(argv[optind]);
-	host = new char[l+1];
-    strncpy(host, argv[optind], l);
-    host[l+1] = '\0';
-	//host = argv[optind];
+	len_ip = strlen(argv[optind]);
+	host = new char[len_ip + 1];
+    strncpy(host, argv[optind], len_ip);
+    host[len_ip + 1] = '\0';
 	        
     s_port = (getpid() & 0xffff) | 0x8000;
-    traceroute t = traceroute(s_port);
+    traceroute t = traceroute(s_port, max_ttl);
     
 	attempts = 0;
     // tries 'N_ATTEMPTS' times to do the traceroute to the destination by changing the dest. port
@@ -73,7 +72,7 @@ int main(int argc, char** argv) {
             
         dest_port = dest_port_ini;
 		
-		res = t.trace(host, max_ttl, &dest_port);
+		res = t.trace(host, &dest_port);
 		// if the traceroute has reached the destination, stop
 		if(res == true) {
             #ifdef _DEBUG
@@ -99,7 +98,7 @@ int main(int argc, char** argv) {
             cout << "Traceroute failed: it was not possible to reach the destination after "<< N_ATTEMPTS << " attempts of traceroute"<< endl;
             return 0;
         }
-        t.setSourcePort(s_port);
+        t.resetObj(s_port, max_ttl);
     }
     
     routerDetective r = routerDetective(ip_list, last_position);

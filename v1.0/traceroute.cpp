@@ -10,16 +10,18 @@
 
 #include "traceroute.h"
 
-traceroute::traceroute(uint16_t s_port) {
+traceroute::traceroute(uint16_t s_port, int max_ttl) {
     src_port = s_port;
     last_position = 0;
+    ttl_max = max_ttl;
+    array_ip_list = new list<addr> [ttl_max];
 }
 
 /* computes the traceroute to the destination: 'ip_address'
  * 'max_ttl' indicates the max value for the TTL
  * 'dest_port_ini' is the first value of the destination port. It is going to be incremented 
  * for finding one from which the router along the path will reply */
-bool traceroute::trace(char* ip_address, int max_ttl, uint16_t* dest_port_set) {
+bool traceroute::trace(char* ip_address, uint16_t* dest_port_set) {
     int payload = 1; //initial payload
     int ttl;
     int pcks_received = 0;
@@ -59,7 +61,7 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t* dest_port_set) {
     
     FD_SET(socket, &master);
     read_fds = master;
-    for(ttl = 1; ttl < max_ttl && done == false; ttl++) {
+    for(ttl = 1; ttl < ttl_max && done == false; ttl++) {
 		#ifdef _DEBUG
 			cout<<"TTL = "<< ttl <<endl;
 		#endif
@@ -195,6 +197,12 @@ bool traceroute::trace(char* ip_address, int max_ttl, uint16_t* dest_port_set) {
     return true;   
 }
 
+void traceroute::resetObj(uint16_t s_port, int max_ttl) {
+    src_port = s_port;
+    ttl_max = max_ttl;
+    last_position = 0;
+}
+
 /* Returns the pointer of the array that contains the lists of the 'addr' elements */
 list<addr>* traceroute::getArrayList(int* l_pos) {
     *l_pos = last_position;
@@ -203,12 +211,13 @@ list<addr>* traceroute::getArrayList(int* l_pos) {
 
 /* Destroyer */
 traceroute::~traceroute() {
-    for(int i=0; i < MAX_TTL_DEF; i++) {
+    for(int i=0; i < last_position; i++) {
         if(array_ip_list[i].begin() == array_ip_list[i].end())
             break;
         
         array_ip_list[i].clear();
     }
+    //delete array_ip_list;
 }
 
 /* Prints the elements of the list stored */

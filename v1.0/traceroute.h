@@ -14,22 +14,23 @@
 #include "icmp.h"
 
 class traceroute {
-    list<addr> array_ip_list[MAX_TTL_DEF];
+    list<addr>* array_ip_list;
+    int ttl_max;
     uint16_t src_port; 
     int last_position;
     
     public:
     
-    traceroute(uint16_t);
+    traceroute(uint16_t, int);
     ~traceroute();
     
     /* computes the traceroute to the destination: 'ip_address'
     * 'max_ttl' indicates the max value for the TTL
     * 'dest_port_ini' is the first value of the destination port. It is going to be incremented 
     * for finding one from which the router along the path will reply */
-    bool trace(char*, int, uint16_t*);
+    bool trace(char*, uint16_t*);
     
-    void setSourcePort(uint16_t s_port) {src_port = s_port;};
+    void resetObj(uint16_t s_port, int ttl_max);
     
     /* Returns the pointer of the array that contains the lists of the 'addr' elements */
     list<addr>* getArrayList(int*);
