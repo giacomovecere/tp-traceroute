@@ -1,30 +1,19 @@
-DROP DATABASE IF EXISTS results;
-CREATE DATABASE results;
-USE results;
-
-#tables
-
-DROP TABLE IF EXISTS targets;
-CREATE TABLE results.targets(
-    ip_subnet inet NOT NULL,
-    as_number INT(10) unsigned NOT NULL,
+CREATE TABLE targets(
+    ip_subnet ip4r NOT NULL,
+    as_number int NOT NULL,
     PRIMARY KEY(ip_subnet)
 );
 
-DROP TABLE IF EXISTS destinations;
-CREATE TABLE results.destinations(
-    ip_dest inet NOT NULL,
-    ip_subnet INT(10) unsigned NOT NULL,
-    PRIMARY KEY(ip_dest),
-    FOREIGN KEY(ip_subnet) REFERENCES targets(ip_subnet) ON UPDATE CASCADE
+CREATE TABLE destinations(
+    ip_dest ip4 NOT NULL,
+    ip_subnet ip4r NOT NULL REFERENCES targets(ip_subnet) ON UPDATE CASCADE,
+    PRIMARY KEY(ip_dest)
 );
 
-DROP TABLE IF EXISTS traces;
-CREATE TABLE results.traces(
-    ip_hop inet NOT NULL,
-    ip_dest inet NOT NULL,
-    classification VARCHAR(15) NOT NULL,
+CREATE TABLE traces(
+    ip_hop ip4 NOT NULL,
+    ip_dest ip4 NOT NULL REFERENCES destinations(ip_dest) ON UPDATE CASCADE,
+    classification text NOT NULL,
     PRIMARY KEY(ip_hop,ip_dest)
-    FOREIGN KEY(ip_dest) REFERENCES destinations(ip_dest) ON UPDATE CASCADE
 );
 
