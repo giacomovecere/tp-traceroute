@@ -12,7 +12,8 @@
 //#pragma once    /* Avoid multiple include of this file during compilation */
 #include "icmp.h"
 #include "udp.h"
-#include "database.h"
+#include <postgresql/libpq-fe.h>
+#define MAX_VALUE 500
 
 class routerDetective {
     //list<addr> array_list[MAX_TTL_DEF];

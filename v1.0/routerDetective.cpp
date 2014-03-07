@@ -83,12 +83,29 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
     return true;
 }
 
+void writeDB(char* destAddr, char* ip, char* classification) {
+    
+    char sql[MAX_VALUE], insertion[MAX_VALUE];    
+    PGconn *dbconn;
+    dbconn = PQconnectdb("dbname = Results");
+    if (PQstatus(dbconn) == CONNECTION_BAD) {
+        printf("Unable to connect to database\n");
+    }
+    
+    sprintf(sql, "%s", "INSERT INTO TRACES (IP_HOP, IP_DEST, CLASSIFICATION) VALUES");
+    sprintf(insertion, "%s ('%s', '%s', '%s' );", sql, destAddr, ip, classification);
+    PGresult *query;
+    query = PQexec(dbconn, insertion);
+    printf ("%s\n", PQgetvalue(query, 0, 1));
+    PQfinish(dbconn);
+
+}
 
 /* Prints the elements of the list stored */
 void routerDetective::print(char* destAddr)  {
-    database d = database();
+    //database d = database();
 	list<addr>* tmp;
-    char* in_class;
+    char in_class[10];
     list<addr>::iterator p, q;
     tmp = array_list;
     int counter = 1;
@@ -114,31 +131,31 @@ void routerDetective::print(char* destAddr)  {
                     case NO_RESPONSE:
                         cout<<" NO RESPONSE"<<endl;
                         fprintf(f, "NO_RESPONSE\n");
-                        in_class = "NO_RESPONSE";
+                        sprintf(in_class, "%s", "NO_RESPONSE");
                         break;
                     case NON_CLASSIFIABLE:
                         cout<<" NON-CLASSIFIABLE "<<endl;
                         fprintf(f, "NON_CLASSIFIABLE\n");
-                        in_class = "NON_CLASSIFIABLE";
+                        sprintf(in_class, "%s", "NON_CLASSIFIABLE");
                         break;
                     case NO_RESPONSE_UDP:
                         cout<<" NO RESPONSE - UDP "<<endl;
                         fprintf(f, "NO_RESPONSE-UDP\n");
-                        in_class = "NO_RESPONSE-UDP";
+                        sprintf(in_class, "%s", "NO_RESPONSE-UDP");
                         break;
                     case ON_PATH:
                         cout<<" ON PATH "<<endl;
                         fprintf(f, "ON_PATH\n");
-                        in_class = "ON_PATH";
+                        sprintf(in_class, "%s", "ON_PATH");
                         break;
                     case THIRD_PARTY:
                         cout<<" THIRD PARTY "<<endl;
                         fprintf(f, "THIRD_PARTY\n");
-                        in_class = "THIRD_PARTY";
+                        sprintf(in_class, "%s", "THIRD_PARTY");
                         break;
                 }
-                d.insertion(destAddr, p->ip, in_class);
-                in_class = 0;
+                writeDB(destAddr, p->ip, in_class);
+                sprintf(in_class, "%s", "");
                 break;
             }
             p++;
@@ -150,7 +167,7 @@ void routerDetective::print(char* destAddr)  {
         counter++;
         cout<<endl;
     }
-    fclose(f);
+        fclose(f);
 } 
 
 // Sends an ICMP echo request to each intermediate hop and receives an icmp echo reply

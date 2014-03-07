@@ -1,4 +1,5 @@
-CFLAGS := -ggdb -Wall
+CFLAGS 	:= -ggdb -Wall
+DBFLAGS := -lpq
 CC := g++
 DEBUG ?= 
 
@@ -7,7 +8,7 @@ OBJS := traceroute.o icmpManager.o icmpClass.o udpHLManager.o udpRawClass.o udpR
 all: tp-traceroute
 
 tp-traceroute: 		$(OBJS) main.cpp
-			$(CC) $(CFLAGS) $(DEBUG) $^ -o $@
+			$(CC) $(CFLAGS) $(DEBUG) $^ -o $@ $(DBFLAGS) 
 
 traceroute.o: 		traceroute.cpp
 			g++ -c $(CFLAGS) $(DEBUG) traceroute.cpp
@@ -26,9 +27,8 @@ ipClass.o:		ipClass.cpp
 ipManager.o:		ipManager.cpp
 			g++ -c $(CFLAGS) $(DEBUG) ipManager.cpp
 routerDetective.o:	routerDetective.cpp
-			g++ -c $(CFLAGS) $(DEBUG) routerDetective.cpp
-						
-	
+			g++ -c $(CFLAGS) $(DEBUG) routerDetective.cpp $(DBFLAGS) 
+
 clean:
 	rm *.o
 	rm tp-traceroute
