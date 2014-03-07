@@ -94,8 +94,8 @@ void writeDB(char* destAddr, char* ip, char* classification) {
     
     sprintf(sql, "%s", "INSERT INTO TRACES (IP_HOP, IP_DEST, CLASSIFICATION) VALUES");
     sprintf(insertion, "%s ('%s', '%s', '%s' );", sql, ip, destAddr, classification);
-    PGresult *query;
-    query = PQexec(dbconn, insertion);
+    //PGresult *query;
+    PQexec(dbconn, insertion);
     //printf ("%s\n", PQgetvalue(query, 0, 1));
     PQfinish(dbconn);
 
