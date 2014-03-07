@@ -11,9 +11,10 @@ CREATE TABLE destinations(
 );
 
 CREATE TABLE traces(
+    n_hop ip4 NOT NULL,
     ip_hop ip4 NOT NULL,
     ip_dest ip4 NOT NULL REFERENCES destinations(ip_dest) ON UPDATE CASCADE,
     classification text NOT NULL,
-    PRIMARY KEY(ip_hop,ip_dest)
+    PRIMARY KEY(n_hop,ip_hop,ip_dest)
 );
 
