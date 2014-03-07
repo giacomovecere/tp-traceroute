@@ -12,7 +12,7 @@
 //#pragma once    /* Avoid multiple include of this file during compilation */
 #include "icmp.h"
 #include "udp.h"
-#include <postgresql/libpq-fe.h>
+#include <libpq-fe.h>
 #define MAX_VALUE 500
 
 class routerDetective {

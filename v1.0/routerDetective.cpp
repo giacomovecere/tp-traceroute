@@ -87,16 +87,16 @@ void writeDB(char* destAddr, char* ip, char* classification) {
     
     char sql[MAX_VALUE], insertion[MAX_VALUE];    
     PGconn *dbconn;
-    dbconn = PQconnectdb("dbname = Results");
+    dbconn = PQconnectdb("dbname = results");
     if (PQstatus(dbconn) == CONNECTION_BAD) {
         printf("Unable to connect to database\n");
     }
     
     sprintf(sql, "%s", "INSERT INTO TRACES (IP_HOP, IP_DEST, CLASSIFICATION) VALUES");
-    sprintf(insertion, "%s ('%s', '%s', '%s' );", sql, destAddr, ip, classification);
+    sprintf(insertion, "%s ('%s', '%s', '%s' );", sql, ip, destAddr, classification);
     PGresult *query;
     query = PQexec(dbconn, insertion);
-    printf ("%s\n", PQgetvalue(query, 0, 1));
+    //printf ("%s\n", PQgetvalue(query, 0, 1));
     PQfinish(dbconn);
 
 }
