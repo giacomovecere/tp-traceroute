@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
         attempts++;
         if(attempts == N_ATTEMPTS) {
             cout << "Traceroute failed: it was not possible to reach the" 
-            <<"destination after "<< N_ATTEMPTS << " attempts of traceroute"<< endl;
+            <<" destination after "<< N_ATTEMPTS << " attempts of traceroute"<< endl;
             return 0;
         }
         t.resetObj(s_port, max_ttl);

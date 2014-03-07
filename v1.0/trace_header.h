@@ -31,30 +31,30 @@
 #include <ifaddrs.h>
 #include <iomanip>
 
-#define MAX_TTL_DEF 64
-#define TRACEROUTE_PORT 33434
-#define N_PROBE_DEF 3
-#define N_ATTEMPTS 3
-#define LENGTH_PSEUDO_IP 12
-#define LENGTH_IP_ADDRESS 20
-#define INTERMEDIATE_ROUTER 0
-#define FINAL_DESTINATION 1
-#define TIMEOUT_SELECT 3
-#define N_TIMES_TO_GO_AHEAD 10
+#define MAX_TTL_DEF             40
+#define TRACEROUTE_PORT         33434
+#define N_PROBE_DEF             3
+#define N_ATTEMPTS              2
+#define LENGTH_PSEUDO_IP        12
+#define LENGTH_IP_ADDRESS       20
+#define INTERMEDIATE_ROUTER     0
+#define FINAL_DESTINATION       1
+#define TIMEOUT_SELECT          2
+#define N_TIMES_TO_GO_AHEAD     6
 
-#define NON_CLASSIFIABLE 0
-#define ON_PATH         1
-#define THIRD_PARTY     2
-#define NO_RESPONSE     3
-#define NO_RESPONSE_UDP 4
+#define NON_CLASSIFIABLE        0
+#define ON_PATH                 1
+#define THIRD_PARTY             2
+#define NO_RESPONSE             3
+#define NO_RESPONSE_UDP         4
 
-#define LENGTH_PAYLOAD 4
-#define LENGTH_UDP_HEADER 8
-#define IPv4 4
-#define UDP_PROTOCOL 0x11
-#define ICMP_PROTOCOL 0x01
-#define IP_TS_LENGTH 14
-#define START_TS 8
+#define LENGTH_PAYLOAD          4
+#define LENGTH_UDP_HEADER       8
+#define IPv4                    4
+#define UDP_PROTOCOL            0x11
+#define ICMP_PROTOCOL           0x01
+#define IP_TS_LENGTH            14
+#define START_TS                8
 
 using namespace std;
 
