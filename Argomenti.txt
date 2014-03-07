@@ -1,0 +1,22 @@
+Organizzazione slides:
+
+- Traceroute:
+    Introduzione al problema.
+    Descrizione traceroute.
+    Articolo Paris-Traceroute.
+    Validazione su GARR.
+    
+- Third Party:
+    Introduzione al problema.
+    Descrizione articolo TP.
+    
+- Implementazione:
+    Diagramma delle classi.
+    Struttura DB.
+    Cenni agli script creati (no codice!).
+    
+- Risultati:
+    Esperimenti fatti.
+    Presentazione risultati.
+    Valutazione risultati.
+    Conclusioni.
