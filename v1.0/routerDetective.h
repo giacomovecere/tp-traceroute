@@ -12,6 +12,7 @@
 //#pragma once    /* Avoid multiple include of this file during compilation */
 #include "icmp.h"
 #include "udp.h"
+#include "database.h"
 
 class routerDetective {
     //list<addr> array_list[MAX_TTL_DEF];

@@ -86,7 +86,9 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
 
 /* Prints the elements of the list stored */
 void routerDetective::print(char* destAddr)  {
+    database d = database();
 	list<addr>* tmp;
+    char* in_class;
     list<addr>::iterator p, q;
     tmp = array_list;
     int counter = 1;
@@ -107,29 +109,36 @@ void routerDetective::print(char* destAddr)  {
             if(p->ret == true) {
                 cout<<" ("<<p->ip<<") \t";
                 fprintf(f, "%s\t", p->ip);
-
+                
                 switch(p->classification) {
                     case NO_RESPONSE:
                         cout<<" NO RESPONSE"<<endl;
                         fprintf(f, "NO_RESPONSE\n");
+                        in_class = "NO_RESPONSE";
                         break;
                     case NON_CLASSIFIABLE:
                         cout<<" NON-CLASSIFIABLE "<<endl;
                         fprintf(f, "NON_CLASSIFIABLE\n");
+                        in_class = "NON_CLASSIFIABLE";
                         break;
                     case NO_RESPONSE_UDP:
                         cout<<" NO RESPONSE - UDP "<<endl;
                         fprintf(f, "NO_RESPONSE-UDP\n");
+                        in_class = "NO_RESPONSE-UDP";
                         break;
                     case ON_PATH:
                         cout<<" ON PATH "<<endl;
                         fprintf(f, "ON_PATH\n");
+                        in_class = "ON_PATH";
                         break;
                     case THIRD_PARTY:
                         cout<<" THIRD PARTY "<<endl;
-                        fprintf(f, "THIRD_PARTY\n");    
+                        fprintf(f, "THIRD_PARTY\n");
+                        in_class = "THIRD_PARTY";
                         break;
                 }
+                d.insertion(destAddr, p->ip, in_class);
+                in_class = 0;
                 break;
             }
             p++;
