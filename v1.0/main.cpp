@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 		cout << "usage: traceroute [ -m <maxttl> -p <initial_port> ] <IP>"<<endl;
 		exit(EXIT_FAILURE);
 	}
-	// ip address or hostname of the destination to reach
+	// ip address of the destination to reach
 	len_ip = strlen(argv[optind]);
 	host = new char[len_ip + 1];
     strncpy(host, argv[optind], len_ip);
@@ -64,7 +64,8 @@ int main(int argc, char** argv) {
     traceroute t = traceroute(s_port, max_ttl);
     
 	attempts = 0;
-    // tries 'N_ATTEMPTS' times to do the traceroute to the destination by changing the dest. port
+    /* if an error as occured, tries 'N_ATTEMPTS' times to do the traceroute 
+       to the destination by changing the destination port */
 	while(attempts < N_ATTEMPTS) {
 		#ifdef _DEBUG
 			cout<< "Attempt n°"<<attempts + 1<<" of traceroute. IP:"<<host<<" Port:"<<dest_port_ini<<endl;
@@ -107,6 +108,7 @@ int main(int argc, char** argv) {
         t.resetObj(s_port, max_ttl);
     }
     
+    // third party process 
     routerDetective r = routerDetective(ip_list, last_position);
     res = r.thirdPartyDetection(s_port, dest_port, host);
     if(res == true) {

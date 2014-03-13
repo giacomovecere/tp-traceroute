@@ -10,6 +10,7 @@
 
 #include "traceroute.h"
 
+/* constructor of the traceroute class. It creates an array list in the heap memory*/
 traceroute::traceroute(uint16_t s_port, int max_ttl) {
     src_port = s_port;
     last_position = 0;
@@ -17,10 +18,17 @@ traceroute::traceroute(uint16_t s_port, int max_ttl) {
     array_ip_list = new list<addr> [ttl_max];
 }
 
-/* computes the traceroute to the destination: 'ip_address'
- * 'max_ttl' indicates the max value for the TTL
- * 'dest_port_ini' is the first value of the destination port. It is going to be incremented 
- * for finding one from which the router along the path will reply */
+/*  @Purpose: computes the traceroute to the destination: 'ip_address' 
+ *  towards the destination.
+ *  Hops are classified as: NON CLASSIFIABLE, ON PATH or THIRD PARTY
+ *  @Parameters:
+ *  (IN) the address of the destination of the traceroute
+ *  'dest_port_ini' is the first value of the destination port. It is going 
+ *  to be incremented to find one from which the router along the path will reply
+ *       the destination address
+ *  @Returns:
+ *       the outcome of the operation: true/false
+ */
 bool traceroute::trace(char* ip_address, uint16_t* dest_port_set) {
     int payload = 1; //initial payload
     int ttl;
@@ -199,6 +207,7 @@ bool traceroute::trace(char* ip_address, uint16_t* dest_port_set) {
     return true;   
 }
 
+// Is like a constructor but it does not create a new array list. It resets the obj
 void traceroute::resetObj(uint16_t s_port, int max_ttl) {
     src_port = s_port;
     ttl_max = max_ttl;
@@ -219,7 +228,6 @@ traceroute::~traceroute() {
         
         array_ip_list[i].clear();
     }
-    //delete array_ip_list;
 }
 
 /* Prints the elements of the list stored */

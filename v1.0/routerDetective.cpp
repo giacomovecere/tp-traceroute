@@ -13,14 +13,22 @@
 #define WAIT_FOR_ECHO_REPLY     0
 #define WAIT_FOR_PORT_UNREACH   1
 
-//Constructor of the class: sets the pointer of the array and its the last position  
+/* Constructor of the class: sets the pointer of the array and its the last position */
 routerDetective::routerDetective(list<addr>* list, int last) {
       array_list = list;
       last_position = last;
 }
 
-/*Coordinates the classification of hops discovered by traceroute towards the destination.
-     Hops are classified as: NON CLASSIFIABLE, ON PATH or THIRD PARTY*/
+/*  @Purpose: Coordinates the classification of hops discovered by traceroute 
+ *  towards the destination.
+ *  Hops are classified as: NON CLASSIFIABLE, ON PATH or THIRD PARTY
+ *  @Parameters:
+ *  (IN) the source port
+ *       the destination port
+ *       the destination address
+ *  @Returns:
+ *       the outcome of the operation: true/false
+ */
 bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, char* destAddr) {
     list<addr>::iterator p;
     //icmpManager icmp_m = icmpManager(s_port);
@@ -41,8 +49,6 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
              * In the traceroute, for each hop, we sent 3 probes
              * Here we consider only one element of these */
             if(p->ret == true) {
-                //char* hop_address = new char[15];
-                //strncpy(hop_address, p->ip, strlen(p->ip)+1);
                 echo_resp = echoReqReply(p->ip, s_port);
                 
                 //delete hop_address;
@@ -83,6 +89,13 @@ bool routerDetective::thirdPartyDetection(uint16_t s_port, uint16_t dest_port, c
     return true;
 }
 
+/*
+ * @Purpose: function to write the results into the Database
+ * @Parameters:
+ *  (IN) the destination address
+ *       the address of the next hop
+ *       the number of the current hop
+ */
 void writeDB(char* destAddr, char* ip, char* classification, int n_hop) {
     
     char sql[MAX_VALUE], insertion[MAX_VALUE];    
@@ -159,7 +172,15 @@ void routerDetective::print(char* destAddr)  {
     }
 } 
 
-// Sends an ICMP echo request to each intermediate hop and receives an icmp echo reply
+/*
+ * @Purpose: Sends an ICMP echo request to each intermediate hop and receives 
+ *           an icmp echo reply
+ * @Parameters:
+ *  (IN) the destination address
+ *       the source port
+ * @Returns:
+ *      the number of timestamps received
+ */
 int echoReqReply(char* destAddr, uint16_t s_port) {
    
     char payload[LENGTH_PAYLOAD];
@@ -214,7 +235,17 @@ int echoReqReply(char* destAddr, uint16_t s_port) {
     }
 }
 
-/*Sends UDP probes to classifiable hops and receives an icmp port unreach from intermediate hops*/
+/*
+ * @Purpose: Sends UDP probes to classifiable hops and receives an icmp port 
+ *           unreach from intermediate hops
+ * @Parameters:
+ *  (IN) the source port
+ *       the dest port
+ *       the destination address
+ *       the address for the timpestamp option
+ * @Returns:
+ *       if the hop is a third-party (0) or if it is not (1)
+ */
 int hopsClassificability(uint16_t s_port, uint16_t dest_port, char* destAddr, char* ts_ip){
     list<addr>::iterator p;
     icmpManager icmpM = icmpManager(s_port);
@@ -270,7 +301,3 @@ int hopsClassificability(uint16_t s_port, uint16_t dest_port, char* destAddr, ch
         return -1;
     }
 }
-
-   
-       
-	

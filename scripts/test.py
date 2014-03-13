@@ -32,7 +32,7 @@ cur.close()
 conn.close()
 
 # create threads
-for i in range(0,len(destinations)-1):
+for i in range(1200,1323):
     data = destinations[i]
     #try:
     #    m_thread = myThread(i,data[0])
