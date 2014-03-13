@@ -93,7 +93,7 @@ void writeDB(char* destAddr, char* ip, char* classification, int n_hop) {
     }
     
     sprintf(sql, "%s", "INSERT INTO TRACES (N_HOP, IP_HOP, IP_DEST, CLASSIFICATION) VALUES");
-    sprintf(insertion, "%s ('%d', %s', '%s', '%s' );", sql, n_hop, ip, destAddr, classification);
+    sprintf(insertion, "%s ('%d', '%s', '%s', '%s' );", sql, n_hop, ip, destAddr, classification);
     PQexec(dbconn, insertion);
     
     PQfinish(dbconn);
@@ -106,55 +106,56 @@ void routerDetective::print(char* destAddr)  {
     list<addr>::iterator p, q;
     tmp = array_list;
     int counter = 1;
-    char folder[30];
-    strcpy(folder, (char*)"./outcomes/");
-    strcpy(folder + 11, (const char*)destAddr);
-    cout<<folder<<endl;
+    //char folder[30];
+    //strcpy(folder, (char*)"./outcomes/");
+    //strcpy(folder + 11, (const char*)destAddr);
     
+    int counter_row = 1;
     //scan the array of list
     for(int i = 1; i <= last_position; i++) {
         p = tmp[i].begin();
 
-        cout<<counter;
+        //cout<<counter;
         int j;
         for(j=0; j < N_PROBE_DEF; j++) {
             if(p->ret == true) {
-                cout<<" ("<<p->ip<<") \t";
+                //cout<<" ("<<p->ip<<") \t";
                 
                 switch(p->classification) {
                     case NO_RESPONSE:
-                        cout<<" NO RESPONSE"<<endl;
+                        //cout<<" NO RESPONSE"<<endl;
                         sprintf(in_class, "%s", "NO_RESPONSE");
                         break;
                     case NON_CLASSIFIABLE:
-                        cout<<" NON-CLASSIFIABLE "<<endl;
+                        //cout<<" NON-CLASSIFIABLE "<<endl;
                         sprintf(in_class, "%s", "NON_CLASSIFIABLE");
                         break;
                     case NO_RESPONSE_UDP:
-                        cout<<" NO RESPONSE - UDP "<<endl;
+                        //cout<<" NO RESPONSE - UDP "<<endl;
                         sprintf(in_class, "%s", "NO_RESPONSE-UDP");
                         break;
                     case ON_PATH:
-                        cout<<" ON PATH "<<endl;
+                        //cout<<" ON PATH "<<endl;
                         sprintf(in_class, "%s", "ON_PATH");
                         break;
                     case THIRD_PARTY:
-                        cout<<" THIRD PARTY "<<endl;
+                        //cout<<" THIRD PARTY "<<endl;
                         sprintf(in_class, "%s", "THIRD_PARTY");
                         break;
                 }
-                writeDB(destAddr, p->ip, in_class, j+1);
+                writeDB(destAddr, p->ip, in_class, counter_row);
+                counter_row++;
                 sprintf(in_class, "%s", "");
                 break;
             }
             p++;
         }
         if(j == N_PROBE_DEF) {
-            cout<<" * \t * \t *"<<endl;
+            //cout<<" * \t * \t *"<<endl;
         }
                 
         counter++;
-        cout<<endl;
+        //cout<<endl;
     }
 } 
 

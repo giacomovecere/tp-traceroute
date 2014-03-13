@@ -24,7 +24,7 @@ def call_tp(dest_ip,id_thread):
 
 # read destination from database and perform tp-traceroute  
 # connection to database
-conn = psycopg2.connect("dbname=results user=postgres hostaddr=127.0.0.1 port=5432")
+conn = psycopg2.connect("dbname='results'")
 cur = conn.cursor()
 cur.execute("SELECT ip_dest FROM destinations;")
 destinations = cur.fetchall()

@@ -81,11 +81,14 @@ int main(int argc, char** argv) {
 
             cout<< "Traceroute to "<<host<<":"<<dest_port<<", "<<max_ttl<<" hops max."<<endl;
                 
-            t.print();
+            //t.print();
             
             ip_list = t.getArrayList(&last_position);
 			
 			break;
+        }
+        else {
+            cerr<<"Error in Traceroute."<<endl;
         }
         
         #ifdef _DEBUG

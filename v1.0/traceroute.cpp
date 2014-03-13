@@ -166,8 +166,8 @@ bool traceroute::trace(char* ip_address, uint16_t* dest_port_set) {
                       we need to restart the traceroute (with another dest. port) */
                     go_ahead--;                    
                     if(go_ahead == 0) {
-                        cout<<"No response messages along the path from "<< N_TIMES_TO_GO_AHEAD <<" different routers consecutively: TRACEROUTE FAILED! \n\n";
-                        return false;
+                        //cout<<"No response messages along the path from "<< N_TIMES_TO_GO_AHEAD <<" different routers consecutively: TRACEROUTE FAILED! \n\n";
+                        return true;
                     }          
                     
                     // add an element to 'array_ip_list' to signal no response packet has arrived
