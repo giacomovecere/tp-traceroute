@@ -123,7 +123,7 @@ void routerDetective::print(char* destAddr)  {
     //strcpy(folder, (char*)"./outcomes/");
     //strcpy(folder + 11, (const char*)destAddr);
     
-    int counter_row = 1;
+
     //scan the array of list
     for(int i = 1; i <= last_position; i++) {
         p = tmp[i].begin();
@@ -156,8 +156,7 @@ void routerDetective::print(char* destAddr)  {
                         sprintf(in_class, "%s", "THIRD_PARTY");
                         break;
                 }
-                writeDB(destAddr, p->ip, in_class, counter_row);
-                counter_row++;
+                writeDB(destAddr, p->ip, in_class, i);
                 sprintf(in_class, "%s", "");
                 break;
             }
